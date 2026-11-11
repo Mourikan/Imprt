@@ -39,6 +39,9 @@
   .logrow { display: grid; grid-template-columns: 64px 1fr auto; gap: 6px; padding: 5px 2px; border-bottom: 1px solid rgba(148,163,184,.08); font-size: 12px; line-height: 1.35; }
   .logrow .a { font: 600 11px/1.35 'JetBrains Mono', monospace; white-space: nowrap; color: #94a3b8; }
   .logrow .a.up { color: #4ade80; } .logrow .a.dn { color: #f87171; }
+  .logrow.del { grid-template-columns: 64px 1fr auto 24px; }
+  .logrow .rm { background: none; border: 0; color: #64748b; cursor: pointer; font-size: 12px; line-height: 1; padding: 0 2px; border-radius: 6px; }
+  .logrow .rm:hover { color: #f87171; background: rgba(248,113,113,.12); }
   .logrow .t { font-family: 'JetBrains Mono', monospace; color: #64748b; font-size: 11px; }
   .k-in .x { color: #4ade80; } .k-band .x { color: #c084fc; } .k-snack .x { color: #facc15; } .k-out .x, .k-big .x { color: #f87171; }
   .k-food .x { color: #fb923c; } .k-merma .x { color: #f87171; font-style: italic; } .k-warn .x { color: #fbbf24; } .k-admin .x { color: #f472b6; } .k-lab .x { color: #67e8f9; } .k-truck .x { color: #93c5fd; } .k-people .x, .k-info .x, .k-sys .x { color: #cbd5e1; } .k-social .x { color: #a5b4fc; }
@@ -219,7 +222,7 @@
       </section>
       <section>
         <div class="font-bold mb-2">2 · Bono manual al personal</div>
-        <div class="text-xs text-slate-400 mb-2">Se reparte en partes iguales entre los 10 de nómina (cada parte redondeada a .00 / .50), sale de caja, queda en la bitácora y sube la moral.</div>
+        <div class="text-xs text-slate-400 mb-2">Se reparte en partes iguales entre los 10 de nómina (cada parte redondeada a .00 / .50), sale de caja y queda en la bitácora.</div>
         <div class="flex flex-wrap gap-2">
           <input id="admBonus" type="number" step="0.5" min="0" placeholder="Monto total MXN" class="w-44" />
           <button class="btn btn-p" id="admBonusBtn">🎉 Repartir Bono</button>
@@ -256,6 +259,11 @@
           <button class="btn" data-force="domingo">🛠 Domingo de trabajo pesado</button>
           <button class="btn" data-force="velada">🌙 Velada hasta el amanecer</button>
         </div>
+      </section>
+      <section>
+        <div class="font-bold mb-2">5 · Administrar Bitácora</div>
+        <div class="text-xs text-slate-400 mb-2">Mientras esta pestaña sea el Host, cada registro de la pestaña Bitácora muestra un botón 🗑 para borrarlo. El borrado se envía a Firebase y desaparece al instante de todos los espectadores.</div>
+        <button class="btn" id="admLogClear">🧹 Limpiar toda la bitácora</button>
       </section>
       <section class="border-t border-slate-700/50 pt-4">
         <div class="font-bold mb-1">Sincronización (Firebase)</div>
@@ -1020,15 +1028,23 @@ var BANDA_MIX = [["playeras", 30], ["hoodies", 9], ["totes", 7], ["posters", 14]
 
 // src/engine.js
 var ENGINE_VERSION = 6;
+var HORA_COMIDA = 60;
+var TIRAJE_LARGO = 40;
+var XBOX_PROB = 4e-3;
 var EMP = Object.fromEntries(EMPLOYEES.map((e) => [e.id, e]));
 var MACH = Object.fromEntries(MACHINES.map((m) => [m.id, m]));
 var LOG_MAX = 900;
 var TIME_SCALE = 1.45;
 var COTS = 3;
 var PERSONAL = /* @__PURE__ */ new Set(["bano", "banoWait", "desayuno", "xbox", "platica", "cel", "calle", "siesta", "snack", "afuera"]);
-var LLAVES = ["cono", "buster", "wachavato"];
-var VELADA_CANDIDATOS = ["cono", "timo", "gael", "hector"];
-var VELADA_UMBRAL = 450;
+var LLAVES = ["cono", "marino", "buster", "wachavato"];
+var VELADA_GRUPO = ["timo", "gael", "hector", "adrian", "hanna"];
+var VELADA_RAROS = ["cono", "wachavato"];
+var VELADA_PROB_RARO = 0.15;
+var VELADA_MAX_SEMANA = 1;
+var MEDIO_TURNO = ["buster", "marino"];
+var MEDIO_TURNO_TOPE = 13 * 60;
+var VELADA_UMBRAL = 200;
 function createState({ genesisMs: genesisMs2, seed }) {
   const g = cdmx(genesisMs2);
   const startMs = cdmxToMs(g.y, g.mo, g.day, 0, 0);
@@ -1084,8 +1100,7 @@ function createState({ genesisMs: genesisMs2, seed }) {
       otHrsQ: 0,
       primasQ: 0,
       bonusTotal: 0,
-      bonusLast: 0,
-      morale: 70
+      bonusLast: 0
     };
   }
   for (const m of MACHINES) s.machines[m.id] = { status: "idle", jobId: null, op: null, maintUntil: 0, busyUntil: 0, waiting: false };
@@ -1384,7 +1399,6 @@ function startDay(s, t, rng) {
   for (const id of Object.keys(s.emps)) if (s.emps[id].present && !night.has(id)) leave(s, id, t, true);
   for (const id of night) endAct(s, id);
   for (const [id, e] of Object.entries(s.emps)) {
-    e.morale = clamp(e.morale - 0.5, 30, 100);
     if (night.has(id)) continue;
     e.leftAt = null;
     e.arrivedAt = null;
@@ -1397,7 +1411,9 @@ function startDay(s, t, rng) {
   s.bath = { occ: null, until: 0 };
   s.xbox = { players: [], game: "", until: 0 };
   s.cots = Array(COTS).fill(null);
-  const sundayWork = t.dow === 0 && s.flags.sundayPlanned === t.dayKey;
+  const veladaAnoche = s.flags.veladaDay === cdmx((s.minute - 1440) * MIN).dayKey;
+  const sundayWork = t.dow === 0 && s.flags.sundayPlanned === t.dayKey && !veladaAnoche;
+  if (t.dow === 0 && s.flags.sundayPlanned === t.dayKey && veladaAnoche) log(s, "Domingo cancelado: anoche hubo velada", null, "warn", s.minute);
   const kind = t.dow >= 1 && t.dow <= 6 ? "normal" : sundayWork ? "sunday" : "closed";
   const d = s.day = {
     key: t.dayKey,
@@ -1424,21 +1440,30 @@ function startDay(s, t, rng) {
     veladaCrew: vel ? [...vel.crew] : [],
     rest: []
   };
-  const rest = s.flags.rest && s.flags.rest.day === t.dayKey ? s.flags.rest.crew : [];
-  d.rest = [...rest];
-  const j = () => rng.int(-JITTER, JITTER);
+  const rest = [];
+  s.flags.rest = null;
+  if (vel) {
+    d.unlocked = true;
+    if (!s.flags.veladaDay) s.flags.veladaDay = cdmx(vel.start * MIN).dayKey;
+  }
+  const j = () => {
+    const v = rng.int(-JITTER, JITTER);
+    return v !== 0 ? v : (rng.chance(0.5) ? 1 : -1) * rng.int(1, 4);
+  };
   if (kind === "normal") {
     const duo = j();
     const salida = j();
     for (const e of EMPLOYEES) {
       if (rest.includes(e.id)) continue;
-      const arr = e.shift[0] + (e.id === "wachavato" || e.id === "julia" ? duo : j());
+      const arr = e.id === "buster" ? ABRE + rng.int(4, 35) : e.shift[0] + (e.id === "wachavato" || e.id === "julia" ? duo : j());
       const dep = e.shift[1] + (SALIDA_CONJUNTA.includes(e.id) ? salida : j());
       d.plan[e.id] = { arr, dep };
-      if (e.shift[0] < 11 * 60 && rng.chance(0.85)) d.breakfast[e.id] = clamp(Math.max(arr + rng.int(5, 40), 9 * 60 + 35) + rng.int(0, 50), 9 * 60 + 35, 11 * 60 + 15);
+      if (e.id === "buster") d.breakfast.buster = arr + rng.int(3, 12);
+      else if (e.shift[0] < 11 * 60 && rng.chance(0.85)) d.breakfast[e.id] = clamp(Math.max(arr + rng.int(5, 40), 9 * 60 + 35) + rng.int(0, 50), 9 * 60 + 35, 11 * 60 + 15);
     }
     d.lunchAt = 14 * 60 + rng.int(-10, 15);
     d.lunchDur = rng.int(40, 60);
+    d.lunchDur = HORA_COMIDA;
     d.lunchDish = rng.pick(COMIDAS);
     const nt = rng.weighted([[0, 30], [1, 50], [2, 20]]);
     for (let i = 0; i < nt; i++) d.trips.push({
@@ -1458,10 +1483,9 @@ function startDay(s, t, rng) {
   } else if (kind === "sunday") {
     const crew = [...CREW_DOMINGO];
     if (backlogWithin(s, 96, (m) => m === "m6") > 0) crew.push("marino");
-    for (const id of crew) if (!rest.includes(id)) d.plan[id] = { arr: DOMINGO_ABRE + j(), dep: DOMINGO_CIERRA + j(), sunday: true };
+    for (const id of crew) if (!rest.includes(id)) d.plan[id] = { arr: rng.int(9 * 60, 11 * 60), dep: rng.int(14 * 60 + 15, DOMINGO_CIERRA), sunday: true };
     log(s, "Domingo de trabajo pesado", null, "warn", s.minute);
   }
-  if (rest.length && kind !== "closed") log(s, `${list(rest.map((c) => EMP[c].name))} - D\xEDa de descanso pagado`, null, "people", s.minute);
   if (!Object.keys(d.plan).some((id) => LLAVES.includes(id))) d.unlocked = true;
   if (t.day >= 4 && t.day < 10 && s.flags.perMonth !== t.monthKey && t.dow !== 0) createPeriodico(s, t);
 }
@@ -1520,6 +1544,12 @@ function leave(s, id, t, silent = false) {
   e.until = 0;
   e.working = false;
   for (const m of Object.values(s.machines)) if (m.op === id) m.op = null;
+  payOT(s, id, t, silent);
+}
+function payOT(s, id, t, silent = false) {
+  const e = s.emps[id];
+  const def = EMP[id];
+  const plan = s.day.plan && s.day.plan[id];
   if (!def.payroll) return;
   let hrs = 0;
   let prima = 0;
@@ -1602,7 +1632,10 @@ function personalLife(s, t, rng, lunch) {
     log(s, `${list(ps.map((p) => EMP[p].name))} - Terminaron de jugar Xbox`, null, "social");
     s.xbox = { players: [], game: "", until: 0 };
   }
-  if (lunch) return;
+  if (lunch) {
+    lunchLife(s, t, rng);
+    return;
+  }
   const vel = s.flags.velada;
   const velNow = vel && s.minute >= vel.start + 120;
   const sleeping = s.cots.filter(Boolean).length;
@@ -1612,7 +1645,6 @@ function personalLife(s, t, rng, lunch) {
     const e = s.emps[id];
     if (!e.present || e.tripUntil > s.minute || isPersonal(e)) continue;
     const working = e.working;
-    const moraleF = 1.3 - e.morale / 200;
     if (d.breakfast[id] === mod) {
       const dur = rng.int(15, 25);
       const what = rng.pick(DESAYUNOS);
@@ -1632,16 +1664,19 @@ function personalLife(s, t, rng, lunch) {
       }
       continue;
     }
-    if (rng.chance((working ? 4e-3 : 9e-3) * moraleF)) {
+    const horas = e.arrivedAt != null ? (mod - e.arrivedAt + 1440) % 1440 / 60 : 0;
+    const desgaste = 1 + 0.12 * Math.min(horas, 14);
+    if (rng.chance((working ? 3e-3 : 7e-3) * desgaste)) {
       const app2 = rng.pick(PHONE);
-      setAct(s, id, "cel", rng.int(2, 7), "En el celular", "\u{1F4F1}", null);
+      setAct(s, id, "cel", rng.int(2, 7), "Revisando celular", "\u{1F4F1}", null);
       continue;
     }
-    if (rng.chance(11e-4 * moraleF) && !(id === "natasha" && mod < CIERRA)) {
+    const deDia = !vel && mod >= 9 * 60 && mod < CIERRA;
+    if (deDia && rng.chance(8e-4 * desgaste) && id !== "natasha") {
       const why = rng.pick(STREET);
-      const dur = rng.int(10, 25);
-      setAct(s, id, "calle", dur, "Sali\xF3 un momento", "\u{1F6B6}", "street");
-      log(s, `${e0.name} - Sali\xF3 un momento`, null, "social");
+      const dur = rng.int(8, 20);
+      setAct(s, id, "calle", dur, "Afuera del local", "\u{1F6B6}", "street");
+      log(s, `${e0.name} - Sali\xF3 a despejarse`, null, "social");
       continue;
     }
     if ((velNow && vel.crew.includes(id) && sleeping < vel.crew.length - 1 || d.kind === "sunday" && CREW_DOMINGO.includes(id)) && rng.chance(6e-3)) {
@@ -1677,13 +1712,33 @@ function personalLife(s, t, rng, lunch) {
     grp.forEach((id, i) => setAct(s, id, "platica", dur, "Platicando", "\u{1F4AC}", spot + ":" + i));
     log(s, `${list(grp.map((x) => EMP[x].name))} - Platicando`, null, "social");
   }
+  if (avail(s, "buster") && !machinesWaiting && rng.chance(0.012)) {
+    const mates = EMPLOYEES.map((e) => e.id).filter((id) => id !== "buster" && avail(s, id) && !s.emps[id].working);
+    if (mates.length) {
+      const grp = ["buster", rng.pick(mates)];
+      if (mates.length > 1 && rng.chance(0.4)) {
+        const c = rng.pick(mates.filter((x) => x !== grp[1]));
+        if (c) grp.push(c);
+      }
+      const dur = rng.int(5, 14);
+      const spot = rng.pick(["chat_plant", "chat_kitchen", "chat_front"]);
+      grp.forEach((id, i) => setAct(s, id, "platica", dur, "Platicando", "\u{1F4AC}", spot + ":" + i));
+      log(s, `${list(grp.map((x) => EMP[x].name))} - Platicando`, null, "social");
+    }
+  }
   const pendingFor = (id) => s.jobs.some((j) => {
     const st = j.steps[j.si];
     return st && MACH[st.m].ops.includes(id);
   });
-  const gamers = EMPLOYEES.filter((e) => e.xbox && !pendingFor(e.id) && avail(s, e.id) && !s.emps[e.id].working && !(e.lab && s.lab[e.id] && rng.chance(0.6))).map((e) => e.id);
+  const tirajeLargo = Object.values(s.machines).some((m) => m.status === "work" && m.jobId && (() => {
+    const j = s.jobs.find((x) => x.id === m.jobId);
+    const st = j && j.steps[j.si];
+    return st && st.m !== "dz" && st.min - st.done >= TIRAJE_LARGO;
+  })());
+  const ultimaMedia = d.kind === "normal" && mod >= CIERRA - 30 && mod < CIERRA;
+  const gamers = tirajeLargo || ultimaMedia ? EMPLOYEES.filter((e) => e.xbox && !pendingFor(e.id) && avail(s, e.id) && !s.emps[e.id].working && !(e.lab && s.lab[e.id] && rng.chance(0.6))).map((e) => e.id) : [];
   if (!machinesWaiting) {
-    if (!s.xbox.players.length && gamers.length >= 2 && rng.chance(0.035)) {
+    if (!s.xbox.players.length && gamers.length >= 2 && rng.chance(XBOX_PROB)) {
       const n = Math.min(gamers.length, rng.weighted([[2, 60], [3, 25], [4, 15]]));
       const pool = [...gamers];
       const ps = [];
@@ -1700,6 +1755,56 @@ function personalLife(s, t, rng, lunch) {
       log(s, `${list(ps.map((p) => EMP[p].name))} - Jugando Xbox`, null, "social");
     } else if (s.xbox.players.length && s.xbox.players.length < 4 && gamers.length && rng.chance(0.02)) {
       const p = rng.pick(gamers);
+      const k = s.xbox.players.length;
+      s.xbox.players.push(p);
+      setAct(s, p, "xbox", s.xbox.until - s.minute, "Jugando Xbox", "\u{1F3AE}", "xbox:" + k);
+      log(s, `${EMP[p].name} - Se uni\xF3 al Xbox`, null, "social");
+    }
+  }
+}
+function lunchLife(s, t, rng) {
+  const d = s.day;
+  const start = s.minute - (t.mod - d.lunchAt);
+  const end = start + HORA_COMIDA;
+  if (!d.lunchEat) d.lunchEat = {};
+  if (!d.lunchFree) d.lunchFree = {};
+  for (const e0 of EMPLOYEES) {
+    const id = e0.id;
+    const e = s.emps[id];
+    if (!e.present || e.tripUntil > s.minute || e.act === "afuera") continue;
+    if (d.lunchEat[id] == null) d.lunchEat[id] = Object.keys(d.lunchEat).length ? s.minute + rng.int(20, 30) : start + 20 + EMPLOYEES.indexOf(e0) * 7 % 11;
+    if (s.minute < d.lunchEat[id] || isPersonal(e) || d.lunchFree[id]) continue;
+    const left2 = end - s.minute;
+    const opts = [["sobremesa", 40], ["bano", 10], ["cel", 20]];
+    if (id !== "natasha") opts.push(["calle", 20]);
+    if (e0.xbox) opts.push(["xbox", 10]);
+    const pick2 = rng.weighted(opts);
+    d.lunchFree[id] = pick2;
+    if (pick2 === "calle" && left2 > 5) {
+      setAct(s, id, "calle", left2, "Afuera del local", "\u{1F6B6}", "street");
+      log(s, `${e0.name} - Sali\xF3 a dar la vuelta`, null, "social");
+    } else if (pick2 === "bano") {
+      if (!s.bath.occ) {
+        const dur = rng.int(3, 8);
+        s.bath.occ = id;
+        s.bath.until = s.minute + dur;
+        s.counters.banos++;
+        setAct(s, id, "bano", dur, "En el ba\xF1o", "\u{1F6BB}", "bath");
+      } else setAct(s, id, "banoWait", 6, "Esperando el ba\xF1o", "\u23F3", "bathq");
+    } else if (pick2 === "cel") setAct(s, id, "cel", Math.min(left2, rng.int(5, 15)), "Revisando celular", "\u{1F4F1}", null);
+  }
+  const want = EMPLOYEES.filter((e) => e.xbox && d.lunchFree[e.id] === "xbox" && avail(s, e.id) && s.emps[e.id].act !== "afuera").map((e) => e.id);
+  const left = end - s.minute;
+  if (left >= 8) {
+    if (!s.xbox.players.length && want.length >= 2) {
+      const ps = want.slice(0, 4);
+      const game = rng.pick(XBOX_GAMES);
+      s.xbox = { players: ps, game, until: end };
+      ps.forEach((id, i) => setAct(s, id, "xbox", left, "Jugando Xbox", "\u{1F3AE}", "xbox:" + i));
+      s.counters.retas++;
+      log(s, `${list(ps.map((p) => EMP[p].name))} - Jugando Xbox`, null, "social");
+    } else if (s.xbox.players.length && s.xbox.players.length < 4 && want.length) {
+      const p = want[0];
       const k = s.xbox.players.length;
       s.xbox.players.push(p);
       setAct(s, p, "xbox", s.xbox.until - s.minute, "Jugando Xbox", "\u{1F3AE}", "xbox:" + k);
@@ -1738,15 +1843,29 @@ function tick(s, fx2) {
     const p = d.plan[id];
     const e = s.emps[id];
     if (!e.present && e.leftAt === null && mod >= p.arr && mod < p.dep) arrivals.push(id);
-    else if (e.present && mod >= p.dep && e.tripUntil <= s.minute && e.act !== "calle") exits.push(id);
+    else if (e.present && mod >= (d.kind === "normal" && MEDIO_TURNO.includes(id) ? Math.min(p.dep, MEDIO_TURNO_TOPE) : p.dep) && e.tripUntil <= s.minute && e.act !== "calle") exits.push(id);
   }
   const vel = s.flags.velada;
   if (vel) {
-    if (s.minute === vel.dinnerAt) expense(s, "comida", rng.money(150, 500), "Cena de la velada", { kind: "food" });
+    if (s.minute === vel.dinnerAt) expense(s, "comida", rng.money(150, 495), "Cena de la velada", { kind: "food" });
     if (s.minute >= vel.end) {
       const crew = vel.crew.filter((id) => s.emps[id].present);
-      for (const id of crew) leave(s, id, t);
+      const stay = [];
+      for (const id of crew) {
+        endAct(s, id);
+        const p = d.plan[id];
+        if (d.kind === "normal" && p && mod < p.dep) {
+          payOT(s, id, t);
+          const e = s.emps[id];
+          e.extra = false;
+          e.otStart = 0;
+          e.arrivedAt = mod;
+          stay.push(id);
+        } else leave(s, id, t);
+      }
       if (crew.length) log(s, `${list(crew.map((c) => EMP[c].name))} - Termin\xF3 la velada`, null, "people");
+      if (stay.length) log(s, `${list(stay.map((c) => EMP[c].name))} - Se queda a su jornada normal`, null, "people");
+      d.veladaCrew = [];
       if (!Object.values(s.emps).some((e) => e.present)) log(s, "Local cerrado", null, "sys");
       s.flags.velada = null;
       closeDay(s, s.minute - 12 * 60);
@@ -1767,6 +1886,7 @@ function tick(s, fx2) {
     } else closeDay(s, s.minute);
   }
   const open = d.kind === "normal" && d.unlocked && mod >= ABRE && mod < CIERRA && s.emps.natasha.present && s.emps.natasha.act !== "afuera";
+  if (d.kind === "normal" && d.lunchDur !== HORA_COMIDA) d.lunchDur = HORA_COMIDA;
   const lunch = d.kind === "normal" && mod >= d.lunchAt && mod < d.lunchAt + d.lunchDur;
   calendar(s, t, rng);
   processRestock(s);
@@ -1785,7 +1905,9 @@ function tick(s, fx2) {
     if (d.kind === "normal" && mod === d.lunchAt) {
       for (const [id, e] of Object.entries(s.emps)) if (e.present && e.act && e.act !== "calle" && e.act !== "bano" && e.act !== "afuera") endAct(s, id);
       if (s.xbox.players.length) s.xbox = { players: [], game: "", until: 0 };
-      const n = Object.values(s.emps).filter((e) => e.present && e.tripUntil <= s.minute).length;
+      d.lunchEat = {};
+      d.lunchFree = {};
+      for (const e0 of EMPLOYEES) if (s.emps[e0.id].present) d.lunchEat[e0.id] = s.minute + rng.int(20, 30);
       log(s, "Hora de la comida", null, "food");
     }
     for (const mt of d.maint) if (mt.at === mod) {
@@ -1913,29 +2035,54 @@ function overtimeDecisions(s, t, rng) {
   const d = s.day;
   const mod = t.mod;
   if (d.kind !== "normal") return;
-  if (mod === 11 * 60 + 30 && !d.marinoExtra && s.emps.marino.present && s.emps.marino.act !== "afuera") {
-    const seri = backlogWithin(s, 30, (m) => m === "m6");
-    if (seri > 300 && rng.chance(0.5)) {
-      d.marinoExtra = true;
-      s.emps.marino.extra = true;
-      d.plan.marino.dep = CIERRA + rng.int(-JITTER, JITTER);
-      log(s, "Marino - Se queda hasta las 5 PM", null, "warn");
+  if (mod === 11 * 60 + 50) {
+    for (const id of MEDIO_TURNO) {
+      const e = s.emps[id];
+      const p = d.plan[id];
+      if (!p || !e.present || e.act === "afuera" || e.extra) continue;
+      const pend = s.jobs.some((j) => {
+        const st = j.steps[j.si];
+        return st && MACH[st.m].ops.includes(id);
+      });
+      if (pend && rng.chance(0.35)) {
+        p.dep = 12 * 60 + rng.int(8, 60);
+        e.extra = true;
+        log(s, `${EMP[id].name} - Se queda a terminar un pendiente`, null, "people");
+      }
+    }
+  }
+  if (t.dow === 6 && mod === 15 * 60 && !d.velada && s.flags.sundayPlanned !== cdmx((s.minute + 1440) * MIN).dayKey) {
+    if (backlogWithin(s, 72, (m) => m !== "dz" && m !== "m3") > 250 && rng.chance(0.5)) {
+      s.flags.sundayPlanned = cdmx((s.minute + 1440) * MIN).dayKey;
+      log(s, "Ma\xF1ana se abre domingo por carga de trabajo", null, "warn");
     }
   }
   if (mod === CIERRA - 30 && !d.velada && !s.flags.velada) {
-    const urgent = backlogWithin(s, 30, (m) => m !== "m6" && m !== "dz" && m !== "m3");
-    if (urgent > VELADA_UMBRAL && rng.chance(0.6) || s.flags.forceVelada) {
-      s.flags.forceVelada = false;
-      const cands = VELADA_CANDIDATOS.filter((id) => s.emps[id].present && s.emps[id].tripUntil <= s.minute && s.emps[id].act !== "afuera");
-      if (cands.length < 2) return;
-      const n = Math.min(cands.length - 1 >= 2 ? cands.length - 1 : 2, urgent > VELADA_UMBRAL * 2 ? 4 : urgent > VELADA_UMBRAL * 1.4 ? 3 : 2);
-      const pool = [...cands];
-      const crew = [];
-      while (crew.length < n && pool.length) {
-        const p = rng.pick(pool);
-        crew.push(p);
-        pool.splice(pool.indexOf(p), 1);
+    const ayer = cdmx((s.minute - 1440) * MIN).dayKey;
+    const huboVeladaAyer = s.flags.veladaDay === ayer || s.flags.sundayPlanned === ayer || d.rest && d.rest.length > 0;
+    const wk = isoWeekKey(t.y, t.mo, t.day);
+    const enSemana = s.flags.veladaWk && s.flags.veladaWk.wk === wk ? s.flags.veladaWk.n : 0;
+    const manana = cdmx((s.minute + 1440) * MIN).dayKey;
+    const bloqueo = huboVeladaAyer ? "ayer ya hubo horas extra" : enSemana >= VELADA_MAX_SEMANA ? "ya hubo una esta semana" : s.flags.sundayPlanned === manana ? "ma\xF1ana se trabaja domingo" : null;
+    if (bloqueo) {
+      if (s.flags.forceVelada) {
+        s.flags.forceVelada = false;
+        log(s, `Velada bloqueada: ${bloqueo}`, null, "warn");
       }
+      return;
+    }
+    const urgent = backlogWithin(s, 48, (m) => m !== "dz" && m !== "m3");
+    if (urgent > VELADA_UMBRAL && rng.chance(0.35) || s.flags.forceVelada) {
+      const forced = s.flags.forceVelada;
+      s.flags.forceVelada = false;
+      const here = (id) => s.emps[id].present && s.emps[id].act !== "afuera" && d.plan[id];
+      if (!VELADA_GRUPO.every(here)) {
+        if (forced) log(s, "Velada cancelada: falta gente del grupo de horas extra", null, "warn");
+        return;
+      }
+      const crew = [...VELADA_GRUPO];
+      for (const id of VELADA_RAROS) if (here(id) && rng.chance(VELADA_PROB_RARO)) crew.push(id);
+      s.flags.veladaWk = { wk, n: enSemana + 1 };
       const start = s.minute + 30;
       const nextDay = cdmx(cdmxToMs(t.y, t.mo, t.day + 1, 12));
       const end = Math.floor(cdmxToMs(nextDay.y, nextDay.mo, nextDay.day, 6, 30) / MIN) + rng.int(-15, 20);
@@ -1944,12 +2091,13 @@ function overtimeDecisions(s, t, rng) {
       d.veladaCrew = [...crew];
       s.counters.veladas = (s.counters.veladas || 0) + 1;
       s.flags.velada = { crew, start, end, dinnerAt: start + 180 + rng.int(0, 60) };
-      s.flags.rest = { day: nextDay.dayKey, crew: [...crew] };
+      s.flags.veladaDay = t.dayKey;
       for (const id of crew) {
         d.plan[id].dep = 99999;
         s.emps[id].extra = true;
         s.emps[id].otStart = start;
       }
+      if (s.flags.sundayPlanned === manana) s.flags.sundayPlanned = null;
       log(s, `${list(crew.map((c) => EMP[c].name))} - Velada de horas extra`, null, "warn");
     }
   }
@@ -2088,7 +2236,7 @@ function production(s, t, rng, lunch) {
     e._used = false;
     e.working = false;
   }
-  const heavy = backlogWithin(s, 48) > 450;
+  const heavy = backlogWithin(s, 48) > 450 || !!s.flags.velada;
   const ids = MACHINES.map((m) => m.id);
   const claimed = new Set(Object.values(s.machines).map((m) => m.jobId).filter(Boolean));
   for (const mid of ids) {
@@ -2169,7 +2317,7 @@ function production(s, t, rng, lunch) {
     e.icon = MICON[mid];
     e.until = s.minute + Math.ceil(left);
     e.act = "work";
-    st.done += 1 + (e.morale - 60) / 400;
+    st.done += 1;
     if (st.done >= st.min) {
       completeStep(s, job, rng);
       m.jobId = null;
@@ -2220,15 +2368,23 @@ function tasks(s, t, rng, lunch) {
     }
     if (e.act === "trip") e.act = null;
     if (lunch) {
-      if (e.act === "bano" || e.act === "calle" || e.act === "banoWait" || e.act === "afuera") {
+      if (isPersonal(e)) {
         e.loc = e.act;
         continue;
       }
+      const end = Math.floor(cdmxToMs(t.y, t.mo, t.day, 0, 0) / MIN) + d.lunchAt + d.lunchDur;
+      const eatEnd = d.lunchEat && d.lunchEat[id] != null ? d.lunchEat[id] : end;
       e.act = "comida";
       e.loc = "comedor";
-      e.until = Math.floor(cdmxToMs(t.y, t.mo, t.day, 0, 0) / MIN) + d.lunchAt + d.lunchDur;
-      e.task = "Comiendo";
-      e.icon = "\u{1F372}";
+      if (s.minute < eatEnd) {
+        e.task = "Comiendo";
+        e.icon = "\u{1F372}";
+        e.until = eatEnd;
+      } else {
+        e.task = "Platicando";
+        e.icon = "\u{1F4AC}";
+        e.until = end;
+      }
       continue;
     }
     if (e.act === "comida") e.act = null;
@@ -2321,7 +2477,6 @@ function adminBonus(s, total) {
     const x = s.emps[e.id];
     x.bonusTotal = money(x.bonusTotal + per);
     x.bonusLast = per;
-    x.morale = clamp(x.morale + Math.min(30, 8 + per / 150), 0, 100);
   }
   expense(s, "bonos", paid, `Bono del Host - ${fmtMXN(per)} a cada uno`, { ded: true, kind: "admin" });
   return { per, paid, n: staff.length };
@@ -3819,6 +3974,9 @@ function freshState() {
 }
 function migrate(s) {
   if (!s || typeof s !== "object") return s;
+  if (s.emps) {
+    for (const e of Object.values(s.emps)) if (e && "morale" in e) delete e.morale;
+  }
   if (s.v === 5) {
     s.v = 6;
     if (s.day) {
@@ -3890,6 +4048,7 @@ function onNode(k, v) {
       admin = false;
       closeModal("#adminModal");
       catching = null;
+      keepAwake(false);
       toast("Otro dispositivo tom\xF3 el control como Host. Esta pesta\xF1a vuelve a ser espectador.");
     }
   }
@@ -3906,7 +4065,10 @@ function onNode(k, v) {
     if (lastFxSeq !== -1 && Array.isArray(v.list)) scene.pushFx(v.list, S.clock.real ? 1 : S.clock.rate);
     lastFxSeq = v.seq;
   }
-  if (k === "bitacora") lastLogKey = "";
+  if (k === "bitacora") {
+    lastLogKey = "";
+    if (tab === "log") renderPanel(true);
+  }
 }
 var hostAlive = () => hostState.online && Date.now() - (hostState.seenAt || 0) < 9e4;
 async function boot() {
@@ -3923,23 +4085,51 @@ async function boot() {
   lastFrame = performance.now();
   requestAnimationFrame(frame);
 }
+var wakeLock = null;
+async function keepAwake(on) {
+  try {
+    if (on && role === "host" && "wakeLock" in navigator && document.visibilityState === "visible" && !wakeLock) {
+      wakeLock = await navigator.wakeLock.request("screen");
+      wakeLock.addEventListener("release", () => {
+        wakeLock = null;
+      });
+    } else if (!on && wakeLock) {
+      const w = wakeLock;
+      wakeLock = null;
+      await w.release();
+    }
+  } catch {
+    wakeLock = null;
+  }
+}
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") keepAwake(true);
+});
 async function becomeHost() {
   const rel = await cloud.readReloj().catch(() => null);
   if (rel && rel.online && rel.hostId && rel.hostId !== myId && Date.now() - (rel.hostAt || 0) < 45e3) {
     if (!confirm("Hay otro Host activo en otro dispositivo. \xBFTomar el control desde aqu\xED? El otro pasar\xE1 a ser espectador.")) return false;
   }
   let remote = null;
+  let hadMotor = false;
   try {
     const m = await cloud.readMotor();
     if (m) {
+      hadMotor = true;
       remote = migrate(JSON.parse(m));
       if (!valid(remote)) remote = null;
     }
-  } catch {
+  } catch (err) {
     remote = null;
+    hadMotor = true;
   }
   let local = migrate(store.load());
   if (!valid(local)) local = null;
+  const liveExists = hadMotor || V2.caja != null || V2.reloj && V2.reloj.minute;
+  if (!remote && liveExists) {
+    toast("No se pudo leer la partida guardada en Firebase. No se tom\xF3 el control para no reiniciarla; recarga e intenta de nuevo.");
+    return false;
+  }
   const pick2 = remote || local || freshState();
   if (pick2 === remote && local && local.rev !== remote.rev) store.clearSnaps();
   if (pick2._logSeq == null) pick2._logSeq = pick2.log.length;
@@ -3948,6 +4138,7 @@ async function becomeHost() {
   await cloud.hostPresence(myId, myClaim);
   S = pick2;
   role = "host";
+  keepAwake(true);
   publish(true, true);
   scene.snap();
   lastLogKey = "";
@@ -3961,6 +4152,7 @@ function stepDown() {
   role = "spectator";
   S = buildView();
   lastLogKey = "";
+  keepAwake(false);
   toast("Dejaste de ser Host: esta pesta\xF1a ahora solo observa.");
 }
 var pub = null;
@@ -4010,7 +4202,9 @@ function publish(force = false, fullLog = false) {
     pub.fx = [];
   }
   const delta = fullLog ? null : logDelta();
-  if (delta === null) {
+  if (delta === null && !S.log.length && pub.logEmpty) {
+  } else if (delta === null) {
+    pub.logEmpty = !S.log.length;
     const last = S.log.slice(-LOG_KEEP);
     const base = (S._logSeq || 0) + 1;
     const obj = {};
@@ -4037,11 +4231,11 @@ function publish(force = false, fullLog = false) {
   }
   if (Object.keys(patch).length) cloud.write(patch).catch((e) => toast("Firebase rechaz\xF3 la escritura: " + (e && e.code || e)));
 }
-function commit() {
+function commit(fullLog = false) {
   S.rev = (S.rev || 0) + 1;
   store.save(S);
   store.flushSnaps();
-  publish(true);
+  publish(true, fullLog);
   lastLogKey = "";
   renderPanel(true);
 }
@@ -4200,7 +4394,7 @@ function renderHUD(ms) {
   } else if (present) {
     if (d.kind === "sunday") {
       st = "\u{1F6E0} Domingo de trabajo pesado";
-      sub = `${present} personas \xB7 10:00 AM \u2013 3:00 PM`;
+      sub = `${present} personas \xB7 hasta las 3:00 PM`;
     } else if (t.mod >= 17 * 60 && d.overtime) {
       st = "\u{1F319} Horas extra";
       sub = `${present} personas`;
@@ -4236,21 +4430,24 @@ function renderPanel(force = false) {
   if (document.body.classList.contains("fold-panel") || document.body.classList.contains("clean")) return;
   if (tab === "log") {
     const last = S.log[S.log.length - 1];
-    const key = logFilter + S.log.length + ":" + (last && last.m) + ":" + (last && last.txt);
+    const key = role + logFilter + S.log.length + ":" + (last && last.m) + ":" + (last && last.txt);
     if (!force && key === lastLogKey) return;
     lastLogKey = key;
     let html = "";
     let lastDay = "";
-    const rows = S.log.filter((l) => logPass(l.k)).slice(-250).reverse();
+    const canDel = role === "host";
+    const rows = [];
+    for (let i = S.log.length - 1; i >= 0 && rows.length < 250; i--) if (logPass(S.log[i].k)) rows.push([S.log[i], i]);
     if (!rows.length) html = '<div class="text-xs text-slate-500 p-3">Sin movimientos con este filtro todav\xEDa.</div>';
-    for (const l of rows) {
+    for (const [l, i] of rows) {
       const t = cdmx(l.m * MIN);
       if (t.dayKey !== lastDay) {
         lastDay = t.dayKey;
         html += `<div class="daysep">${DOW[t.dow]} ${t.day} de ${MES[t.mo - 1]}</div>`;
       }
       const amt = typeof l.amt === "number" && l.amt !== 0 ? `<span class="a ${l.amt > 0 ? "up" : "dn"}">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>` : '<span class="a"></span>';
-      html += `<div class="logrow k-${l.k}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(l.txt)}</span>${amt}</div>`;
+      const rm = canDel ? `<button class="rm" data-del="${i}" data-m="${l.m}" title="Borrar este registro" aria-label="Borrar registro">\u{1F5D1}</button>` : "";
+      html += `<div class="logrow k-${l.k}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(l.txt)}</span>${amt}${rm}</div>`;
     }
     body.innerHTML = html;
     return;
@@ -4273,12 +4470,9 @@ function empHTML() {
     const resting = (S.day.rest || []).includes(e.id) && !x.present;
     const status = resting ? "Descanso pagado" : !x.present ? x.leftAt != null ? `Se fue ${hhmm(x.leftAt)}` : "Fuera" : x.act === "afuera" ? "Esperando afuera" : x.loc === "trip" ? "En camioneta" : x.extra ? "Horas extra" : "En el local";
     const col = resting ? "bg-violet-500/20 text-violet-300" : !x.present ? "bg-slate-700 text-slate-300" : x.act === "afuera" ? "bg-slate-600/40 text-slate-200" : x.loc === "trip" ? "bg-sky-500/20 text-sky-300" : x.extra ? "bg-amber-500/20 text-amber-300" : "bg-emerald-500/20 text-emerald-300";
-    const mor = Math.round(x.morale);
-    const morC = mor >= 75 ? "#22c55e" : mor >= 50 ? "#f59e0b" : "#ef4444";
     h += `<div class="py-2 border-b border-slate-700/40">
       <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background:#${e.color.toString(16).padStart(6, "0")}"></span><b class="text-sm">${e.name}</b><span class="text-[11px] text-slate-400">${e.role}</span><span class="flex-1"></span><span class="pill ${col}">${status}</span></div>
       <div class="text-xs text-slate-200 mt-1">${x.present ? `${x.icon || "\u2022"} ${esc(x.task || "")}` : "\u2014"}</div>
-      <div class="flex items-center gap-2 mt-1"><span class="text-[10px] text-slate-500 w-12">\xC1nimo</span><div class="bar flex-1"><i style="width:${mor}%;background:${morC}"></i></div><span class="text-[10px] font-mono w-7 text-right">${mor}</span></div>
       <div class="text-[11px] text-slate-500 mt-0.5">Horario ${hhmm(e.shift[0])}\u2013${hhmm(e.shift[1])} \xB7 Lleg\xF3 hoy: ${arr}${e.payroll ? ` \xB7 Extra quincena: ${x.otHrsQ} h (${fmtMXN(x.otQ)})${x.bonusTotal ? ` \xB7 Bonos: ${fmtMXN(x.bonusTotal)} (\xFAltimo ${fmtMXN(x.bonusLast)})` : ""}` : " \xB7 Sin sueldo en n\xF3mina"}</div>
     </div>`;
   }
@@ -4637,6 +4831,26 @@ function wireUI() {
     commit();
     scene.snap();
     toast("Simulaci\xF3n reiniciada");
+  });
+  $("#panelBody").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-del]");
+    if (!b || role !== "host" || !S) return;
+    const i = +b.dataset.del;
+    if (!S.log[i] || String(S.log[i].m) !== b.dataset.m) {
+      lastLogKey = "";
+      renderPanel(true);
+      return;
+    }
+    S.log.splice(i, 1);
+    commit(true);
+    toast("Registro borrado para todos");
+  });
+  $("#admLogClear").addEventListener("click", () => {
+    if (!admin) return;
+    if (!confirm("\xBFBorrar toda la bit\xE1cora para todos los espectadores? No se puede deshacer.")) return;
+    S.log.length = 0;
+    commit(true);
+    toast("Bit\xE1cora limpia");
   });
   $("#admStepDown").addEventListener("click", () => {
     if (!admin) return;
