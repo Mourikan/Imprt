@@ -42,6 +42,8 @@
   .logrow.del { grid-template-columns: 64px 1fr auto 24px; }
   .logrow .rm { background: none; border: 0; color: #64748b; cursor: pointer; font-size: 12px; line-height: 1; padding: 0 2px; border-radius: 6px; }
   .logrow .rm:hover { color: #f87171; background: rgba(248,113,113,.12); }
+  .rm-proj { background: none; border: 0; color: #64748b; cursor: pointer; font-size: 13px; padding: 0 3px; border-radius: 6px; }
+  .rm-proj:hover { color: #f87171; background: rgba(248,113,113,.12); }
   .logrow .t { font-family: 'JetBrains Mono', monospace; color: #64748b; font-size: 11px; }
   .k-in .x { color: #4ade80; } .k-band .x { color: #c084fc; } .k-snack .x { color: #facc15; } .k-out .x, .k-big .x { color: #f87171; }
   .k-food .x { color: #fb923c; } .k-merma .x { color: #f87171; font-style: italic; } .k-warn .x { color: #fbbf24; } .k-admin .x { color: #f472b6; } .k-lab .x { color: #67e8f9; } .k-truck .x { color: #93c5fd; } .k-people .x, .k-info .x, .k-sys .x { color: #cbd5e1; } .k-social .x { color: #a5b4fc; }
@@ -95,6 +97,7 @@
     .pcard { font-size: 9.5px; max-width: 140px; min-width: 0; padding: 2px 6px; } .pcard .pc-r { display: none; } .pcard .pc-h b { font-size: 10.5px; }
     .mlabel .mn { display: none; }
   }
+.ico{display:inline-block;vertical-align:-0.15em;flex:none}
 </style>
 </head>
 <body>
@@ -117,10 +120,11 @@
     <div id="shopState" class="text-lg font-bold text-white leading-tight">—</div>
     <div id="shopSub" class="text-xs text-slate-300">—</div>
   </div>
-  <button id="sumBtnHud" class="foldbtn glass pointer-events-auto" title="Último Resumen del Día" aria-label="Último Resumen del Día">📊</button>
+  <div id="cargaBox" class="glass rounded-2xl px-3 py-2 pointer-events-auto text-xs font-bold max-w-[260px]">—</div>
+  <button id="sumBtnHud" class="foldbtn glass pointer-events-auto" title="Último Resumen del Día" aria-label="Último Resumen del Día"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></button>
   <button class="foldbtn glass pointer-events-auto" data-fold="hud" title="Ocultar encabezado" aria-label="Ocultar encabezado">▴</button>
 </div>
-<button id="hudTab" class="edgetab glass fixed top-2 left-2 z-10" data-unfold="hud" title="Mostrar encabezado">🕒 ▾</button>
+<button id="hudTab" class="edgetab glass fixed top-2 left-2 z-10" data-unfold="hud" title="Mostrar encabezado"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> ▾</button>
 
 <!-- Controles de cámara -->
 <div id="camBar" class="fixed left-2 right-2 md:right-auto z-10 flex flex-nowrap md:flex-wrap overflow-x-auto scroll gap-1.5 bottom-[calc(46vh+16px)] md:bottom-3 md:max-w-[calc(100%-450px)]">
@@ -134,11 +138,11 @@
   <button class="btn glass" data-focus="bodega">Bodega</button>
   <button class="btn glass" data-focus="bano">Baño</button>
   <button class="btn glass" id="toggleLabels">Tarjetas: completas</button>
-  <button class="btn glass" data-fold="cam" title="Ocultar botones de cámara">✕</button>
+  <button class="btn glass" data-fold="cam" title="Ocultar botones de cámara"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
 </div>
-<button id="camTab" class="edgetab glass fixed left-2 bottom-3 z-10" data-unfold="cam" title="Mostrar botones de cámara">🎥 ▴</button>
+<button id="camTab" class="edgetab glass fixed left-2 bottom-3 z-10" data-unfold="cam" title="Mostrar botones de cámara"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="14" height="11" rx="2"/><path d="M16 11l6-3v9l-6-3z"/></svg> ▴</button>
 <button id="panelTab" class="edgetab glass fixed right-0 top-1/2 -translate-y-1/2 z-20 rounded-r-none" data-unfold="panel" title="Mostrar panel">◂ Panel</button>
-<button id="cleanBtn" class="edgetab glass fixed right-2 bottom-3 z-30" title="Ocultar o mostrar todos los menús">🧹 Pantalla limpia</button>
+<button id="cleanBtn" class="edgetab glass fixed right-2 bottom-3 z-30" title="Ocultar o mostrar todos los menús"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 3 11 11"/><path d="M11 11c-2-1-5 0-6 3l-2 7 7-2c3-1 4-4 3-6z"/><path d="M6 16l2 2"/></svg> Pantalla limpia</button>
 
 <!-- Panel derecho -->
 <div id="panel" class="glass fixed z-20 top-2 right-2 bottom-2 w-[420px] rounded-2xl flex flex-col overflow-hidden">
@@ -147,12 +151,13 @@
     <button class="tab" data-tab="emp">Personal</button>
     <button class="tab" data-tab="mach">Máquinas</button>
     <button class="tab" data-tab="inv">Bodega</button>
+    <button class="tab" data-tab="proj">Proyectos</button>
     <button class="tab" data-tab="acct">Finanzas</button>
     <div class="flex-1"></div>
-    <button class="tab" id="sumBtn" title="Ver el último Resumen del Día">📊</button>
-    <button class="tab" id="cleanBtn2" title="Pantalla limpia: ocultar todos los menús">🧹</button>
+    <button class="tab" id="sumBtn" title="Ver el último Resumen del Día" aria-label="Resumen del Día"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></button>
+    <button class="tab" id="cleanBtn2" title="Pantalla limpia: ocultar todos los menús" aria-label="Pantalla limpia"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 3 11 11"/><path d="M11 11c-2-1-5 0-6 3l-2 7 7-2c3-1 4-4 3-6z"/><path d="M6 16l2 2"/></svg></button>
     <button class="tab" data-fold="panel" title="Ocultar panel hacia el borde">▸</button>
-    <button id="gear" class="tab text-base" title="Menú Supremo (Host)" aria-label="Menú Supremo">🔒</button>
+    <button id="gear" class="tab text-base" title="Menú Supremo (Host)" aria-label="Menú Supremo"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
   </div>
   <div id="logFilters" class="flex gap-1 px-3 pt-2"><button class="tab on" data-lf="all">Todas</button><button class="tab" data-lf="fin">Finanzas</button><button class="tab" data-lf="soc">Interacciones</button></div>
   <div id="panelBody" class="flex-1 overflow-y-auto scroll px-3 py-2"></div>
@@ -182,8 +187,8 @@
 <div id="sumModal" class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm">
   <div class="glass rounded-2xl p-5 w-[min(420px,92vw)] max-h-[86vh] flex flex-col">
     <div class="flex items-start justify-between gap-3">
-      <div><div class="text-lg font-extrabold">📊 Resumen del Día</div><div id="sumDate" class="text-xs text-slate-400 mt-0.5">—</div></div>
-      <button type="button" class="btn" id="sumClose" aria-label="Cerrar">✕</button>
+      <div><div class="text-lg font-extrabold"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg> Resumen del Día</div><div id="sumDate" class="text-xs text-slate-400 mt-0.5">—</div></div>
+      <button type="button" class="btn" id="sumClose" aria-label="Cerrar"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
     <div id="sumBody" class="mt-3 overflow-y-auto scroll text-sm"></div>
   </div>
@@ -191,7 +196,7 @@
 
 <div id="pwModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm">
   <form id="pwForm" class="glass rounded-2xl p-6 w-[min(360px,92vw)]">
-    <div class="text-lg font-extrabold">🔒 Menú Supremo</div>
+    <div class="text-lg font-extrabold"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Menú Supremo</div>
     <div class="text-xs text-slate-400 mt-1">Acceso exclusivo del Host.</div>
     <input id="pwInput" type="password" autocomplete="off" class="w-full mt-4" placeholder="Contraseña" />
     <div id="pwErr" class="text-rose-400 text-xs mt-2 h-4"></div>
@@ -206,8 +211,8 @@
 <div id="adminModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/70 backdrop-blur-sm p-3">
   <div class="glass rounded-2xl w-[min(640px,96vw)] max-h-[92vh] overflow-y-auto scroll">
     <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700/50 sticky top-0 bg-slate-900/95">
-      <div><div class="text-lg font-extrabold">⚙ Menú Supremo</div><div class="text-xs text-slate-400">Al cerrar se destruye la sesión de administrador.</div></div>
-      <button class="btn" id="adminClose">🔒 Cerrar y bloquear</button>
+      <div><div class="text-lg font-extrabold"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg> Menú Supremo</div><div class="text-xs text-slate-400">Al cerrar se destruye la sesión de administrador.</div></div>
+      <button class="btn" id="adminClose"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Cerrar y bloquear</button>
     </div>
     <div class="p-5 space-y-6">
       <section>
@@ -221,11 +226,12 @@
         </div>
       </section>
       <section>
-        <div class="font-bold mb-2">2 · Bono manual al personal</div>
-        <div class="text-xs text-slate-400 mb-2">Se reparte en partes iguales entre los 10 de nómina (cada parte redondeada a .00 / .50), sale de caja y queda en la bitácora.</div>
+        <div class="font-bold mb-2">2 · Bono individual</div>
+        <div class="text-xs text-slate-400 mb-2">Elige a quién y cuánto. Sale de caja (redondeado a .00 / .50) y queda en la bitácora.</div>
         <div class="flex flex-wrap gap-2">
-          <input id="admBonus" type="number" step="0.5" min="0" placeholder="Monto total MXN" class="w-44" />
-          <button class="btn btn-p" id="admBonusBtn">🎉 Repartir Bono</button>
+          <select id="admBonusEmp" class="w-44"></select>
+          <input id="admBonus" type="number" step="0.5" min="0" placeholder="Monto MXN" class="w-36" />
+          <button class="btn btn-p" id="admBonusBtn">Dar bono</button>
         </div>
       </section>
       <section>
@@ -257,13 +263,20 @@
           <button class="btn" data-force="masivo">🎸 Pedido masivo de bandas</button>
           <button class="btn" data-force="cofepris">🚨 Inspección COFEPRIS</button>
           <button class="btn" data-force="domingo">🛠 Domingo de trabajo pesado</button>
-          <button class="btn" data-force="velada">🌙 Velada hasta el amanecer</button>
         </div>
       </section>
       <section>
+        <div class="font-bold mb-2"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg> Programar Velada de Horas Extras para Hoy</div>
+        <div class="text-xs text-slate-400 mb-2">Las horas extra solo las activas tú. Marca quién se queda: a las 5:00 PM se quedan hasta el amanecer a puerta cerrada y luego empalman con su jornada. Sara, Julia y Natasha jamás se quedan. Para cambiar la lista, márcala de nuevo y presiona Activar.</div>
+        <div id="admVelCrew" class="grid grid-cols-2 sm:grid-cols-3 gap-1 text-xs mb-2"></div>
+        <div id="admCarga" class="text-xs mb-2"></div>
+        <div id="admVelSt" class="text-xs text-slate-300 mb-2"></div>
+        <div class="flex flex-wrap gap-2"><button class="btn btn-p" id="admVelOn">Activar</button><button class="btn" id="admVelOff">Cancelar</button></div>
+      </section>
+      <section>
         <div class="font-bold mb-2">5 · Administrar Bitácora</div>
-        <div class="text-xs text-slate-400 mb-2">Mientras esta pestaña sea el Host, cada registro de la pestaña Bitácora muestra un botón 🗑 para borrarlo. El borrado se envía a Firebase y desaparece al instante de todos los espectadores.</div>
-        <button class="btn" id="admLogClear">🧹 Limpiar toda la bitácora</button>
+        <div class="text-xs text-slate-400 mb-2">Mientras esta pestaña sea el Host, cada registro de la pestaña Bitácora y cada pedido de la pestaña Proyectos muestra un botón 🗑 para borrarlo. El borrado se envía a Firebase y desaparece al instante de todos los espectadores.</div>
+        <button class="btn" id="admLogClear"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 3 11 11"/><path d="M11 11c-2-1-5 0-6 3l-2 7 7-2c3-1 4-4 3-6z"/><path d="M6 16l2 2"/></svg> Limpiar toda la bitácora</button>
       </section>
       <section class="border-t border-slate-700/50 pt-4">
         <div class="font-bold mb-1">Sincronización (Firebase)</div>
@@ -466,7 +479,9 @@ var MACHINES = [
   { id: "m6", name: "Pulpo de Serigraf\xEDa + Horno de Curado", short: "Serigraf\xEDa", ops: ["marino"], help: ["gael", "hector"] },
   { id: "m7", name: "Guillotina Industrial Programable", short: "Guillotina", ops: ["cono", "timo", "wachavato"], help: [] },
   { id: "m8", name: "Suajadora / Troqueladora y Grabado", short: "Suajadora", ops: ["cono", "hector", "gael", "wachavato"], help: [] },
-  { id: "m9", name: "Centro de Acabados (Hot-Melt, Engargolado, Laminado UV)", short: "Acabados", ops: ["gael", "hector", "timo", "cono"], help: ["hanna", "adrian"] },
+  { id: "m9", name: "Centro de Acabados (Engargolado, Grapa, Laminado UV)", short: "Acabados", ops: ["gael", "hector", "timo", "cono"], help: ["hanna", "adrian"] },
+  { id: "m10", name: "C\xE1mara / T\xFAnel de Secado y Curado T\xE9rmico", short: "T\xFAnel de secado", ops: ["gael", "hector", "timo", "marino", "buster", "cono", "wachavato"], help: ["adrian", "hanna"], auto: true, binary: true },
+  { id: "m11", name: "Tren de Encuadernado Hot-Melt (R\xFAstica T\xE9rmica Industrial)", short: "Hot-Melt", ops: ["cono", "gael", "hector", "timo"], help: ["hanna", "adrian"], binary: true },
   { id: "dz", name: "Estaciones de Dise\xF1o (preprensa)", short: "Dise\xF1o", ops: ["buster", "julia"], help: [], virtual: true }
 ];
 var INVENTORY = [
@@ -732,7 +747,17 @@ var COMERCIAL = {
       label: `${q} cat\xE1logos / revistas`,
       q,
       unit: u,
-      steps: [dz(r2, 40, 90), { m: q >= 250 ? "m1" : "m2", min: 40 + q * 0.3, need: { couche: q * 4, [q >= 250 ? "tinta_offset" : "toner_color"]: q * 0.04 } }, { m: "m7", min: 15 + q * 0.04 }, { m: "m9", min: 20 + q * 0.2 }]
+      steps: [dz(r2, 40, 90), { m: q >= 250 ? "m1" : "m2", min: 40 + q * 0.3, need: { couche: q * 4, [q >= 250 ? "tinta_offset" : "toner_color"]: q * 0.04 } }, { m: "m7", min: 15 + q * 0.04 }, { m: "m11", min: 20 + q * 0.15 }]
+    };
+  },
+  libros: (r2, s) => {
+    const q = pick(r2, 30, 400, s);
+    const u = r2.money(90, 220);
+    return {
+      label: `${q} libros / tesis encuadernados en r\xFAstica`,
+      q,
+      unit: u,
+      steps: [dz(r2, 30, 80), { m: q >= 200 ? "m1" : "m2", min: 40 + q * 0.5, need: { bond: q * 60, [q >= 200 ? "tinta_offset" : "toner_color"]: q * 0.05 } }, { m: "m7", min: 15 + q * 0.05 }, { m: "m11", min: 25 + q * 0.25 }, { m: "m7", min: 10 + q * 0.03 }]
     };
   },
   menus: (r2, s) => {
@@ -963,7 +988,7 @@ var COMERCIAL = {
       label: `${q} bolsas kraft impresas`,
       q,
       unit: u,
-      steps: [dz(r2, 10, 25), { m: "m6", min: 20 + q * 0.25, need: { kraft: q, plastisol: q * 0.03 } }]
+      steps: [dz(r2, 10, 25), { m: "m6", min: 20 + q * 0.25, need: { kraft: q, plastisol: q * 0.03 } }, { m: "m10", min: 15 + q * 0.04 }]
     };
   }
 };
@@ -976,6 +1001,7 @@ var COMERCIAL_MIX = [
   ["folders", 3],
   ["sobres", 3],
   ["catalogos", 2],
+  ["libros", 3],
   ["menus", 5],
   ["invitaciones", 6],
   ["calendarios", 2],
@@ -1002,13 +1028,13 @@ var COMERCIAL_MIX = [
 var BANDA = {
   playeras: (r2, q) => {
     const c = r2.int(1, 4);
-    return { label: "playeras", unit: r2.money(125, 165), q, steps: [dz(r2, 30, 80), { m: "m6", min: 25 + q * 0.45 * c, need: { playeras: q, plastisol: q * 0.06 * c } }] };
+    return { label: "playeras", unit: r2.money(125, 165), q, steps: [dz(r2, 30, 80), { m: "m6", min: 25 + q * 0.45 * c, need: { playeras: q, plastisol: q * 0.06 * c } }, { m: "m10", min: 20 + q * 0.06 }] };
   },
   hoodies: (r2, q) => {
     const c = r2.int(1, 3);
-    return { label: "hoodies", unit: r2.money(390, 470), q, steps: [dz(r2, 30, 70), { m: "m6", min: 25 + q * 0.7 * c, need: { sudaderas: q, plastisol: q * 0.1 * c } }] };
+    return { label: "hoodies", unit: r2.money(390, 470), q, steps: [dz(r2, 30, 70), { m: "m6", min: 25 + q * 0.7 * c, need: { sudaderas: q, plastisol: q * 0.1 * c } }, { m: "m10", min: 25 + q * 0.08 }] };
   },
-  totes: (r2, q) => ({ label: "tote bags", unit: r2.money(95, 140), q, steps: [dz(r2, 20, 50), { m: "m6", min: 20 + q * 0.4, need: { totes: q, plastisol: q * 0.05 } }] }),
+  totes: (r2, q) => ({ label: "tote bags", unit: r2.money(95, 140), q, steps: [dz(r2, 20, 50), { m: "m6", min: 20 + q * 0.4, need: { totes: q, plastisol: q * 0.05 } }, { m: "m10", min: 15 + q * 0.05 }] }),
   posters: (r2, q) => {
     const off = q >= 600;
     return {
@@ -1020,7 +1046,7 @@ var BANDA = {
   },
   stickers: (r2, q) => ({ label: "stickers en vinil troquelado", unit: r2.money(3, 6), q, steps: [dz(r2, 20, 50), { m: "m4", min: 20 + q * 0.03, need: { vinil: q * 4e-3, eco: q * 2e-3 } }, { m: "m8", min: 30 + q * 0.04 }] }),
   boletos: (r2, q) => ({ label: "boletos con holograma y folio", unit: r2.money(2.5, 4.5), q, steps: [dz(r2, 15, 40), { m: "m2", min: 10 + q * 0.015, need: { opalina: Math.ceil(q / 24), toner_color: q * 4e-3 } }, { m: "m8", min: 20 + q * 0.012 }, { m: "m7", min: 15 + q * 0.01 }] }),
-  fanzines: (r2, q) => ({ label: "fanzines", unit: r2.money(28, 45), q, steps: [dz(r2, 40, 90), { m: "m2", min: 20 + q * 0.35, need: { couche: q * 2, toner_color: q * 0.09 } }, { m: "m7", min: 15 + q * 0.03 }, { m: "m9", min: 25 + q * 0.25 }] }),
+  fanzines: (r2, q) => ({ label: "fanzines", unit: r2.money(28, 45), q, steps: [dz(r2, 40, 90), { m: "m2", min: 20 + q * 0.35, need: { couche: q * 2, toner_color: q * 0.09 } }, { m: "m7", min: 15 + q * 0.03 }, { m: "m11", min: 25 + q * 0.2 }] }),
   backdrop: (r2, q) => ({ label: "m\xB2 de backdrop (lona de escenario)", unit: r2.money(110, 140), q, steps: [dz(r2, 20, 45), { m: "m4", min: 15 + q * 5, need: { lona: q, eco: q * 0.35 } }] }),
   fundas: (r2, q) => ({ label: "fundas de celular edici\xF3n especial", unit: r2.money(150, 220), q, steps: [dz(r2, 20, 45), { m: "m5", min: 10 + q * 1.2, need: { fundas: q, uv: q * 0.06 } }] })
 };
@@ -1039,9 +1065,8 @@ var COTS = 3;
 var PERSONAL = /* @__PURE__ */ new Set(["bano", "banoWait", "desayuno", "xbox", "platica", "cel", "calle", "siesta", "snack", "afuera"]);
 var LLAVES = ["cono", "marino", "buster", "wachavato"];
 var VELADA_GRUPO = ["timo", "gael", "hector", "adrian", "hanna"];
-var VELADA_RAROS = ["cono", "wachavato"];
-var VELADA_PROB_RARO = 0.15;
-var VELADA_MAX_SEMANA = 1;
+var VELADA_NUNCA = ["sara", "julia", "natasha"];
+var COMIDA_SEMANAL = 1500;
 var MEDIO_TURNO = ["buster", "marino"];
 var MEDIO_TURNO_TOPE = 13 * 60;
 var VELADA_UMBRAL = 200;
@@ -1222,7 +1247,7 @@ function processRestock(s) {
     }
   }
 }
-var MICON = { m1: "\u{1F5A8}\uFE0F", m2: "\u{1F5A8}\uFE0F", m3: "\u{1F4C4}", m4: "\u{1FAA7}", m5: "\u{1F4F1}", m6: "\u{1F455}", m7: "\u2702\uFE0F", m8: "\u{1F528}", m9: "\u{1F4DA}", dz: "\u{1F5A5}\uFE0F" };
+var MICON = { m1: "\u{1F5A8}\uFE0F", m2: "\u{1F5A8}\uFE0F", m3: "\u{1F4C4}", m4: "\u{1FAA7}", m5: "\u{1F4F1}", m6: "\u{1F455}", m7: "\u2702\uFE0F", m8: "\u{1F528}", m9: "\u{1F4DA}", m10: "\u{1F525}", m11: "\u{1F4D5}", dz: "\u{1F5A5}\uFE0F" };
 var MERMA_TXT = {
   m1: (q, u) => `prueba de color fallida en la Offset, se perdieron ${q} ${u}`,
   m2: (q, u) => `atasco de papel en la Digital, se tiraron ${q} ${u}`,
@@ -1234,6 +1259,97 @@ var MERMA_TXT = {
   m8: (q, u) => `suaje desalineado, se perdieron ${q} ${u}`,
   m9: (q, u) => `burbujas en el laminado, se perdieron ${q} ${u}`
 };
+function nextBizStart(minute) {
+  const t = cdmx(minute * MIN);
+  for (let k = 1; k <= 3; k++) {
+    const n = cdmx(cdmxToMs(t.y, t.mo, t.day + k, 12));
+    if (n.dow !== 0) return Math.floor(cdmxToMs(n.y, n.mo, n.day, 0, 0) / MIN) + ABRE;
+  }
+  return minute;
+}
+function bizMinutesBetween(a, b) {
+  if (b <= a) return 0;
+  let tot = 0;
+  let m = a;
+  for (let k = 0; k < 40 && m < b; k++) {
+    const t = cdmx(m * MIN);
+    const base = m - t.mod;
+    if (t.dow !== 0) tot += Math.max(0, Math.min(b, base + CIERRA) - Math.max(m, base + ABRE));
+    m = base + 1440;
+  }
+  return tot;
+}
+function evalCarga(s) {
+  ensureState(s);
+  const now = s.minute;
+  const risk = [];
+  const backlog = backlogWithin(s, 48, (m) => m !== "dz" && m !== "m3");
+  const seen = /* @__PURE__ */ new Set();
+  for (const j of s.jobs) {
+    const left = j.steps.slice(j.si).reduce((a, st) => a + Math.max(0, st.min - st.done), 0);
+    const cap = bizMinutesBetween(Math.max(now, j.start || now), j.due);
+    if (left > cap * 0.85 && !seen.has(j.order || j.client)) {
+      seen.add(j.order || j.client);
+      risk.push(j.client);
+    }
+  }
+  s.day.carga = { at: now, rec: backlog > VELADA_UMBRAL || risk.length > 0, backlog: Math.round(backlog), risk: risk.slice(0, 6) };
+  return s.day.carga;
+}
+function ensureState(s) {
+  if (!s || !s.machines) return s;
+  for (const m of MACHINES) if (!s.machines[m.id]) s.machines[m.id] = { status: "idle", jobId: null, op: null, maintUntil: 0, busyUntil: 0, waiting: false };
+  if (!Array.isArray(s.pickups)) s.pickups = [];
+  if (!s.flags) s.flags = {};
+  return s;
+}
+function adminEditOrder(s, ref2, { dueDelta = 0, factor = 1 } = {}) {
+  ensureState(s);
+  const isOrder = typeof ref2 === "string" && s.orders[ref2];
+  const jobs = s.jobs.filter((j) => isOrder ? j.order === ref2 : j.id === ref2);
+  if (!isOrder && !jobs.length) return null;
+  const now = s.minute;
+  const clampDue = (d) => Math.max(now + 30, Math.round(d + dueDelta));
+  if (isOrder) s.orders[ref2].due = clampDue(s.orders[ref2].due);
+  for (const j of jobs) {
+    j.due = clampDue(j.due);
+    if (factor !== 1) for (let i = j.si; i < j.steps.length; i++) {
+      const st = j.steps[i];
+      const rest = Math.max(0, st.min - st.done);
+      st.min = Math.max(Math.ceil(st.done) + 1, Math.round(st.done + rest * factor));
+    }
+  }
+  const client = isOrder ? s.orders[ref2].client : jobs[0].client;
+  const what = [dueDelta ? `entrega ${dueDelta > 0 ? "+" : "\u2212"}${Math.abs(dueDelta) >= 1440 ? Math.abs(dueDelta) / 1440 + " d\xEDa" : Math.abs(dueDelta) / 60 + " h"}` : "", factor !== 1 ? factor > 1 ? "m\xE1s trabajo" : "menos trabajo" : ""].filter(Boolean).join(", ");
+  log(s, `Pedido ajustado por el Host - ${client} (${what})`, null, "admin");
+  if (s.day.kind === "normal") evalCarga(s);
+  return client;
+}
+function adminDeleteOrder(s, ref2) {
+  ensureState(s);
+  const isOrder = typeof ref2 === "string" && s.orders[ref2];
+  const jobs = s.jobs.filter((j) => isOrder ? j.order === ref2 : j.id === ref2);
+  if (!isOrder && !jobs.length) return null;
+  const ids = new Set(jobs.map((j) => j.id));
+  s.jobs = s.jobs.filter((j) => !ids.has(j.id));
+  for (const m of Object.values(s.machines)) if (m.jobId && ids.has(m.jobId)) {
+    m.jobId = null;
+    m.op = null;
+    m.status = "idle";
+    m.waiting = false;
+  }
+  for (const e of Object.values(s.emps)) if (e.act === "work") {
+    e.act = null;
+    e.until = 0;
+    e.working = false;
+  }
+  const client = isOrder ? s.orders[ref2].client : jobs[0].client;
+  if (isOrder) delete s.orders[ref2];
+  s.pickups = s.pickups.filter((o) => o.id !== ref2);
+  log(s, `Pedido cancelado por el Host - ${client}`, null, "admin");
+  if (s.day.kind === "normal") evalCarga(s);
+  return client;
+}
 function newJob(s, o) {
   const job = {
     id: s.nextId++,
@@ -1244,6 +1360,7 @@ function newJob(s, o) {
     kind: o.kind || "",
     due: o.due,
     created: s.minute,
+    start: o.start ?? s.minute,
     si: 0,
     steps: o.steps.map((st) => ({ m: st.m, min: Math.max(1, Math.round(st.min * (o.kind === "periodico" || st.m === "dz" ? 1 : TIME_SCALE))), done: 0, need: { ...st.need || {} }, mat: { ...st.need || {} }, ok: !st.need || Object.keys(st.need).length === 0 }))
   };
@@ -1301,8 +1418,9 @@ function createOrder(s, rng, kind, opts = {}) {
   const due = s.minute + Math.round(days * 1440);
   const oid = "P" + s.nextId++;
   const anticipo = total >= 1e3 ? money(total / 2) : total;
-  s.orders[oid] = { id: oid, kind, client, total, paid: anticipo, lines: lines.length, left: lines.length, due, urgent };
-  for (const l of lines) newJob(s, { order: oid, client, product: shortProd(l.prod), qty: l.q, due, steps: l.steps });
+  const start = urgent || days < 3 ? s.minute : nextBizStart(s.minute);
+  s.orders[oid] = { id: oid, kind, client, total, paid: anticipo, lines: lines.length, left: lines.length, due, urgent, start, created: s.minute };
+  for (const l of lines) newJob(s, { order: oid, client, product: shortProd(l.prod), qty: l.q, due, steps: l.steps, start });
   const desc = list(lines.map((l) => l.label));
   const d = cdmx(due * MIN);
   const cat = kind === "banda" ? "bandas" : "comercial";
@@ -1364,24 +1482,35 @@ function finishJob(s, job, rng) {
     const o = s.orders[job.order];
     o.left--;
     if (o.left <= 0) {
-      const rest = money(o.total - o.paid);
       delete s.orders[job.order];
-      if (rest > 0) income(s, o.kind === "banda" ? "bandas" : "comercial", rest, "Pedido entregado", o.kind === "banda" ? "band" : "in");
-      else log(s, "Pedido entregado", null, "info");
-      const t = cdmx(s.minute * MIN);
-      const timo = s.emps.timo;
-      const byTimo = timo.present && timo.tripUntil <= s.minute && t.mod < CIERRA - 60 && rng.chance(o.kind === "banda" ? 0.6 : 0.3);
-      if (!byTimo && (o.kind === "banda" || o.urgent)) expense(s, "envios", rng.money(80, 350), "Env\xEDo por paqueter\xEDa", { iva: true, ded: true, kind: "truck" });
-      if (byTimo) {
-        const dur = rng.int(40, 110);
-        endAct(s, "timo");
-        timo.tripUntil = s.minute + dur;
-        timo.tripWhy = `Entregando pedido de ${o.client}`;
-        log(s, "Timo - Entregando pedido", null, "truck");
-      }
+      if (!bizOpen(s)) {
+        (s.pickups || (s.pickups = [])).push(o);
+        log(s, "Pedido terminado - se entrega al abrir", null, "info");
+      } else deliverOrder(s, o, rng);
     }
   } else if (job.kind !== "periodico") {
     log(s, "Trabajo listo para entrega", null, "info");
+  }
+}
+function bizOpen(s) {
+  const d = s.day;
+  const mod = cdmx(s.minute * MIN).mod;
+  return d.kind === "normal" && !!d.unlocked && mod >= ABRE && mod < CIERRA;
+}
+function deliverOrder(s, o, rng) {
+  const rest = money(o.total - o.paid);
+  if (rest > 0) income(s, o.kind === "banda" ? "bandas" : "comercial", rest, "Pedido entregado", o.kind === "banda" ? "band" : "in");
+  else log(s, "Pedido entregado", null, "info");
+  const t = cdmx(s.minute * MIN);
+  const timo = s.emps.timo;
+  const byTimo = timo.present && timo.tripUntil <= s.minute && t.mod < CIERRA - 60 && rng.chance(o.kind === "banda" ? 0.6 : 0.3);
+  if (!byTimo && (o.kind === "banda" || o.urgent)) expense(s, "envios", rng.money(80, 350), "Env\xEDo por paqueter\xEDa", { iva: true, ded: true, kind: "truck" });
+  if (byTimo) {
+    const dur = rng.int(40, 110);
+    endAct(s, "timo");
+    timo.tripUntil = s.minute + dur;
+    timo.tripWhy = `Entregando pedido de ${o.client}`;
+    log(s, "Timo - Entregando pedido", null, "truck");
   }
 }
 function backlogWithin(s, hours, filter = () => true) {
@@ -1411,9 +1540,7 @@ function startDay(s, t, rng) {
   s.bath = { occ: null, until: 0 };
   s.xbox = { players: [], game: "", until: 0 };
   s.cots = Array(COTS).fill(null);
-  const veladaAnoche = s.flags.veladaDay === cdmx((s.minute - 1440) * MIN).dayKey;
-  const sundayWork = t.dow === 0 && s.flags.sundayPlanned === t.dayKey && !veladaAnoche;
-  if (t.dow === 0 && s.flags.sundayPlanned === t.dayKey && veladaAnoche) log(s, "Domingo cancelado: anoche hubo velada", null, "warn", s.minute);
+  const sundayWork = t.dow === 0 && s.flags.sundayPlanned === t.dayKey;
   const kind = t.dow >= 1 && t.dow <= 6 ? "normal" : sundayWork ? "sunday" : "closed";
   const d = s.day = {
     key: t.dayKey,
@@ -1523,12 +1650,8 @@ function arriveGroup(s, ids, t, rng) {
     log(s, `${list(names)} - Esperando afuera`, null, "people");
     return;
   }
-  if (ids.includes("julia") && s.day.kind === "normal") {
-    const cost = rng.money(100, 500);
-    s.day.lunchCost = cost;
-    log(s, `${list(names)} - Llegada`, null, "people");
-    expense(s, "comida", cost, "Julia - Trajo la comida", { kind: "food" });
-  } else log(s, `${list(names)} - Llegada`, null, "people");
+  log(s, `${list(names)} - Llegada`, null, "people");
+  if (ids.includes("julia") && s.day.kind === "normal") log(s, "Julia - Trajo la comida", null, "food");
 }
 function leave(s, id, t, silent = false) {
   const e = s.emps[id];
@@ -1689,7 +1812,7 @@ function personalLife(s, t, rng, lunch) {
         continue;
       }
     }
-    if (!working && rng.chance(1 / 420) && ["refrescos", "sabritas", "galletas"].some((k) => s.inv[k] >= 1)) {
+    if (!working && bizOpen(s) && rng.chance(1 / 420) && ["refrescos", "sabritas", "galletas"].some((k) => s.inv[k] >= 1)) {
       const got = buySnack(s, rng, e0.name);
       if (got) {
         setAct(s, id, "snack", 3, "Compra en estante", "\u{1F964}", "snacks");
@@ -1843,6 +1966,8 @@ function tick(s, fx2) {
     const p = d.plan[id];
     const e = s.emps[id];
     if (!e.present && e.leftAt === null && mod >= p.arr && mod < p.dep) arrivals.push(id);
+    else if (d.veladaProg && mod < CIERRA && (d.veladaSel || VELADA_GRUPO).includes(id)) continue;
+    else if (s.flags.velada && s.flags.velada.crew.includes(id)) continue;
     else if (e.present && mod >= (d.kind === "normal" && MEDIO_TURNO.includes(id) ? Math.min(p.dep, MEDIO_TURNO_TOPE) : p.dep) && e.tripUntil <= s.minute && e.act !== "calle") exits.push(id);
   }
   const vel = s.flags.velada;
@@ -1890,6 +2015,11 @@ function tick(s, fx2) {
   const lunch = d.kind === "normal" && mod >= d.lunchAt && mod < d.lunchAt + d.lunchDur;
   calendar(s, t, rng);
   processRestock(s);
+  if (d.kind === "normal" && (mod === ABRE || !d.carga && mod > ABRE && mod < CIERRA)) evalCarga(s);
+  if (s.pickups && s.pickups.length && bizOpen(s)) {
+    const o = s.pickups.shift();
+    deliverOrder(s, o, rng);
+  }
   if (anyone) {
     const timo = s.emps.timo;
     if (timo.present && timo.tripUntil <= s.minute) {
@@ -1965,6 +2095,10 @@ function calendar(s, t, rng) {
   if (t.dow === 1 && mod === 9 * 60 + 50 && f.gasWeek !== wk) {
     f.gasWeek = wk;
     expense(s, "gasolina", rng.money(600, 1500), "Gasolina de la camioneta", { iva: true, ded: true });
+  }
+  if (t.dow === 5 && mod === 12 * 60 + 30 && f.juliaWeek !== wk) {
+    f.juliaWeek = wk;
+    expense(s, "comida", COMIDA_SEMANAL, "Julia - Pago semanal de la comida", { kind: "food" });
   }
   if (t.dow === 2 && mod === 12 * 60 && f.adsWeek !== wk) {
     f.adsWeek = wk;
@@ -2051,56 +2185,62 @@ function overtimeDecisions(s, t, rng) {
       }
     }
   }
-  if (t.dow === 6 && mod === 15 * 60 && !d.velada && s.flags.sundayPlanned !== cdmx((s.minute + 1440) * MIN).dayKey) {
-    if (backlogWithin(s, 72, (m) => m !== "dz" && m !== "m3") > 250 && rng.chance(0.5)) {
-      s.flags.sundayPlanned = cdmx((s.minute + 1440) * MIN).dayKey;
-      log(s, "Ma\xF1ana se abre domingo por carga de trabajo", null, "warn");
-    }
-  }
-  if (mod === CIERRA - 30 && !d.velada && !s.flags.velada) {
-    const ayer = cdmx((s.minute - 1440) * MIN).dayKey;
-    const huboVeladaAyer = s.flags.veladaDay === ayer || s.flags.sundayPlanned === ayer || d.rest && d.rest.length > 0;
-    const wk = isoWeekKey(t.y, t.mo, t.day);
-    const enSemana = s.flags.veladaWk && s.flags.veladaWk.wk === wk ? s.flags.veladaWk.n : 0;
-    const manana = cdmx((s.minute + 1440) * MIN).dayKey;
-    const bloqueo = huboVeladaAyer ? "ayer ya hubo horas extra" : enSemana >= VELADA_MAX_SEMANA ? "ya hubo una esta semana" : s.flags.sundayPlanned === manana ? "ma\xF1ana se trabaja domingo" : null;
-    if (bloqueo) {
-      if (s.flags.forceVelada) {
-        s.flags.forceVelada = false;
-        log(s, `Velada bloqueada: ${bloqueo}`, null, "warn");
-      }
+  if (d.veladaProg && mod >= CIERRA - 30 && mod < CIERRA && !d.velada && !s.flags.velada) {
+    d.veladaProg = false;
+    const here = (id) => s.emps[id] && s.emps[id].present && s.emps[id].act !== "afuera" && d.plan[id];
+    const sel = (d.veladaSel && d.veladaSel.length ? d.veladaSel : VELADA_GRUPO).filter((id) => !VELADA_NUNCA.includes(id));
+    const crew = sel.filter(here);
+    const faltan = sel.filter((id) => !here(id));
+    if (!crew.length) {
+      log(s, "Velada cancelada: no hay nadie de los elegidos en el local", null, "warn");
       return;
     }
-    const urgent = backlogWithin(s, 48, (m) => m !== "dz" && m !== "m3");
-    if (urgent > VELADA_UMBRAL && rng.chance(0.35) || s.flags.forceVelada) {
-      const forced = s.flags.forceVelada;
-      s.flags.forceVelada = false;
-      const here = (id) => s.emps[id].present && s.emps[id].act !== "afuera" && d.plan[id];
-      if (!VELADA_GRUPO.every(here)) {
-        if (forced) log(s, "Velada cancelada: falta gente del grupo de horas extra", null, "warn");
-        return;
-      }
-      const crew = [...VELADA_GRUPO];
-      for (const id of VELADA_RAROS) if (here(id) && rng.chance(VELADA_PROB_RARO)) crew.push(id);
-      s.flags.veladaWk = { wk, n: enSemana + 1 };
-      const start = s.minute + 30;
-      const nextDay = cdmx(cdmxToMs(t.y, t.mo, t.day + 1, 12));
-      const end = Math.floor(cdmxToMs(nextDay.y, nextDay.mo, nextDay.day, 6, 30) / MIN) + rng.int(-15, 20);
-      d.velada = true;
-      d.overtime = true;
-      d.veladaCrew = [...crew];
-      s.counters.veladas = (s.counters.veladas || 0) + 1;
-      s.flags.velada = { crew, start, end, dinnerAt: start + 180 + rng.int(0, 60) };
-      s.flags.veladaDay = t.dayKey;
-      for (const id of crew) {
-        d.plan[id].dep = 99999;
-        s.emps[id].extra = true;
-        s.emps[id].otStart = start;
-      }
-      if (s.flags.sundayPlanned === manana) s.flags.sundayPlanned = null;
-      log(s, `${list(crew.map((c) => EMP[c].name))} - Velada de horas extra`, null, "warn");
+    if (faltan.length) log(s, `${list(faltan.map((c) => EMP[c].name))} - Ya no estaba para la velada`, null, "warn");
+    const wk = isoWeekKey(t.y, t.mo, t.day);
+    const enSemana = s.flags.veladaWk && s.flags.veladaWk.wk === wk ? s.flags.veladaWk.n : 0;
+    s.flags.veladaWk = { wk, n: enSemana + 1 };
+    const start = s.minute - mod + CIERRA;
+    const nextDay = cdmx(cdmxToMs(t.y, t.mo, t.day + 1, 12));
+    const end = Math.floor(cdmxToMs(nextDay.y, nextDay.mo, nextDay.day, 6, 30) / MIN) + rng.int(-15, 20);
+    d.velada = true;
+    d.overtime = true;
+    d.veladaCrew = [...crew];
+    s.counters.veladas = (s.counters.veladas || 0) + 1;
+    s.flags.velada = { crew, start, end, dinnerAt: start + 180 + rng.int(0, 60) };
+    s.flags.veladaDay = t.dayKey;
+    for (const id of crew) {
+      d.plan[id].dep = 99999;
+      s.emps[id].extra = true;
+      s.emps[id].otStart = start;
     }
+    log(s, `${list(crew.map((c) => EMP[c].name))} - Velada de horas extra`, null, "warn");
   }
+}
+function veladaBloqueo(s) {
+  if (s.day.kind !== "normal") return "hoy no es d\xEDa h\xE1bil";
+  return null;
+}
+function adminVelada(s, on, crew = null) {
+  const t = cdmx(s.minute * MIN);
+  const d = s.day;
+  if (on) {
+    const sel = (crew || VELADA_GRUPO).filter((id) => EMP[id] && !VELADA_NUNCA.includes(id));
+    if (!sel.length) return { ok: false, msg: "Elige al menos a una persona para la velada" };
+    if (s.flags.velada || d.velada) return { ok: false, msg: "La velada de hoy ya est\xE1 en curso" };
+    if (d.kind !== "normal") return { ok: false, msg: "Hoy no es d\xEDa h\xE1bil" };
+    if (t.mod >= CIERRA) return { ok: false, msg: "Ya pasaron las 5:00 PM: progr\xE1mala ma\xF1ana antes de las 5" };
+    const b = veladaBloqueo(s);
+    if (b) return { ok: false, msg: `No se puede: ${b}` };
+    const upd = !!d.veladaProg;
+    d.veladaProg = true;
+    d.veladaSel = sel;
+    log(s, `Velada ${upd ? "actualizada" : "programada"} por el Host - ${list(sel.map((c) => EMP[c].name))}`, null, "admin");
+    return { ok: true, msg: `Velada ${upd ? "actualizada" : "programada"}: arranca a las 5:00 PM (${sel.length} personas)` };
+  }
+  if (!d.veladaProg) return { ok: false, msg: d.velada ? "La velada ya arranc\xF3" : "No hay velada programada" };
+  d.veladaProg = false;
+  log(s, "Velada cancelada por el Host", null, "admin");
+  return { ok: true, msg: "Velada cancelada" };
 }
 function customers(s, t, rng, lunch, fx2) {
   const mod = t.mod;
@@ -2246,7 +2386,7 @@ function production(s, t, rng, lunch) {
       let best = null;
       for (const j of s.jobs) {
         const st = j.steps[j.si];
-        if (st && st.m === mid && !claimed.has(j.id) && (!best || j.due < best.due)) best = j;
+        if (st && st.m === mid && (j.start || 0) <= s.minute && !claimed.has(j.id) && (!best || j.due < best.due)) best = j;
       }
       if (best) {
         m.jobId = best.id;
@@ -2289,6 +2429,16 @@ function production(s, t, rng, lunch) {
       }
     }
     const def = MACH[mid];
+    if (def.auto && st.done > 0) {
+      m.status = "work";
+      m.op = null;
+      st.done += 1;
+      if (st.done >= st.min) {
+        completeStep(s, job, rng);
+        m.jobId = null;
+      }
+      continue;
+    }
     const cands = [...def.ops, ...heavy ? def.help : []];
     let op = m.op && cands.includes(m.op) && isFree(s, m.op, lunch) ? m.op : null;
     if (!op) for (const id of cands) {
@@ -2431,6 +2581,7 @@ function tasks(s, t, rng, lunch) {
 function advance(s, targetMinute, { budgetMs = 25, fx: fx2 = null, onDayStart = null, now = () => Date.now() } = {}) {
   const t0 = now();
   let n = 0;
+  ensureState(s);
   while (s.minute < targetMinute) {
     if (onDayStart) {
       const next = cdmx((s.minute + 1) * MIN);
@@ -2466,30 +2617,23 @@ function adminCash(s, mode, amount) {
   }
   log(s, "Ajuste de capital del Host", delta, "admin");
 }
-function adminBonus(s, total) {
-  total = money(Number(total) || 0);
-  const staff = EMPLOYEES.filter((e) => e.payroll);
-  if (total <= 0 || !staff.length) return null;
-  const per = money(Math.floor(total / staff.length * 2) / 2);
-  if (per <= 0) return null;
-  const paid = money(per * staff.length);
-  for (const e of staff) {
-    const x = s.emps[e.id];
-    x.bonusTotal = money(x.bonusTotal + per);
-    x.bonusLast = per;
-  }
-  expense(s, "bonos", paid, `Bono del Host - ${fmtMXN(per)} a cada uno`, { ded: true, kind: "admin" });
-  return { per, paid, n: staff.length };
+function adminBonusOne(s, id, amount) {
+  const def = EMP[id];
+  amount = money(Number(amount) || 0);
+  if (!def || !def.payroll || amount <= 0) return null;
+  const x = s.emps[id];
+  x.bonusTotal = money((x.bonusTotal || 0) + amount);
+  x.bonusLast = amount;
+  expense(s, "bonos", amount, `Bono del Host - ${def.name}`, { ded: true, kind: "admin" });
+  return { name: def.name, amount };
 }
 function forceEvent(s, type) {
   const rng = adminRng(s);
   const t = cdmx(s.minute * MIN);
   if (type === "masivo") createOrder(s, rng, "banda", { target: rng.range(15500, 18e3), lines: 3, urgent: true, masivo: true });
   else if (type === "cofepris") cofeprisEvent(s, rng, true);
-  else if (type === "velada") {
-    s.flags.forceVelada = true;
-    log(s, "Velada de horas extra programada por el Host", null, "admin");
-  } else if (type === "domingo") {
+  else if (type === "velada") adminVelada(s, true);
+  else if (type === "domingo") {
     if (t.dow === 0) {
       s.flags.sundayPlanned = t.dayKey;
       const keep = s.day;
@@ -2691,7 +2835,11 @@ var LAYOUT = {
   m2: { p: V(-8.8, -11), stand: V(-8.8, -8.6) },
   m4: { p: V(-3.3, -11), stand: V(-3.3, -8.8) },
   m6: { p: V(0.6, -10.6), stand: V(0.6, -8) },
-  m3: { p: V(-20.6, 7), stand: V(-19.4, 6.4) }
+  m3: { p: V(-20.6, 7), stand: V(-19.4, 6.4) },
+  m10: { p: V(-21, -2.3), stand: V(-21, 0.4), rot: Math.PI / 2 },
+  // Túnel de secado (cabecera de la fila A)
+  m11: { p: V(-20.9, -11), stand: V(-20.9, -8.5), rot: Math.PI / 2 }
+  // Tren Hot-Melt (cabecera de la fila B)
 };
 var GAPS_A = [-15.5, -9.3, -3, 2.6];
 var STREET_L = V(-34, 17.6);
@@ -2911,6 +3059,7 @@ function lamp(group, y, x = 0, z = 0) {
   group.add(cyl(0.025, y - 0.1, 3355443, x, 0.05, z, 6));
   return l;
 }
+var LED_GEO = new THREE.SphereGeometry(0.045, 8, 8);
 function buildMachine(id) {
   const g = new THREE.Group();
   const anim = {};
@@ -3031,6 +3180,40 @@ function buildMachine(id) {
       lampY = 2.1;
       break;
     }
+    case "m10": {
+      g.add(rbox(2.7, 0.75, 0.95, 3621201, 0, 0, 0));
+      g.add(rbox(1.6, 0.85, 1.05, 10265519, 0.1, 0.75, 0, { metalness: 0.5, roughness: 0.4 }));
+      const mouth = box(0.04, 0.45, 0.8, 1120295, -0.72, 0.95, 0);
+      g.add(mouth);
+      const glow = box(0.06, 0.38, 0.7, 16742938, 0.88, 0.97, 0, { emissive: 0 });
+      g.add(glow);
+      anim.glow = glow;
+      const belt = box(2.6, 0.04, 0.8, 2042167, 0, 0.77, 0);
+      g.add(belt);
+      const shirt = box(0.42, 0.03, 0.5, 16317180, -1.05, 0.8, 0);
+      g.add(shirt);
+      anim.slide = shirt;
+      anim.slideFrom = -1.05;
+      anim.slideLen = 2.1;
+      g.add(box(0.3, 0.22, 0.05, 988970, 0.4, 1.2, 0.53, { emissive: 8138002, emissiveIntensity: 0.6 }));
+      lampY = 1.9;
+      break;
+    }
+    case "m11": {
+      g.add(rbox(2.6, 0.9, 1, 1981023, 0, 0, 0));
+      g.add(cyl(0.22, 0.35, 11817737, -0.5, 0.9, 0, 16, { metalness: 0.4 }));
+      const clamp2 = rbox(0.5, 0.35, 0.3, 15067115, -1, 0.95, 0, void 0, 0.03);
+      g.add(clamp2);
+      anim.slide = clamp2;
+      anim.slideFrom = -1;
+      anim.slideLen = 2;
+      g.add(rbox(0.6, 0.55, 0.9, 3359061, 1, 0.9, 0));
+      const pile = box(0.45, 0.25, 0.35, 16436245, 1, 1.45, 0);
+      g.add(pile);
+      anim.stack = pile;
+      lampY = 2;
+      break;
+    }
     case "m9": {
       g.add(rbox(1.8, 1, 1, 8141549, -0.9, 0, 0));
       g.add(rbox(0.7, 0.5, 0.8, 7153881, -1.3, 1, 0));
@@ -3048,9 +3231,41 @@ function buildMachine(id) {
     }
   }
   anim.lamp = lamp(g, lampY, 0, -1);
+  const panel = rbox(0.34, 0.26, 0.08, 2042167, 0.35, Math.max(0.9, lampY - 1.05), -0.62, void 0, 0.02);
+  g.add(panel);
+  const led = new THREE.Mesh(LED_GEO, new THREE.MeshStandardMaterial({ color: 2278750, emissive: 2278750, emissiveIntensity: 0.9 }));
+  led.position.set(0.35, panel.position.y + 0.06, -0.57);
+  g.add(led);
+  anim.led = led;
   return { g, anim };
 }
-function buildPerson(color, { skin = 13012578, hair = 2825492, pants = 2963272, h = 1, coat = false } = {}) {
+var PG = {
+  leg: new THREE.CapsuleGeometry(0.09, 0.55, 4, 10),
+  torso: new THREE.CapsuleGeometry(0.24, 0.42, 6, 14),
+  arm: new THREE.CapsuleGeometry(0.065, 0.46, 4, 10),
+  hand: new THREE.SphereGeometry(0.07, 10, 10),
+  head: new THREE.SphereGeometry(0.2, 20, 20),
+  hair: new THREE.SphereGeometry(0.212, 20, 20, 0, Math.PI * 2, 0, Math.PI / 2.1),
+  longHair: new THREE.CylinderGeometry(0.2, 0.17, 0.42, 16, 1, true),
+  capTop: new THREE.SphereGeometry(0.218, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2.4),
+  lens: new THREE.TorusGeometry(0.055, 0.012, 6, 14),
+  beanie: new THREE.SphereGeometry(0.225, 18, 12, 0, Math.PI * 2, 0, Math.PI / 1.9)
+};
+var LOOKS = {
+  cono: { cap: 1981066 },
+  timo: { cap: 16096779, back: true },
+  gael: { beanie: 1467700 },
+  hector: { glasses: true },
+  sara: { long: true },
+  buster: { glasses: true, beard: true },
+  marino: { cap: 8138002 },
+  wachavato: { cap: 1120295, glasses: true },
+  julia: { long: true },
+  natasha: { long: true, glasses: true },
+  adrian: { glasses: true },
+  hanna: { long: true, glasses: true }
+};
+function buildPerson(color, { skin = 13012578, hair = 2825492, pants = 2963272, h = 1, coat = false, look = {} } = {}) {
   const g = new THREE.Group();
   const body = new THREE.Group();
   g.add(body);
@@ -3058,7 +3273,7 @@ function buildPerson(color, { skin = 13012578, hair = 2825492, pants = 2963272, 
   const mkLeg = (x) => {
     const p = new THREE.Group();
     p.position.set(x, 0.8, 0);
-    const l = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.55, 4, 10), legMat);
+    const l = new THREE.Mesh(PG.leg, legMat);
     l.position.y = -0.38;
     l.castShadow = true;
     p.add(l);
@@ -3067,7 +3282,7 @@ function buildPerson(color, { skin = 13012578, hair = 2825492, pants = 2963272, 
   };
   const l1 = mkLeg(-0.11), l2 = mkLeg(0.11);
   body.add(l1, l2);
-  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.24, 0.42, 6, 14), mat(coat ? 16317180 : color));
+  const torso = new THREE.Mesh(PG.torso, mat(coat ? 16317180 : color));
   torso.position.y = 1.12;
   torso.scale.set(1, 1, 0.68);
   torso.castShadow = true;
@@ -3076,25 +3291,50 @@ function buildPerson(color, { skin = 13012578, hair = 2825492, pants = 2963272, 
   const mkArm = (x) => {
     const p = new THREE.Group();
     p.position.set(x, 1.38, 0);
-    const a = new THREE.Mesh(new THREE.CapsuleGeometry(0.065, 0.46, 4, 10), mat(coat ? 16317180 : color));
+    const a = new THREE.Mesh(PG.arm, mat(coat ? 16317180 : color));
     a.position.y = -0.27;
     a.castShadow = true;
     p.add(a);
-    const hd = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10), mat(skin));
+    const hd = new THREE.Mesh(PG.hand, mat(skin));
     hd.position.y = -0.55;
     p.add(hd);
     return p;
   };
   const a1 = mkArm(-0.31), a2 = mkArm(0.31);
   body.add(a1, a2);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 20, 20), mat(skin));
+  const head = new THREE.Mesh(PG.head, mat(skin));
   head.position.y = 1.72;
   head.castShadow = true;
   body.add(head);
-  const hr = new THREE.Mesh(new THREE.SphereGeometry(0.212, 20, 20, 0, Math.PI * 2, 0, Math.PI / 2.1), mat(hair));
+  const hr = new THREE.Mesh(PG.hair, mat(hair));
   hr.position.y = 1.74;
   hr.rotation.x = -0.15;
   body.add(hr);
+  if (look.long) {
+    const lh = new THREE.Mesh(PG.longHair, mat(hair));
+    lh.position.set(0, 1.6, -0.05);
+    body.add(lh);
+  }
+  if (look.cap) {
+    const c = new THREE.Mesh(PG.capTop, mat(look.cap));
+    c.position.y = 1.76;
+    body.add(c);
+    body.add(box(0.26, 0.03, 0.2, look.cap, 0, 1.8, look.back ? -0.24 : 0.24));
+  }
+  if (look.beanie) {
+    const b = new THREE.Mesh(PG.beanie, mat(look.beanie));
+    b.position.y = 1.75;
+    body.add(b);
+  }
+  if (look.glasses) {
+    for (const x of [-0.075, 0.075]) {
+      const l = new THREE.Mesh(PG.lens, mat(1120295));
+      l.position.set(x, 1.73, 0.19);
+      body.add(l);
+    }
+    body.add(box(0.05, 0.012, 0.01, 1120295, 0, 1.73, 0.195));
+  }
+  if (look.beard) body.add(rbox(0.26, 0.12, 0.12, hair, 0, 1.56, 0.12, void 0, 0.05));
   const phone = rbox(0.09, 0.16, 0.02, 988970, 0, -0.66, 0.08, { emissive: 3900150, emissiveIntensity: 0.7 }, 0.01);
   phone.visible = false;
   a2.add(phone);
@@ -3105,16 +3345,18 @@ function buildPerson(color, { skin = 13012578, hair = 2825492, pants = 2963272, 
   mug.visible = false;
   a1.add(mug);
   g.scale.setScalar(h);
-  return { g, body, l1, l2, a1, a2, phone, ctrl, mug };
+  return { g, body, torso, l1, l2, a1, a2, phone, ctrl, mug };
 }
 var SKINS = [13012578, 11038540, 14724224, 9263675, 14263418];
 var HAIRS = [2825492, 1118481, 5912613, 3877402, 8016432];
 var EMP_NAME = Object.fromEntries(EMPLOYEES.map((e) => [e.id, e.name]));
 function createScene(container) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  let maxDPR = 1.5;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxDPR));
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.shadowMap.autoUpdate = false;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1;
@@ -3146,7 +3388,7 @@ function createScene(container) {
   scene2.add(hemi);
   const sun = new THREE.DirectionalLight(16773596, 2.2);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(4096, 4096);
+  sun.shadow.mapSize.set(2048, 2048);
   Object.assign(sun.shadow.camera, { left: -40, right: 40, top: 40, bottom: -40, near: 1, far: 160 });
   sun.shadow.bias = -4e-4;
   sun.shadow.normalBias = 0.02;
@@ -3155,14 +3397,14 @@ function createScene(container) {
   scene2.add(sun.target);
   const interior = [];
   for (const [x, z] of [[-16, 10], [-4, 10], [6, 10], [16, 10], [-15, -6], [-4, -6], [8, -7], [17, -9], [18.5, -0.5]]) {
-    const l = new THREE.PointLight(16773590, 0, 16, 1.7);
-    l.position.set(x, 3.6, z);
-    scene2.add(l);
-    interior.push(l);
     const fx2 = rbox(1.5, 0.06, 0.32, 16777215, x, 3.65, z, { emissive: 0 });
     scene2.add(fx2);
-    l.userData.fixture = fx2;
+    interior.push(fx2);
   }
+  const fill = new THREE.HemisphereLight(16771010, 3878690, 0);
+  scene2.add(fill);
+  let lampsOn = null;
+  let streetOn = null;
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(260, 260), mat(7311202));
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.08;
@@ -3303,8 +3545,8 @@ function createScene(container) {
   scene2.add(rbox(0.4, 0.6, 1, 1982639, 3.7, 0, 13.1));
   scene2.add(rbox(0.4, 0.6, 1, 1982639, 8.5, 0, 13.1));
   scene2.add(rbox(2.6, 0.5, 0.5, 2565930, 6.1, 0, 7));
-  const tv = rbox(2.6, 1.5, 0.08, 132631, 6.1, 0.7, 7, { emissive: 0 }, 0.03);
-  scene2.add(tv);
+  const tv2 = rbox(2.6, 1.5, 0.08, 132631, 6.1, 0.7, 7, { emissive: 0 }, 0.03);
+  scene2.add(tv2);
   scene2.add(rbox(0.35, 0.12, 0.28, 1118481, 5, 0.5, 7.1));
   const xlight = box(0.04, 0.03, 0.03, 2278750, 5, 0.58, 7.25, { emissive: 0 });
   scene2.add(xlight);
@@ -3397,6 +3639,7 @@ function createScene(container) {
     const { g, anim } = buildMachine(m.id);
     g.position.copy(L.p);
     if (m.id === "m3") g.rotation.y = Math.PI / 2;
+    if (L.rot) g.rotation.y = L.rot;
     scene2.add(g);
     const el = document.createElement("div");
     el.className = "mlabel";
@@ -3426,10 +3669,7 @@ function createScene(container) {
     const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 10), new THREE.MeshStandardMaterial({ color: 16708551, emissive: 0 }));
     bulb.position.set(x, 4.6, 17.4);
     scene2.add(bulb);
-    const pl = new THREE.PointLight(16766362, 0, 18, 1.8);
-    pl.position.set(x, 4.4, 17.4);
-    scene2.add(pl);
-    streetLights.push({ bulb, pl });
+    streetLights.push({ bulb });
   }
   const neighborCols = [13935475, 10203592, 15320170, 11895693, 8693149];
   for (let i = 0; i < 3; i++) scene2.add(box(9, 5 + i * 2, 20, neighborCols[i], -60 + i * 10, 0, -2));
@@ -3451,7 +3691,8 @@ function createScene(container) {
       hair: HAIRS[i * 3 % 5],
       pants: e.lab ? 9741240 : 2963272,
       coat: !!e.lab,
-      h: ["cono", "wachavato", "hector"].includes(e.id) ? 1.05 : ["natasha", "sara", "julia", "hanna"].includes(e.id) ? 0.95 : 1
+      h: ["cono", "wachavato", "hector"].includes(e.id) ? 1.05 : ["natasha", "sara", "julia", "hanna"].includes(e.id) ? 0.95 : 1,
+      look: LOOKS[e.id] || {}
     });
     p.g.position.copy(STREET_L);
     p.g.visible = false;
@@ -3492,12 +3733,12 @@ function createScene(container) {
     scene2.add(p.g);
     custPool.push({ ...p, busy: false, path: [], waitUntil: 0, stage: 0, phase: i });
   }
-  const SKY = { col: new THREE.Color(), night: new THREE.Color(725536), day: new THREE.Color(10274792), dusk: new THREE.Color(16032353) };
+  const SKY = { col: new THREE.Color(), night: new THREE.Color(725536), day: new THREE.Color(10274792), dusk: new THREE.Color(16032353), sunCol: new THREE.Color(), sunDay: new THREE.Color(16773596), sunDusk: new THREE.Color(16754784) };
   let panelOpen = true;
   function resize() {
     const w = container.clientWidth, h = container.clientHeight;
     if (!w || !h) return;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxDPR));
     renderer.setSize(w, h);
     labelR.setSize(w, h);
     const aspect = w / h;
@@ -3611,6 +3852,15 @@ function createScene(container) {
     }
     if (mode === "talk") P2.a2.rotation.x = -0.4 + Math.sin(t * 2.5 + P2.phase) * 0.35;
     P2.g.position.y = walking ? Math.abs(Math.sin(t * 9 + P2.phase)) * 0.05 : 0;
+    if (!walking && mode !== "sleep") {
+      const br = Math.sin(t * 2.1 + P2.phase);
+      P2.torso.scale.y = 1 + br * 0.025;
+      if (mode === "stand") {
+        P2.a1.rotation.x = br * 0.04;
+        P2.a2.rotation.x = -br * 0.04;
+        P2.body.rotation.y = Math.sin(t * 0.4 + P2.phase) * 0.06;
+      }
+    } else P2.torso.scale.y = 1;
   }
   const lampColors = { work: 2278750, idle: 10265519, maint: 16096779, nomat: 15680580, off: 2042167 };
   let cardMode = "full";
@@ -3630,16 +3880,19 @@ function createScene(container) {
     scene2.fog.color = col;
     sun.intensity = 0.12 + daylight * 2.1;
     hemi.intensity = 0.18 + daylight * 0.45;
+    SKY.sunCol.copy(SKY.sunDay).lerp(SKY.sunDusk, Math.min(1, dusk * 0.9 + Math.max(0, 1 - Math.abs(hour - 17.5) / 1.5) * 0.6));
+    sun.color.copy(SKY.sunCol);
     sun.position.set(Math.cos((hour - 6) / 12 * Math.PI) * 45, 14 + daylight * 40, 22);
     scene2.environmentIntensity = 0.25 + daylight * 0.35;
     const night = daylight < 0.25;
-    for (const l of interior) {
-      l.intensity = anyone ? night ? 30 : 12 : 0;
-      l.userData.fixture.material.emissive.setHex(anyone ? 16774877 : 0);
+    fill.intensity = anyone ? night ? 1.05 : 0.22 : 0;
+    if (lampsOn !== anyone) {
+      lampsOn = anyone;
+      for (const f of interior) f.material.emissive.setHex(anyone ? 16774877 : 0);
     }
-    for (const s of streetLights) {
-      s.pl.intensity = night ? 32 : 0;
-      s.bulb.material.emissive.setHex(night ? 16766362 : 0);
+    if (streetOn !== night) {
+      streetOn = night;
+      for (const s of streetLights) s.bulb.material.emissive.setHex(night ? 16766362 : 0);
     }
     const inside = Object.values(state.emps).some((e) => e.present && e.act !== "afuera");
     const shutterOpen = inside && state.day && state.day.unlocked !== false && t.mod >= 6 * 60 && t.mod < 17 * 60 + 15;
@@ -3650,11 +3903,21 @@ function createScene(container) {
     });
     for (const [id, M] of Object.entries(machines)) {
       const ms = state.machines[id];
+      if (!ms) {
+        M.g.visible = true;
+        continue;
+      }
       const st = ms.status || "idle";
       M.anim.lamp.material.color.setHex(lampColors[st] || 10265519);
       const blink = st === "nomat" ? Math.sin(tnow * 8) > 0 ? 1 : 0.1 : st === "work" ? 0.6 + Math.sin(tnow * 4) * 0.4 : st === "maint" ? 0.8 : 0;
       M.anim.lamp.material.emissive.setHex(lampColors[st] || 0);
       M.anim.lamp.material.emissiveIntensity = blink;
+      if (M.ledSt !== st) {
+        M.ledSt = st;
+        const c = st === "work" ? 16096779 : st === "nomat" ? 15680580 : st === "maint" ? 16347926 : st === "off" ? 3359061 : 2278750;
+        M.anim.led.material.color.setHex(c);
+        M.anim.led.material.emissive.setHex(c);
+      }
       const working = st === "work";
       if (working) M.phase += dt * Math.min(rate, 8);
       const ph = M.phase;
@@ -3672,12 +3935,16 @@ function createScene(container) {
         M.anim.glow.material.emissive.setHex(working ? 16734720 : 0);
         M.anim.glow.material.emissiveIntensity = working ? 0.9 : 0;
       }
-      if (M.anim.slide) M.anim.slide.position.x = working ? -1.5 + ph * 0.5 % 1 * 1.2 : -1.5;
+      if (M.anim.slide) {
+        const f = M.anim.slideFrom ?? -1.5, len = M.anim.slideLen ?? 1.2;
+        M.anim.slide.position.x = working ? f + ph * 0.5 % 1 * len : f;
+      }
       if (M.anim.press) M.anim.press.position.y = working ? 1.39 - Math.abs(Math.sin(ph * 2)) * 0.25 : 1.39;
       M.el.dataset.st = st;
       const job = ms.jobId ? jobsById.get(ms.jobId) : null;
       const st0 = job && job.steps[job.si];
-      const pcTxt = st === "nomat" ? " sin insumo" : st === "maint" ? " mantenimiento" : "";
+      const def = MACHINES.find((m) => m.id === id);
+      const pcTxt = def && def.binary ? st === "work" ? " Ocupado" : " Desocupado" : st === "nomat" ? " sin insumo" : st === "maint" ? " mantenimiento" : "";
       if (M.pc.textContent !== pcTxt) M.pc.textContent = pcTxt;
       M.el.title = `${MACHINES.find((m) => m.id === id).name}${job ? `
 ${job.product} de ${job.client}` : ""}`;
@@ -3717,8 +3984,8 @@ ${job.product} de ${job.client}` : ""}`;
     }
     bathDoorPivot.rotation.y += ((occ ? 0 : -1.2) - bathDoorPivot.rotation.y) * Math.min(1, dt * 4);
     const playing = state.xbox.players.length > 0 && anyone;
-    if (playing) tv.material.emissive.setHSL(tnow * 0.15 % 1, 0.7, 0.35 + Math.sin(tnow * 6) * 0.08);
-    else tv.material.emissive.setHex(0);
+    if (playing) tv2.material.emissive.setHSL(tnow * 0.15 % 1, 0.7, 0.35 + Math.sin(tnow * 6) * 0.08);
+    else tv2.material.emissive.setHex(0);
     xlight.material.emissive.setHex(playing ? 2278750 : 0);
     ctrls.forEach((c, i) => {
       c.visible = i >= state.xbox.players.length;
@@ -3802,8 +4069,10 @@ ${job.product} de ${job.client}` : ""}`;
       const withPhone = act === "cel";
       if (withPhone) P2.a2.rotation.x = -1.25;
       if (act === "xbox" && arrived) {
-        P2.a1.rotation.x = -1;
-        P2.a2.rotation.x = -1;
+        const k = Math.sin(tnow * 7 + P2.phase) * 0.12;
+        P2.a1.rotation.x = -1 + k;
+        P2.a2.rotation.x = -1 - k;
+        P2.body.rotation.z = Math.sin(tnow * 1.3 + P2.phase) * 0.05;
       }
       if (act === "desayuno" && arrived) P2.a1.rotation.x = -0.9 + Math.sin(tnow) * 0.2;
       P2.phone.visible = withPhone;
@@ -3894,10 +4163,35 @@ ${job.product} de ${job.client}` : ""}`;
       C.wait = Math.max(2, f.wait * 60 / Math.max(1, rate)) * (rate > 1 ? 1 : 0.25);
     }
   }
+  let frameN = 0;
+  let slowAcc = 0;
+  let slowN = 0;
+  let lowQ = false;
   function render() {
+    const t0 = performance.now();
     controls.update();
+    if (frameN++ % 3 === 0) renderer.shadowMap.needsUpdate = true;
     renderer.render(scene2, camera);
     labelR.render(scene2, camera);
+    if (!lowQ) {
+      slowAcc += performance.now() - t0;
+      slowN++;
+      if (slowN >= 90) {
+        if (slowAcc / slowN > 22) setLowQuality();
+        slowAcc = 0;
+        slowN = 0;
+      }
+    }
+  }
+  function setLowQuality() {
+    lowQ = true;
+    maxDPR = 1;
+    renderer.shadowMap.enabled = false;
+    sun.castShadow = false;
+    scene2.traverse((o) => {
+      if (o.material && o.material.needsUpdate !== void 0) o.material.needsUpdate = true;
+    });
+    resize();
   }
   function focus(area) {
     const P2 = { all: [V(1, 0), 0.9], counter: [V(-16, 10), 2.4], prod: [V(-9, -6), 1.6], lab: [V(17, -9), 2.4], office: [V(-4, 10), 2.4], xbox: [V(6, 10), 2.8], comedor: [V(16, 10), 2.4], bodega: [V(8, -7), 2.3], bano: [V(18.5, 0), 3] }[area] || [V(0, 0), 1];
@@ -3932,6 +4226,78 @@ ${job.product} de ${job.client}` : ""}`;
       });
     }
   };
+}
+
+// src/icons.js
+var svg = (p, extra = "") => `<svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra}>${p}</svg>`;
+var ICON = {
+  lock: svg('<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'),
+  gear: svg('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
+  chart: svg('<path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/>'),
+  broom: svg('<path d="M19 3 11 11"/><path d="M11 11c-2-1-5 0-6 3l-2 7 7-2c3-1 4-4 3-6z"/><path d="M6 16l2 2"/>'),
+  trash: svg('<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 15h10l1-15"/><path d="M10 11v6M14 11v6"/>'),
+  clock: svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+  camera: svg('<rect x="2" y="7" width="14" height="11" rx="2"/><path d="M16 11l6-3v9l-6-3z"/>'),
+  menu: svg('<path d="M4 6h16M4 12h16M4 18h16"/>'),
+  close: svg('<path d="M6 6l12 12M18 6 6 18"/>'),
+  moon: svg('<path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/>')
+};
+function detectNoEmoji() {
+  try {
+    const q = new URLSearchParams(location.search).get("tv");
+    if (q === "1") return true;
+    if (q === "0") return false;
+    const c = document.createElement("canvas");
+    c.width = c.height = 20;
+    const x = c.getContext("2d", { willReadFrequently: true });
+    if (!x) return false;
+    x.textBaseline = "top";
+    x.font = "16px sans-serif";
+    x.fillStyle = "#000";
+    x.fillText("\u{1F372}", 0, 0);
+    const d = x.getImageData(0, 0, 20, 20).data;
+    for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 0 && (Math.abs(d[i] - d[i + 1]) > 12 || Math.abs(d[i + 1] - d[i + 2]) > 12)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+var NO_EMOJI = typeof document !== "undefined" ? detectNoEmoji() : false;
+var MAP = { "\u26A0": "!", "\u{1F319}": "*", "\u{1F512}": "", "\u{1F5D1}": "x", "\u{1F6BB}": "WC", "\u{1F3AE}": "", "\u{1F451}": "", "\u{1F441}": "" };
+var RE = /\p{Extended_Pictographic}️?/gu;
+function tv(str) {
+  if (!NO_EMOJI || typeof str !== "string") return str;
+  return str.replace(RE, (m) => {
+    const k = m.replace("\uFE0F", "");
+    return k in MAP ? MAP[k] : "\u2022";
+  });
+}
+function installTvFallback(root = document.body) {
+  if (!NO_EMOJI || !root) return;
+  document.documentElement.classList.add("tv");
+  const fix = (n) => {
+    if (n.nodeType === 3) {
+      const v = n.nodeValue;
+      if (v && RE.test(v)) {
+        RE.lastIndex = 0;
+        const t2 = tv(v);
+        if (t2 !== v) n.nodeValue = t2;
+      }
+      RE.lastIndex = 0;
+      return;
+    }
+    if (n.nodeType !== 1) return;
+    const w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT);
+    let t;
+    while (t = w.nextNode()) fix(t);
+  };
+  fix(root);
+  new MutationObserver((ms) => {
+    for (const m of ms) {
+      if (m.type === "characterData") fix(m.target);
+      else m.addedNodes.forEach(fix);
+    }
+  }).observe(root, { subtree: true, childList: true, characterData: true });
 }
 
 // src/main.js
@@ -3977,6 +4343,7 @@ function migrate(s) {
   if (s.emps) {
     for (const e of Object.values(s.emps)) if (e && "morale" in e) delete e.morale;
   }
+  if (s.machines) ensureState(s);
   if (s.v === 5) {
     s.v = 6;
     if (s.day) {
@@ -4072,6 +4439,7 @@ function onNode(k, v) {
 }
 var hostAlive = () => hostState.online && Date.now() - (hostState.seenAt || 0) < 9e4;
 async function boot() {
+  installTvFallback(document.body);
   scene = createScene($("#stage"));
   wireUI();
   cloud.watch(onNode);
@@ -4284,13 +4652,18 @@ function hostStep(now) {
 setInterval(() => {
   if (document.hidden) hostStep(Date.now());
 }, 1e3);
+var lastRender = 0;
 function frame(ts) {
-  const dt = Math.min(0.1, (ts - lastFrame) / 1e3);
-  lastFrame = ts;
   const now = Date.now();
   hostStep(now);
-  showOverlays();
-  if (S) {
+  const draw = ts - lastRender >= 32;
+  const dt = Math.min(0.1, (ts - lastFrame) / 1e3);
+  if (draw) {
+    lastFrame = ts;
+    lastRender = ts;
+    showOverlays();
+  }
+  if (draw && S) {
     const simMs = simNowMs(S, now);
     const displayMs = Math.min(simMs, (S.minute + 1) * MIN - 1);
     const rate = S.clock.real ? 1 : S.clock.rate;
@@ -4298,7 +4671,7 @@ function frame(ts) {
     const jobsById = jobsCache.map;
     scene.update(S, displayMs, dt, rate, jobsById);
   }
-  scene.render();
+  if (draw) scene.render();
   if (ts - uiTick > 250) {
     uiTick = ts;
     renderHUD(simNowMs(S, now));
@@ -4370,6 +4743,12 @@ function renderHUD(ms) {
   }
   if (!S) return;
   checkSummary();
+  const cb = $("#cargaBox");
+  const ct = cargaTxt();
+  if (cb.textContent !== ct.t) {
+    cb.textContent = ct.t;
+    cb.className = `glass rounded-2xl px-3 py-2 pointer-events-auto text-xs font-bold max-w-[260px] ${ct.c}`;
+  }
   const c = $("#cash");
   c.textContent = fmtMXN(S.cash);
   if (lastCash !== null && S.cash !== lastCash) {
@@ -4446,7 +4825,7 @@ function renderPanel(force = false) {
         html += `<div class="daysep">${DOW[t.dow]} ${t.day} de ${MES[t.mo - 1]}</div>`;
       }
       const amt = typeof l.amt === "number" && l.amt !== 0 ? `<span class="a ${l.amt > 0 ? "up" : "dn"}">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>` : '<span class="a"></span>';
-      const rm = canDel ? `<button class="rm" data-del="${i}" data-m="${l.m}" title="Borrar este registro" aria-label="Borrar registro">\u{1F5D1}</button>` : "";
+      const rm = canDel ? `<button class="rm" data-del="${i}" data-m="${l.m}" title="Borrar este registro" aria-label="Borrar registro">${ICON.trash}</button>` : "";
       html += `<div class="logrow k-${l.k}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(l.txt)}</span>${amt}${rm}</div>`;
     }
     body.innerHTML = html;
@@ -4457,6 +4836,7 @@ function renderPanel(force = false) {
   else if (tab === "mach") body.innerHTML = machHTML();
   else if (tab === "inv") body.innerHTML = invHTML();
   else if (tab === "acct") body.innerHTML = acctHTML();
+  else if (tab === "proj") body.innerHTML = projHTML();
   body.scrollTop = scrollTop;
 }
 function empHTML() {
@@ -4483,12 +4863,13 @@ function machHTML() {
   let h = "";
   for (const m of MACHINES) {
     const ms = S.machines[m.id];
+    if (!ms) continue;
     const job = ms.jobId ? S.jobs.find((j) => j.id === ms.jobId) : null;
     const queue = S.jobs.filter((j) => j.steps[j.si] && j.steps[j.si].m === m.id).length;
-    const [stT, stC] = ST[ms.status] || ST.idle;
+    const [stT, stC] = m.binary ? ms.status === "work" ? ["Ocupado", "bg-amber-500/20 text-amber-300"] : ["Desocupado", "bg-emerald-500/20 text-emerald-300"] : ST[ms.status] || ST.idle;
     h += `<div class="py-2 border-b border-slate-700/40">
       <div class="flex items-center gap-2"><b class="text-sm">${m.virtual ? "" : MACHINES.indexOf(m) + 1 + ". "}${m.name}</b><span class="flex-1"></span><span class="pill ${stC}">${stT}</span></div>
-      ${job ? `<div class="text-xs text-slate-300 mt-1">${ms.op && EMP[ms.op] ? `${EMP[ms.op].name} - ${m.id === "dz" ? "Dise\xF1ando" : "Trabajando en m\xE1quina"}` : "Trabajo asignado"}</div>
+      ${job ? `<div class="text-xs text-slate-300 mt-1">${ms.op && EMP[ms.op] ? `${EMP[ms.op].name} - ${m.id === "dz" ? "Dise\xF1ando" : "Trabajando en m\xE1quina"}` : m.auto && ms.status === "work" ? "Curando solo" : "Trabajo asignado"} \xB7 ${esc(job.client)}</div>
       <div class="text-[11px] text-slate-500">Entrega ${dueTxt(job.due)}</div>` : `<div class="text-xs text-slate-500 mt-1">${m.id === "m3" && ms.status === "work" ? "Venta en mostrador" : "Sin trabajo"}</div>`}
       ${queue > (job ? 1 : 0) ? `<div class="text-[11px] text-slate-400">${queue - (job ? 1 : 0)} en cola</div>` : ""}
     </div>`;
@@ -4497,16 +4878,47 @@ function machHTML() {
   (S.lab.printers || []).forEach((w, i) => {
     h += `<div class="flex items-center gap-2 text-xs py-1"><span class="w-24 text-slate-400">Impresora 3D #${i + 1}</span>${w && EMP[w.by] ? `<span class="flex-1">${EMP[w.by].name} - Imprimiendo</span>` : '<span class="text-slate-500">En espera</span>'}</div>`;
   });
-  const orders = Object.values(S.orders || {}).filter((o) => o.kind === "banda");
-  h += `<div class="mt-3 mb-1 font-bold text-sm">\u{1F3B8} Pedidos de bandas activos (${orders.length})</div>`;
-  for (const o of orders.sort((a, b) => a.due - b.due)) {
-    const jobs = S.jobs.filter((j) => j.order === o.id);
-    h += `<div class="text-xs py-1 border-b border-slate-700/30"><b>${esc(o.client || o.band || "Pedido")}</b> \xB7 ${fmtMXN(o.total)} \xB7 entrega ${dueTxt(o.due)} \xB7 ${jobs.length ? "en producci\xF3n" : "listo"}</div>`;
-  }
-  const others = S.jobs.filter((j) => !j.order);
-  if (others.length) {
-    h += `<div class="mt-3 mb-1 font-bold text-sm">\u{1F4CB} Otros trabajos en cola (${others.length})</div>`;
-    for (const j of others.slice(0, 20)) h += `<div class="text-xs py-0.5 flex gap-2"><span class="flex-1">${esc(j.client)}</span><span class="text-slate-500">entrega ${dueTxt(j.due)}</span></div>`;
+  h += `<div class="mt-3 text-xs text-slate-400">Pedidos y proyectos con sus fechas: pesta\xF1a <b>Proyectos</b>.</div>`;
+  return h;
+}
+var dayTxt = (m) => {
+  const t = cdmx(m * MIN);
+  return `${DOW[t.dow].slice(0, 3)} ${t.day}`;
+};
+function cargaTxt() {
+  const d = S && S.day;
+  const c = d && d.carga;
+  if (!d || d.kind !== "normal") return { t: "Hoy no se abre al p\xFAblico", c: "text-slate-300" };
+  if (d.velada) return { t: "\u{1F319} Velada en curso (a puerta cerrada)", c: "text-violet-300" };
+  if (d.veladaProg) return { t: "\u{1F319} Velada programada para hoy a las 5:00 PM", c: "text-violet-300" };
+  if (!c) return { t: "Carga de Trabajo: evaluando\u2026", c: "text-slate-300" };
+  return c.rec ? { t: "\u26A0 Horas Extras Recomendadas Hoy (Alta carga de proyectos)", c: "text-amber-300" } : { t: "Carga de Trabajo: Normal", c: "text-emerald-300" };
+}
+function projHTML() {
+  const c = cargaTxt();
+  const k = S.day && S.day.carga;
+  let h = `<div class="rounded-xl bg-slate-800/60 p-2 mb-2"><div class="text-sm font-bold ${c.c}">${c.t}</div>`;
+  if (k) h += `<div class="text-[11px] text-slate-400 mt-0.5">Evaluado ${hhmm(cdmx(k.at * MIN).mod)} \xB7 ${Math.round(k.backlog / 60)} h de m\xE1quina para las pr\xF3ximas 48 h${k.risk.length ? ` \xB7 En riesgo: ${k.risk.map(esc).join(", ")}` : ""}. Es solo una recomendaci\xF3n: la velada se activa desde el Men\xFA Supremo.</div>`;
+  h += "</div>";
+  const host = role === "host";
+  const groups = [];
+  for (const o of Object.values(S.orders || {})) groups.push({ ref: o.id, client: o.client, kind: o.kind, start: o.start, due: o.due, total: o.total, jobs: S.jobs.filter((j) => j.order === o.id) });
+  const loose = {};
+  for (const j of S.jobs) if (!j.order) (loose[j.client + "|" + j.due] = loose[j.client + "|" + j.due] || []).push(j);
+  for (const js of Object.values(loose)) groups.push({ ref: js.map((j) => j.id).join(","), client: js[0].client, kind: js[0].kind, start: Math.min(...js.map((j) => j.start || j.created)), due: js[0].due, total: null, jobs: js });
+  groups.sort((a, b) => a.due - b.due);
+  h += `<div class="font-bold text-sm mb-1">Proyectos activos (${groups.length})</div>`;
+  if (!groups.length) h += '<div class="text-xs text-slate-500">Sin proyectos en cola.</div>';
+  const now = S.minute;
+  for (const g of groups) {
+    const left = g.jobs.reduce((a, j) => a + j.steps.slice(j.si).reduce((b, st2) => b + Math.max(0, st2.min - st2.done), 0), 0);
+    const st = g.start && g.start > now ? ["Por iniciar", "bg-slate-700 text-slate-300"] : !g.jobs.length ? ["Listo para entregar", "bg-emerald-500/20 text-emerald-300"] : k && k.risk.includes(g.client) ? ["En riesgo", "bg-rose-500/20 text-rose-300"] : ["En tiempo", "bg-sky-500/20 text-sky-300"];
+    const icon = g.kind === "banda" ? "\u{1F3B8}" : g.kind === "periodico" ? "\u{1F4F0}" : "\u{1F4E6}";
+    const del = host ? `<button class="rm-proj" data-delorder="${esc(String(g.ref))}" title="Cancelar este pedido" aria-label="Cancelar pedido">${ICON.trash}</button>` : "";
+    const edit = host && g.jobs.length ? `<div class="flex flex-wrap gap-1 mt-1">${[["-1440", "\u22121 d\xEDa"], ["-120", "\u22122 h"], ["120", "+2 h"], ["1440", "+1 d\xEDa"]].map(([d, l]) => `<button class="btn !py-0.5 !px-2 !text-[11px]" data-edord="${esc(String(g.ref))}" data-due="${d}">Entrega ${l}</button>`).join("")}<button class="btn !py-0.5 !px-2 !text-[11px]" data-edord="${esc(String(g.ref))}" data-f="0.75">Menos trabajo</button><button class="btn !py-0.5 !px-2 !text-[11px]" data-edord="${esc(String(g.ref))}" data-f="1.25">M\xE1s trabajo</button></div>` : "";
+    h += `<div class="py-2 border-b border-slate-700/40"><div class="flex items-center gap-2"><span>${icon}</span><b class="text-sm flex-1">${esc(g.client)}</b><span class="pill ${st[1]}">${st[0]}</span>${del}</div>
+      <div class="text-xs text-slate-300 mt-0.5">Inicia: ${g.start ? dayTxt(g.start) : "\u2014"} - Entrega: ${dayTxt(g.due)} ${hhmm(cdmx(g.due * MIN).mod)}</div>
+      <div class="text-[11px] text-slate-500">${g.jobs.map((j) => esc(j.product)).join(", ") || "Terminado"} \xB7 \u2248 ${Math.max(0, Math.round(left / 60 * 2) / 2)} h de m\xE1quina${g.total ? ` \xB7 ${fmtMXN(g.total)}` : ""}</div>${edit}</div>`;
   }
   return h;
 }
@@ -4665,7 +5077,7 @@ function wireUI() {
     const b = document.body;
     for (const k of ["hud", "cam", "panel"]) b.classList.toggle("fold-" + k, !!fold[k]);
     b.classList.toggle("clean", !!fold.clean);
-    $("#cleanBtn").textContent = fold.clean ? "\u2630 Mostrar men\xFAs" : "\u{1F9F9} Pantalla limpia";
+    $("#cleanBtn").innerHTML = fold.clean ? `${ICON.menu} Mostrar men\xFAs` : `${ICON.broom} Pantalla limpia`;
     scene.setPanel(!fold.clean && !fold.panel);
     try {
       localStorage.setItem(FOLD_KEY, JSON.stringify(fold));
@@ -4754,6 +5166,7 @@ function wireUI() {
   $("#admBonusBtn").addEventListener("click", () => {
     if (!admin) return;
     const v = parseFloat($("#admBonus").value);
+    const id = $("#admBonusEmp").value;
     if (!isFinite(v) || v <= 0) {
       toast("Monto de bono inv\xE1lido");
       return;
@@ -4762,14 +5175,14 @@ function wireUI() {
       toast("No alcanza la caja para ese bono");
       return;
     }
-    const r2 = adminBonus(S, v);
-    if (!r2 || !r2.n) {
-      toast("No hay personal en n\xF3mina");
+    const r2 = adminBonusOne(S, id, v);
+    if (!r2) {
+      toast("Elige a un empleado de n\xF3mina");
       return;
     }
     $("#admBonus").value = "";
     commit();
-    toast(`Bono repartido: ${fmtMXN(r2.per)} a cada uno (${r2.n})`);
+    toast(`Bono para ${r2.name}: ${fmtMXN(r2.amount)}`);
   });
   $("#adminModal").addEventListener("click", (e) => {
     if (e.target.id === "adminModal") lockAdmin();
@@ -4845,6 +5258,49 @@ function wireUI() {
     commit(true);
     toast("Registro borrado para todos");
   });
+  $("#panelBody").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-delorder]");
+    if (!b || role !== "host" || !S) return;
+    if (!confirm("\xBFCancelar este pedido y quitarlo de la cola de m\xE1quinas para todos?")) return;
+    const ref2 = b.dataset.delorder;
+    let who = null;
+    if (S.orders[ref2]) who = adminDeleteOrder(S, ref2);
+    else for (const id of ref2.split(",").map(Number)) who = adminDeleteOrder(S, id) || who;
+    if (!who) {
+      renderPanel(true);
+      return;
+    }
+    commit();
+    toast(`Pedido cancelado: ${who}`);
+  });
+  $("#panelBody").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-edord]");
+    if (!b || role !== "host" || !S) return;
+    const ref2 = b.dataset.edord;
+    const opt = { dueDelta: +(b.dataset.due || 0), factor: +(b.dataset.f || 1) };
+    let who = null;
+    if (S.orders[ref2]) who = adminEditOrder(S, ref2, opt);
+    else for (const id of ref2.split(",").map(Number)) who = adminEditOrder(S, id, opt) || who;
+    if (who) {
+      commit();
+      toast(`Pedido ajustado: ${who}`);
+    }
+  });
+  $("#admVelOn").addEventListener("click", () => {
+    if (!admin) return;
+    const crew = [...document.querySelectorAll("#admVelCrew input:checked")].map((x) => x.value);
+    const r2 = adminVelada(S, true, crew);
+    toast(r2.msg);
+    if (r2.ok) commit();
+    openAdmin();
+  });
+  $("#admVelOff").addEventListener("click", () => {
+    if (!admin) return;
+    const r2 = adminVelada(S, false);
+    toast(r2.msg);
+    if (r2.ok) commit();
+    openAdmin();
+  });
   $("#admLogClear").addEventListener("click", () => {
     if (!admin) return;
     if (!confirm("\xBFBorrar toda la bit\xE1cora para todos los espectadores? No se puede deshacer.")) return;
@@ -4866,6 +5322,15 @@ function openAdmin() {
   $("#admRewindInfo").textContent = old ? `Se puede retroceder hasta ${dueTxt(old)} (puntos de restauraci\xF3n diarios de las \xFAltimas 3 semanas en este equipo).` : "A\xFAn no hay puntos de restauraci\xF3n (se crea uno cada medianoche simulada).";
   $("#admSync").innerHTML = `Firebase: <b class="${cloud.connected ? "text-emerald-300" : "text-amber-300"}">${cloud.connected ? "conectado" : "sin conexi\xF3n (se reintenta solo)"}</b> \xB7 nodo <code>/${CONFIG.DB_PATH}</code> \xB7 revisi\xF3n #${S.rev}.<br>Esta pesta\xF1a es el <b>Host</b>: corre el motor y transmite a todos los espectadores. Seguir\xE1 transmitiendo aunque cierres este men\xFA, hasta que cierres la pesta\xF1a o cedas el control. Si no hay Host conectado, la imprenta queda en pausa para los espectadores y, al volver, el Host calcula el tiempo perdido.`;
   document.querySelectorAll("[data-rate]").forEach((b) => b.classList.toggle("on", !S.clock.real && +b.dataset.rate === S.clock.rate));
+  const ct = cargaTxt();
+  $("#admCarga").innerHTML = `<b class="${ct.c}">${esc(ct.t)}</b>`;
+  $("#admVelSt").textContent = S.day.velada ? `Estado: velada en curso (${(S.day.veladaCrew || []).map((id) => EMP[id] ? EMP[id].name : id).join(", ")}).` : S.day.veladaProg ? "Estado: programada para hoy a las 5:00 PM." : "Estado: sin velada programada.";
+  const selV = S.day.veladaProg && S.day.veladaSel ? S.day.veladaSel : ["timo", "gael", "hector", "adrian", "hanna"];
+  $("#admVelCrew").innerHTML = EMPLOYEES.filter((e) => !VELADA_NUNCA.includes(e.id)).map((e) => `<label class="flex items-center gap-1.5"><input type="checkbox" value="${e.id}" ${selV.includes(e.id) ? "checked" : ""}/> ${esc(e.name)}</label>`).join("");
+  const be = $("#admBonusEmp");
+  const keep = be.value;
+  be.innerHTML = EMPLOYEES.filter((e) => e.payroll).map((e) => `<option value="${e.id}">${esc(e.name)}</option>`).join("");
+  if (keep) be.value = keep;
   renderHUD(simNowMs());
 }
 function setRate(r2) {
