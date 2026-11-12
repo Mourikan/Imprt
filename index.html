@@ -98,6 +98,9 @@
     .mlabel .mn { display: none; }
   }
 .ico{display:inline-block;vertical-align:-0.15em;flex:none}
+#finModal .text-xs{font-size:14px;line-height:1.5}#finModal .text-sm{font-size:16px}#finModal .text-\[11px\],#finModal .text-\[10px\]{font-size:13px}#finModal .logrow{font-size:14px;padding:6px 4px;grid-template-columns:96px 1fr auto}#finModal .logrow.del{grid-template-columns:96px 1fr auto 30px}#finModal .logrow .a{font-size:13px}.fin-hoy span{margin-right:18px}
+.fin-card{width:min(1100px,96vw);height:min(88vh,900px);display:flex;flex-direction:column;font-size:15px}.fin-grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:16px;padding:16px}@media (min-width:768px){.fin-grid{grid-template-columns:1fr 1fr;grid-template-rows:1fr}}.fin-col{display:flex;flex-direction:column;min-height:0}.fin-col .fin-scroll{flex:1}
+.fin-scroll{min-height:0;overflow-y:auto;padding-right:8px;scrollbar-width:auto;scrollbar-color:#64748b #1e293b;overscroll-behavior:contain}.fin-scroll::-webkit-scrollbar{width:16px}.fin-scroll::-webkit-scrollbar-thumb{background:#64748b;border-radius:8px;border:3px solid #1e293b}.fin-scroll::-webkit-scrollbar-track{background:#1e293b;border-radius:8px}
 </style>
 </head>
 <body>
@@ -121,6 +124,7 @@
     <div id="shopSub" class="text-xs text-slate-300">—</div>
   </div>
   <div id="cargaBox" class="glass rounded-2xl px-3 py-2 pointer-events-auto text-xs font-bold max-w-[260px]">—</div>
+  <button id="finBtnHud" class="foldbtn glass pointer-events-auto" title="Finanzas" aria-label="Finanzas"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></button>
   <button id="sumBtnHud" class="foldbtn glass pointer-events-auto" title="Último Resumen del Día" aria-label="Último Resumen del Día"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></button>
   <button class="foldbtn glass pointer-events-auto" data-fold="hud" title="Ocultar encabezado" aria-label="Ocultar encabezado">▴</button>
 </div>
@@ -182,6 +186,20 @@
   </div>
 </div>
 
+<!-- Finanzas: panel centrado y amplio (cómodo para leer y deslizar en Smart TV) -->
+<div id="finModal" class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-3">
+  <div class="glass rounded-2xl fin-card">
+    <div class="flex items-center justify-between gap-3 px-5 pt-4 pb-3 border-b border-slate-700/50">
+      <div class="text-xl font-extrabold">Finanzas</div>
+      <button type="button" class="btn text-base px-4 py-2" id="finClose" aria-label="Cerrar finanzas">Cerrar</button>
+    </div>
+    <div class="fin-grid">
+      <div id="finAcct" class="fin-scroll"></div>
+      <div class="fin-col"><div class="font-bold mb-2">Bitácora financiera</div><div id="finLog" class="fin-scroll"></div></div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal contraseña -->
 <!-- Resumen del Día -->
 <div id="sumModal" class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm">
@@ -224,6 +242,25 @@
           <button class="btn" data-cash="sub">− Restar</button>
           <button class="btn btn-p" data-cash="set">= Establecer</button>
         </div>
+      </section>
+      <section>
+        <div class="font-bold mb-2">1b · Finanzas del día, movimientos manuales y tarifas</div>
+        <div class="text-xs text-slate-400 mb-2">Hoy: ingresos <b id="admDayIng" class="text-emerald-300 font-mono"></b> · gastos <b id="admDayEgr" class="text-rose-300 font-mono"></b>. Fijar estos totales cambia el Resumen del Día, no la caja.</div>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <input id="admSetIng" type="number" step="0.5" min="0" placeholder="Total ingresos del día" class="w-48" />
+          <input id="admSetEgr" type="number" step="0.5" min="0" placeholder="Total gastos del día" class="w-48" />
+          <button class="btn btn-p" id="admDayBtn">Fijar totales del día</button>
+        </div>
+        <div class="text-xs text-slate-400 mb-2">Movimiento manual: afecta la caja y aparece en la bitácora de todos.</div>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <select id="admTxSide" class="w-32"><option value="ing">Ingreso</option><option value="egr">Gasto</option></select>
+          <input id="admTxConcept" type="text" maxlength="80" placeholder="Concepto" class="w-56" />
+          <input id="admTxAmt" type="number" step="0.5" min="0" placeholder="Monto MXN" class="w-36" />
+          <button class="btn btn-p" id="admTxBtn">Registrar</button>
+        </div>
+        <div class="text-xs text-slate-400 mb-2">Tarifas base y costos fijos (aplican desde el siguiente cobro):</div>
+        <div id="admCfg" class="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-1.5 text-xs mb-2"></div>
+        <button class="btn btn-p" id="admCfgBtn">Guardar tarifas</button>
       </section>
       <section>
         <div class="font-bold mb-2">2 · Bono individual</div>
@@ -275,7 +312,7 @@
       </section>
       <section>
         <div class="font-bold mb-2">5 · Administrar Bitácora</div>
-        <div class="text-xs text-slate-400 mb-2">Mientras esta pestaña sea el Host, cada registro de la pestaña Bitácora y cada pedido de la pestaña Proyectos muestra un botón 🗑 para borrarlo. El borrado se envía a Firebase y desaparece al instante de todos los espectadores.</div>
+        <div class="text-xs text-slate-400 mb-2">Mientras esta pestaña sea el Host, cada registro de la Bitácora y de Finanzas trae un botón para borrarlo. Si el registro es dinero, se revierte: un gasto borrado regresa a la caja y un ingreso borrado sale de ella; también se corrigen el Resumen del Día y la contabilidad del mes. "Limpiar toda la bitácora" solo borra el historial visible y no mueve la caja.</div>
         <button class="btn" id="admLogClear"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 3 11 11"/><path d="M11 11c-2-1-5 0-6 3l-2 7 7-2c3-1 4-4 3-6z"/><path d="M6 16l2 2"/></svg> Limpiar toda la bitácora</button>
       </section>
       <section class="border-t border-slate-700/50 pt-4">
@@ -447,6 +484,8 @@ var HORA_DOBLE = 142;
 var HORA_TRIPLE = 213;
 var PRIMA_DOMINICAL = 133.5;
 var ABRE = 9 * 60 + 30;
+var APERTURA = 7 * 60;
+var MADRUGADA = 6 * 60;
 var CIERRA = 17 * 60;
 var MEDIODIA = 12 * 60;
 var DOMINGO_ABRE = 10 * 60;
@@ -455,14 +494,14 @@ var EXTRA_HASTA = 19 * 60 + 30;
 var IMSS_POR_EMPLEADO = 2850;
 var JITTER = 12;
 var EMPLOYEES = [
-  { id: "natasha", name: "Natasha", role: "Mostrador y Administraci\xF3n", shift: [ABRE, CIERRA], payroll: true, color: 14835087, home: "counter", xbox: false },
-  { id: "cono", name: "Cono", role: "Maestro de Guillotina", shift: [ABRE, CIERRA], payroll: true, color: 3960793, home: "m7", xbox: false },
+  { id: "natasha", name: "Natasha", role: "Mostrador y Administraci\xF3n", shift: [APERTURA, 16 * 60], payroll: true, color: 14835087, home: "counter", xbox: false },
+  { id: "cono", name: "Cono", role: "Maestro de Guillotina", shift: [MADRUGADA, 16 * 60], payroll: true, color: 3960793, home: "m7", xbox: false },
   { id: "timo", name: "Timo", role: "Chofer y Asistente", shift: [ABRE, CIERRA], payroll: true, color: 15769632, home: "m7", xbox: false },
-  { id: "gael", name: "Gael", role: "Obrero General", shift: [ABRE, CIERRA], payroll: true, color: 3711337, home: "floor", xbox: true },
-  { id: "hector", name: "Hector", role: "Obrero General", shift: [ABRE, CIERRA], payroll: true, color: 2923686, home: "floor2", xbox: true },
+  { id: "gael", name: "Gael", role: "Obrero General", shift: [MADRUGADA, 16 * 60], payroll: true, color: 3711337, home: "floor", xbox: true },
+  { id: "hector", name: "Hector", role: "Obrero General", shift: [MADRUGADA, 16 * 60], payroll: true, color: 2923686, home: "floor2", xbox: true },
   { id: "sara", name: "Sara", role: "Marketing y Publicidad", shift: [ABRE, CIERRA], payroll: true, color: 11557592, home: "desk_sara", xbox: false },
-  { id: "buster", name: "Buster", role: "Dise\xF1ador y Operador", shift: [ABRE, 12 * 60], payroll: true, color: 15231546, home: "desk_buster", xbox: true },
-  { id: "marino", name: "Marino", role: "Encargado de Serigraf\xEDa", shift: [ABRE, 12 * 60], payroll: true, color: 9133628, home: "m6", xbox: true },
+  { id: "buster", name: "Buster", role: "Dise\xF1ador y Operador", shift: [8 * 60 + 30, 12 * 60], payroll: true, color: 15231546, home: "desk_buster", xbox: true },
+  { id: "marino", name: "Marino", role: "Encargado de Serigraf\xEDa", shift: [APERTURA, 12 * 60], payroll: true, color: 9133628, home: "m6", xbox: true },
   { id: "wachavato", name: "Wachavato", role: "Encargado General", shift: [12 * 60, CIERRA], payroll: true, color: 3359061, home: "patrol", xbox: true },
   { id: "julia", name: "Julia", role: "Dise\xF1adora y Comida", shift: [12 * 60, CIERRA], payroll: true, color: 14239816, home: "desk_julia", xbox: true },
   { id: "adrian", name: "Adrian", role: "Taller 3D \xB7 Alta Custodia", shift: [ABRE, CIERRA], payroll: false, color: 14870768, home: "lab_a", lab: true, xbox: true },
@@ -515,7 +554,18 @@ var INVENTORY = [
   { id: "cintas", name: "Cintas adhesivas", unit: "pzas", lot: 48, unitCost: 12, prov: "Papeler\xEDa Lumen", cat: "Papeler\xEDa", rack: 4 },
   { id: "refrescos", name: "Refrescos (latas/botellas)", unit: "pzas", lot: 48, unitCost: 12, prov: "Distribuidor de refrescos", cat: "Snacks", rack: 4 },
   { id: "sabritas", name: "Sabritas", unit: "bolsas", lot: 60, unitCost: 13.5, prov: "Distribuidor Sabritas", cat: "Snacks", rack: 4 },
-  { id: "galletas", name: "Galletas", unit: "paquetes", lot: 48, unitCost: 10, prov: "Costco / mayorista", cat: "Snacks", rack: 4 }
+  { id: "galletas", name: "Galletas", unit: "paquetes", lot: 48, unitCost: 10, prov: "Costco / mayorista", cat: "Snacks", rack: 4 },
+  // Consumibles económicos (v16): reabasto barato, se gastan poco a poco en acabados, serigrafía y entregas
+  { id: "aros", name: "Aros met\xE1licos / espirales para engargolar", unit: "pzas", lot: 200, unitCost: 2.5, prov: "Papeler\xEDa Lumen", cat: "Consumibles", rack: 5 },
+  { id: "micas_term", name: "Micas t\xE9rmicas carta/oficio", unit: "pzas", lot: 200, unitCost: 2, prov: "Papeler\xEDa Lumen", cat: "Consumibles", rack: 5 },
+  { id: "grapas", name: "Cajas de grapas industriales", unit: "cajas", lot: 20, unitCost: 18, prov: "Ferreter\xEDa industrial", cat: "Consumibles", rack: 5 },
+  { id: "cinta_dc", name: "Cinta doble cara y masking tape", unit: "rollos", lot: 24, unitCost: 16, prov: "Papeler\xEDa Lumen", cat: "Consumibles", rack: 5 },
+  { id: "estopa", name: "Estopa industrial", unit: "kg", lot: 10, unitCost: 35, prov: "Tlapaler\xEDa del barrio", cat: "Consumibles", rack: 5 },
+  { id: "solvente", name: "Solvente / limpiador de pantallas", unit: "litros", lot: 8, unitCost: 65, prov: "Pochteca", cat: "Consumibles", rack: 5 },
+  { id: "silicon", name: "Barras de silic\xF3n / adhesivo Hot-Melt", unit: "kg", lot: 10, unitCost: 48, prov: "Distribuidor de adhesivos", cat: "Consumibles", rack: 5 },
+  { id: "celofan", name: "Bolsas de celof\xE1n para entrega", unit: "pzas", lot: 500, unitCost: 0.6, prov: "Empaques (La Merced)", cat: "Consumibles", rack: 5 },
+  { id: "sobres_entrega", name: "Sobres manila para entrega", unit: "pzas", lot: 200, unitCost: 1.5, prov: "Papeler\xEDa Lumen", cat: "Consumibles", rack: 5 },
+  { id: "etiquetas", name: "Etiquetas y ligas de env\xEDo", unit: "pzas", lot: 500, unitCost: 0.4, prov: "Papeler\xEDa Lumen", cat: "Consumibles", rack: 5 }
 ];
 for (const i of INVENTORY) i.min = Math.round(i.lot * (i.unit === "%" ? 0.12 : 0.15) * 100) / 100;
 var INV = Object.fromEntries(INVENTORY.map((i) => [i.id, i]));
@@ -528,7 +578,8 @@ var BANDS = [
   "Ed Maverick",
   "Chingadazo de Kung Fu",
   "Say Ocean",
-  "Tigers Jaw"
+  "Tigers Jaw",
+  "Eli Noise"
 ];
 var PROTESIS = [
   "pr\xF3tesis transtibial",
@@ -644,7 +695,7 @@ var BUSINESSES = [
   "Despacho jur\xEDdico Morales",
   "Pasteler\xEDa Dulce Hogar"
 ];
-var ING_CATS = { mostrador: "Mostrador y papeler\xEDa", comercial: "Impresi\xF3n comercial y promocionales", bandas: "Merch de Bandas", periodico: "Peri\xF3dico Estudiantil", snacks: "Refrescos y Snacks" };
+var ING_CATS = { mostrador: "Mostrador y papeler\xEDa", comercial: "Impresi\xF3n comercial y promocionales", bandas: "Merch de Bandas", periodico: "Peri\xF3dico Estudiantil", snacks: "Refrescos y Snacks", admin: "Ingresos manuales del Host", ajuste: "Ajuste del total del d\xEDa" };
 var EGR_CATS = {
   nomina: "N\xF3mina",
   extras: "Horas extra y primas",
@@ -662,7 +713,9 @@ var EGR_CATS = {
   sat: "SAT e IMSS",
   cofepris: "COFEPRIS / Municipio",
   hormiga: "Gastos hormiga sin factura",
-  admin: "Ajustes del Host"
+  admin: "Gastos manuales del Host",
+  mantto: "Mantenimiento de m\xE1quinas",
+  ajuste: "Ajuste del total del d\xEDa"
 };
 
 // src/products.js
@@ -1063,10 +1116,10 @@ var LOG_MAX = 900;
 var TIME_SCALE = 1.45;
 var COTS = 3;
 var PERSONAL = /* @__PURE__ */ new Set(["bano", "banoWait", "desayuno", "xbox", "platica", "cel", "calle", "siesta", "snack", "afuera"]);
-var LLAVES = ["cono", "marino", "buster", "wachavato"];
+var LLAVES = ["natasha", "cono", "marino", "buster", "wachavato"];
+var SALIDA_TARDE = ["cono", "gael", "hector", "natasha"];
 var VELADA_GRUPO = ["timo", "gael", "hector", "adrian", "hanna"];
 var VELADA_NUNCA = ["sara", "julia", "natasha"];
-var COMIDA_SEMANAL = 1500;
 var MEDIO_TURNO = ["buster", "marino"];
 var MEDIO_TURNO_TOPE = 13 * 60;
 var VELADA_UMBRAL = 200;
@@ -1133,8 +1186,10 @@ function createState({ genesisMs: genesisMs2, seed }) {
   log(s, "Inicio de la simulaci\xF3n", CAPITAL_INICIAL, "sys", s.minute + 1);
   return s;
 }
-function log(s, txt, amt = null, kind = "info", m = s.minute) {
-  s.log.push({ m, txt, amt, k: kind });
+function log(s, txt, amt = null, kind = "info", m = s.minute, cat = null) {
+  const e = { m, txt, amt, k: kind };
+  if (cat) e.c = cat;
+  s.log.push(e);
   if (s.log.length > LOG_MAX) s.log.splice(0, s.log.length - LOG_MAX);
 }
 function acctOf(s, monthKey) {
@@ -1172,7 +1227,7 @@ function income(s, cat, amt, txt, kind = "in") {
   const v = iva(amt);
   a.ivaC = money(a.ivaC + v);
   a.ingNeto = money(a.ingNeto + amt - v);
-  if (txt) log(s, txt, amt, kind);
+  if (txt) log(s, txt, amt, kind, s.minute, cat);
   return amt;
 }
 function expense(s, cat, amt, txt, opts = {}) {
@@ -1186,7 +1241,7 @@ function expense(s, cat, amt, txt, opts = {}) {
   const v = opts.iva ? iva(amt) : 0;
   a.ivaA = money(a.ivaA + v);
   if (opts.ded) a.deducible = money(a.deducible + amt - v);
-  if (txt) log(s, txt, -amt, opts.kind || "out");
+  if (txt) log(s, txt, -amt, opts.kind || "out", s.minute, cat);
   return amt;
 }
 var list = (names) => names.length > 1 ? names.slice(0, -1).join(", ") + " y " + names[names.length - 1] : names[0];
@@ -1205,7 +1260,7 @@ function requestRestock(s, id, rng) {
   const timo = s.emps.timo;
   let eta, by;
   const nivel = s.inv[id] <= 0 ? "Se acab\xF3" : "Bajo del m\xEDnimo";
-  if (TIMO_FETCH.includes(id) && timo.present && t.mod < CIERRA - 30) {
+  if (TIMO_FETCH.includes(id) && timo.present && t.mod >= APERTURA && t.mod < CIERRA - 30 && !s.flags.velada && t.dow !== 0) {
     by = "timo";
     if (timo.tripUntil > s.minute) {
       eta = timo.tripUntil;
@@ -1296,8 +1351,15 @@ function evalCarga(s) {
   s.day.carga = { at: now, rec: backlog > VELADA_UMBRAL || risk.length > 0, backlog: Math.round(backlog), risk: risk.slice(0, 6) };
   return s.day.carga;
 }
+var CFG_DEFAULT = { sueldo: 8e3, julia: 1500, cfeMin: 8e3, cfeMax: 15e3, internet: 1200, licencias: 3500, adsMin: 500, adsMax: 2e3, mostrador: 1, proyectos: 1 };
+var cfg = (s) => s.cfg || CFG_DEFAULT;
 function ensureState(s) {
   if (!s || !s.machines) return s;
+  if (!s.cfg || typeof s.cfg !== "object") s.cfg = { ...CFG_DEFAULT };
+  else for (const [k, v] of Object.entries(CFG_DEFAULT)) if (typeof s.cfg[k] !== "number" || !isFinite(s.cfg[k])) s.cfg[k] = v;
+  if (s.inv) {
+    for (const i of INVENTORY) if (typeof s.inv[i.id] !== "number") s.inv[i.id] = i.lot;
+  }
   for (const m of MACHINES) if (!s.machines[m.id]) s.machines[m.id] = { status: "idle", jobId: null, op: null, maintUntil: 0, busyUntil: 0, waiting: false };
   if (!Array.isArray(s.pickups)) s.pickups = [];
   if (!s.flags) s.flags = {};
@@ -1396,6 +1458,7 @@ function createOrder(s, rng, kind, opts = {}) {
       lines.push({ label: `${fmtNum(q)} ${def.label}`, prod: def.label, q, steps: def.steps, amt });
     }
     total = clamp(money(lines.reduce((a, l) => a + l.amt, 0)), 1500, 18e3);
+    if (cfg(s).proyectos !== 1) total = money(total * cfg(s).proyectos);
   } else {
     client = opts.client || rng.pick(BUSINESSES);
     const n = rng.chance(0.2) ? 2 : 1;
@@ -1412,6 +1475,7 @@ function createOrder(s, rng, kind, opts = {}) {
       lines.push({ label: def.label, prod: def.label, q: def.q, steps: def.steps, amt: money(def.unit * def.q) });
     }
     total = money(lines.reduce((a, l) => a + l.amt, 0));
+    if (cfg(s).proyectos !== 1) total = money(total * cfg(s).proyectos);
   }
   const urgent = opts.urgent ?? rng.chance(kind === "banda" ? 0.22 : 0.15);
   const days = urgent ? rng.range(1.2, 2.5) : kind === "banda" ? rng.range(4, 12) : rng.range(2, 6);
@@ -1447,8 +1511,17 @@ function createPeriodico(s, t) {
   s.flags.perMonth = t.monthKey;
   log(s, "Arranca el Peri\xF3dico Estudiantil", null, "band");
 }
+var CONSUMO = {
+  m1: { estopa: 0.2, solvente: 0.1 },
+  m4: { cinta_dc: 0.5 },
+  m6: { estopa: 0.2, solvente: 0.25, cinta_dc: 0.3 },
+  m9: { grapas: 0.25, aros: 5, micas_term: 6 },
+  m11: { silicon: 0.6 }
+};
 function completeStep(s, job, rng) {
   const st = job.steps[job.si];
+  const cons = CONSUMO[st.m];
+  if (cons) for (const [id, q] of Object.entries(cons)) take(s, id, q, rng);
   const matIds = Object.keys(st.mat);
   if (matIds.length && rng.chance(0.3)) {
     const frac = rng.range(0.03, 0.08);
@@ -1492,12 +1565,21 @@ function finishJob(s, job, rng) {
     log(s, "Trabajo listo para entrega", null, "info");
   }
 }
+function cajera(s) {
+  const ok = (e) => e && e.present && e.act !== "afuera" && e.tripUntil <= s.minute && !(e.act && e.act !== "cel" && PERSONAL.has(e.act));
+  if (ok(s.emps.natasha)) return "natasha";
+  if (ok(s.emps.julia)) return "julia";
+  return null;
+}
 function bizOpen(s) {
   const d = s.day;
   const mod = cdmx(s.minute * MIN).mod;
-  return d.kind === "normal" && !!d.unlocked && mod >= ABRE && mod < CIERRA;
+  return d.kind === "normal" && !!d.unlocked && mod >= APERTURA && mod < CIERRA;
 }
 function deliverOrder(s, o, rng) {
+  take(s, "celofan", 10, rng);
+  take(s, "sobres_entrega", 2, rng);
+  take(s, "etiquetas", 5, rng);
   const rest = money(o.total - o.paid);
   if (rest > 0) income(s, o.kind === "banda" ? "bandas" : "comercial", rest, "Pedido entregado", o.kind === "banda" ? "band" : "in");
   else log(s, "Pedido entregado", null, "info");
@@ -1582,9 +1664,9 @@ function startDay(s, t, rng) {
     const salida = j();
     for (const e of EMPLOYEES) {
       if (rest.includes(e.id)) continue;
-      const arr = e.id === "buster" ? ABRE + rng.int(4, 35) : e.shift[0] + (e.id === "wachavato" || e.id === "julia" ? duo : j());
-      const dep = e.shift[1] + (SALIDA_CONJUNTA.includes(e.id) ? salida : j());
-      d.plan[e.id] = { arr, dep };
+      const arr = e.id === "buster" ? e.shift[0] + rng.int(4, 35) : e.shift[0] + (e.id === "wachavato" || e.id === "julia" ? duo : j());
+      const dep = SALIDA_TARDE.includes(e.id) ? rng.int(15 * 60, 16 * 60) : MEDIO_TURNO.includes(e.id) ? e.shift[1] + Math.abs(j()) : e.shift[1] + (SALIDA_CONJUNTA.includes(e.id) ? salida : j());
+      d.plan[e.id] = { arr, dep, dep0: dep };
       if (e.id === "buster") d.breakfast.buster = arr + rng.int(3, 12);
       else if (e.shift[0] < 11 * 60 && rng.chance(0.85)) d.breakfast[e.id] = clamp(Math.max(arr + rng.int(5, 40), 9 * 60 + 35) + rng.int(0, 50), 9 * 60 + 35, 11 * 60 + 15);
     }
@@ -1598,7 +1680,7 @@ function startDay(s, t, rng) {
       dur: rng.int(40, 110),
       why: rng.pick(["Entregando tarjetas y volantes a clientes", "Llevando lonas a un foro", "Pagando en el banco y recogiendo tintas", "Recogiendo playeras en el Centro", "Entregando paqueter\xEDa", "Llevando cajas a una cafeter\xEDa"])
     });
-    const nh = rng.int(1, 3);
+    const nh = rng.int(1, 3) && rng.chance(0.3) ? rng.chance(0.15) ? 2 : 1 : 0;
     for (let i = 0; i < nh; i++) d.hormiga.push(rng.int(ABRE + 5, CIERRA - 10));
     if (rng.chance(0.075)) d.cofepris = rng.int(10 * 60 + 30, 15 * 60 + 30);
     for (const m of MACHINES) if (!m.virtual && rng.chance(0.02)) d.maint.push({ id: m.id, at: rng.int(ABRE + 30, CIERRA - 60), dur: rng.int(30, 120) });
@@ -1690,7 +1772,8 @@ function payOT(s, id, t, silent = false) {
     const dbl = Math.min(hrs, Math.max(0, 9 - e.otWeekHrs));
     const tri = hrs - dbl;
     e.otWeekHrs += hrs;
-    const pay = money(dbl * HORA_DOBLE + tri * HORA_TRIPLE + prima);
+    const k = cfg(s).sueldo / SUELDO_QUINCENA;
+    const pay = money(dbl * money(HORA_DOBLE * k) + tri * money(HORA_TRIPLE * k) + (prima ? money(PRIMA_DOMINICAL * k) : 0));
     e.otQ = money(e.otQ + pay);
     e.otHrsQ += hrs;
     if (prima) e.primasQ = money(e.primasQ + prima);
@@ -2010,12 +2093,21 @@ function tick(s, fx2) {
       if (s.dayLedger) s.dayLedger.clientes = d.clientes || 0;
     } else closeDay(s, s.minute);
   }
-  const open = d.kind === "normal" && d.unlocked && mod >= ABRE && mod < CIERRA && s.emps.natasha.present && s.emps.natasha.act !== "afuera";
+  const caja = d.kind === "normal" && d.unlocked && mod >= APERTURA && mod < CIERRA ? cajera(s) : null;
+  const cover = caja === "julia";
+  if (cover !== !!d.cover) {
+    d.cover = cover;
+    if (cover && !s.emps.natasha.present && !d.coverLog) {
+      d.coverLog = true;
+      log(s, "Julia - Se queda a cargo del mostrador", null, "people");
+    }
+  }
+  const open = !!caja;
   if (d.kind === "normal" && d.lunchDur !== HORA_COMIDA) d.lunchDur = HORA_COMIDA;
   const lunch = d.kind === "normal" && mod >= d.lunchAt && mod < d.lunchAt + d.lunchDur;
   calendar(s, t, rng);
   processRestock(s);
-  if (d.kind === "normal" && (mod === ABRE || !d.carga && mod > ABRE && mod < CIERRA)) evalCarga(s);
+  if (d.kind === "normal" && (mod === APERTURA || !d.carga && mod > APERTURA && mod < CIERRA)) evalCarga(s);
   if (s.pickups && s.pickups.length && bizOpen(s)) {
     const o = s.pickups.shift();
     deliverOrder(s, o, rng);
@@ -2042,7 +2134,7 @@ function tick(s, fx2) {
     }
     for (const mt of d.maint) if (mt.at === mod) {
       s.machines[mt.id].maintUntil = s.minute + mt.dur;
-      expense(s, "insumos", rng.money(150, 900), "Mantenimiento de m\xE1quina", { iva: true, ded: true });
+      expense(s, "mantto", rng.money(150, 900), "Mantenimiento de m\xE1quina", { iva: true, ded: true });
     }
     if (open) customers(s, t, rng, lunch, fx2);
     if (d.kind === "normal" && d.unlocked && mod >= ABRE && mod < CIERRA) inflow(s, t, rng);
@@ -2075,7 +2167,7 @@ function calendar(s, t, rng) {
   const f = s.flags;
   if (t.day === 1 && mod === 10 * 60 && f.swMonth !== t.monthKey) {
     f.swMonth = t.monthKey;
-    expense(s, "licencias", 3500, "Licencias y membres\xEDas", { iva: true, ded: true });
+    expense(s, "licencias", cfg(s).licencias, "Licencias y membres\xEDas", { iva: true, ded: true });
   }
   if (t.day === 5 && mod === 10 * 60 && f.cfeMonth !== t.monthKey) {
     f.cfeMonth = t.monthKey;
@@ -2083,12 +2175,13 @@ function calendar(s, t, rng) {
     const use = s.machUse[prev] || 15e3;
     const xb = s.machUse[prev + "x"] || 0;
     const vel = s.machUse[prev + "v"] || 0;
-    const amt = money(8e3 + 7e3 * clamp((use + xb * 0.3 + vel * 2) / 42e3, 0, 1) + rng.range(-300, 300));
-    expense(s, "luz", clamp(amt, 8e3, 15e3), "Luz CFE", { iva: true, ded: true });
+    const lo = cfg(s).cfeMin, hi = Math.max(cfg(s).cfeMin, cfg(s).cfeMax);
+    const amt = money(lo + (hi - lo) * clamp((use + xb * 0.3 + vel * 2) / 42e3, 0, 1) + rng.range(-300, 300));
+    expense(s, "luz", clamp(amt, lo, hi), "Luz CFE", { iva: true, ded: true });
   }
   if (t.day === 8 && mod === 10 * 60 && f.aguaMonth !== t.monthKey) {
     f.aguaMonth = t.monthKey;
-    expense(s, "internet", 1200, "Internet y telefon\xEDa", { iva: true, ded: true });
+    expense(s, "internet", cfg(s).internet, "Internet y telefon\xEDa", { iva: true, ded: true });
     expense(s, "servicios", rng.money(250, 600), "Agua", { iva: true, ded: true });
   }
   const wk = isoWeekKey(t.y, t.mo, t.day);
@@ -2098,11 +2191,11 @@ function calendar(s, t, rng) {
   }
   if (t.dow === 5 && mod === 12 * 60 + 30 && f.juliaWeek !== wk) {
     f.juliaWeek = wk;
-    expense(s, "comida", COMIDA_SEMANAL, "Julia - Pago semanal de la comida", { kind: "food" });
+    expense(s, "comida", cfg(s).julia, "Julia - Pago semanal de la comida", { kind: "food" });
   }
   if (t.dow === 2 && mod === 12 * 60 && f.adsWeek !== wk) {
     f.adsWeek = wk;
-    expense(s, "marketing", rng.money(500, 2e3), "Sara - Anuncios en redes", { iva: true, ded: true });
+    expense(s, "marketing", rng.money(cfg(s).adsMin, Math.max(cfg(s).adsMin, cfg(s).adsMax)), "Sara - Anuncios en redes", { iva: true, ded: true });
   }
   if (t.dow === 3 && mod === 10 * 60 + 20 && f.cocinaWeek !== wk) {
     f.cocinaWeek = wk;
@@ -2123,7 +2216,7 @@ function calendar(s, t, rng) {
 }
 function payroll(s) {
   const staff = EMPLOYEES.filter((e) => e.payroll);
-  const base = money(staff.length * SUELDO_QUINCENA);
+  const base = money(staff.length * cfg(s).sueldo);
   let extra = 0;
   let hrs = 0;
   for (const e of staff) {
@@ -2209,9 +2302,10 @@ function overtimeDecisions(s, t, rng) {
     s.flags.velada = { crew, start, end, dinnerAt: start + 180 + rng.int(0, 60) };
     s.flags.veladaDay = t.dayKey;
     for (const id of crew) {
+      const p0 = d.plan[id].dep0 ?? EMP[id].shift[1];
       d.plan[id].dep = 99999;
       s.emps[id].extra = true;
-      s.emps[id].otStart = start;
+      s.emps[id].otStart = Math.min(start, s.minute - mod + p0);
     }
     log(s, `${list(crew.map((c) => EMP[c].name))} - Velada de horas extra`, null, "warn");
   }
@@ -2245,7 +2339,8 @@ function adminVelada(s, on, crew = null) {
 function customers(s, t, rng, lunch, fx2) {
   const mod = t.mod;
   let rate = 0.05;
-  if (mod >= 10 * 60 && mod < 11 * 60 + 30) rate *= 1.6;
+  if (mod < ABRE) rate *= 1.3;
+  else if (mod >= 10 * 60 && mod < 11 * 60 + 30) rate *= 1.6;
   else if (mod >= 13 * 60 && mod < 14 * 60 + 30) rate *= 1.4;
   else if (mod >= 15 * 60 + 30 && mod < 16 * 60 + 30) rate *= 0.55;
   if (t.dow === 6) rate *= 0.85;
@@ -2275,6 +2370,7 @@ function customers(s, t, rng, lunch, fx2) {
       ricoh += n2;
       if (k === "engargolado" && s.inv.engargolado >= 1) {
         take(s, "engargolado", 1, rng);
+        if ((s.inv.aros || 0) >= 1) take(s, "aros", 1, rng);
         total += rng.money(25, 65);
         items.push("1 engargolado");
       }
@@ -2336,7 +2432,7 @@ function customers(s, t, rng, lunch, fx2) {
       newJob(s, { client: who, product: `lona de ${m2} m\xB2`, qty: m2, due: s.minute + 1440, steps: [{ m: "m4", min: 10 + m2 * 5, need: { lona: m2, eco: m2 * 0.35 } }] });
     }
   }
-  total = money(total);
+  total = money(total * cfg(s).mostrador);
   s.counters.clientes++;
   s.day.clientes++;
   if (total <= 0) {
@@ -2346,10 +2442,11 @@ function customers(s, t, rng, lunch, fx2) {
   s.day.ventas = money(s.day.ventas + total);
   income(s, "mostrador", total, "Venta en mostrador", "in");
   if (ricoh) s.machines.m3.busyUntil = Math.max(s.machines.m3.busyUntil, s.minute + Math.ceil(ricoh / 50));
-  const n = s.emps.natasha;
+  const cid = cajera(s) || "natasha";
+  const n = s.emps[cid];
   n.busy = "Venta en mostrador";
   n.busyUntil = s.minute + 3 + Math.ceil(ricoh / 50);
-  if (n.act === "cel") endAct(s, "natasha");
+  if (n.act === "cel") endAct(s, cid);
   let snack = null;
   if (rng.chance(0.15)) snack = buySnack(s, rng, who);
   if (fx2) fx2.push({ type: "customer", wait: rng.int(3, 8) + Math.ceil(ricoh / 50), snack: !!snack, total });
@@ -2369,6 +2466,7 @@ function inflow(s, t, rng) {
 }
 function isFree(s, id, lunch) {
   const e = s.emps[id];
+  if (id === "julia" && s.day.cover) return false;
   return e.present && !lunch && e.tripUntil <= s.minute && !isPersonal(e) && !e._used;
 }
 function production(s, t, rng, lunch) {
@@ -2412,7 +2510,7 @@ function production(s, t, rng, lunch) {
     const job = m.jobId ? s.jobs.find((j) => j.id === m.jobId) : null;
     if (!job) {
       m.status = mid === "m3" && m.busyUntil > s.minute ? "work" : "idle";
-      m.op = m.status === "work" ? "natasha" : null;
+      m.op = m.status === "work" ? cajera(s) || "natasha" : null;
       continue;
     }
     const st = job.steps[job.si];
@@ -2554,6 +2652,18 @@ function tasks(s, t, rng, lunch) {
       if (w) e.until = s.minute + (w.total - w.done);
       continue;
     }
+    if (id === "julia" && d.cover) {
+      e.loc = "counter";
+      if (e.busyUntil > s.minute && e.busy) {
+        e.task = e.busy;
+        e.icon = "\u{1F4B5}";
+        e.until = e.busyUntil;
+      } else {
+        e.task = "Cubriendo el mostrador";
+        e.icon = "\u{1F9FE}";
+      }
+      continue;
+    }
     if (id === "natasha") {
       e.loc = "counter";
       if (e.busyUntil > s.minute && e.busy) {
@@ -2615,7 +2725,128 @@ function adminCash(s, mode, amount) {
     a.egr.admin = money((a.egr.admin || 0) - delta);
     s.totals.egr.admin = money((s.totals.egr.admin || 0) - delta);
   }
-  log(s, "Ajuste de capital del Host", delta, "admin");
+  log(s, "Ajuste de capital del Host", delta, "admin", s.minute, "admin");
+}
+var CAT_TXT = [
+  [/^Venta en mostrador/, "mostrador"],
+  [/^Compra en estante/, "snacks"],
+  [/Periódico/, "periodico"],
+  [/^(Nuevo pedido|Pedido masivo|Pedido entregado)/, null],
+  [/^Compra de material/, "insumos"],
+  [/^Mantenimiento de máquina/, "mantto"],
+  [/^Gasto hormiga/, "hormiga"],
+  [/^Envío por paquetería/, "envios"],
+  [/^Gasolina/, "gasolina"],
+  [/^Luz CFE/, "luz"],
+  [/^Internet/, "internet"],
+  [/^Agua/, "servicios"],
+  [/^Licencias/, "licencias"],
+  [/Anuncios en redes/, "marketing"],
+  [/^Insumos de cocina/, "cocina"],
+  [/^Julia|^Cena de la velada|comida/i, "comida"],
+  [/^Nómina/, "nomina"],
+  [/^Horas extra de la quincena/, "extras"],
+  [/^SAT|^IMSS/, "sat"],
+  [/COFEPRIS/, "cofepris"],
+  [/^Bono del Host/, "bonos"]
+];
+var IVA_EGR = /* @__PURE__ */ new Set(["insumos", "mantto", "luz", "internet", "servicios", "gasolina", "marketing", "licencias", "envios"]);
+var DED_EGR = /* @__PURE__ */ new Set([...IVA_EGR, "nomina", "extras", "bonos"]);
+function logCat(e) {
+  if (!e || typeof e.amt !== "number" || e.k === "sys") return null;
+  if (e.c) return e.c;
+  if (e.k === "admin") return "admin";
+  for (const [re, c] of CAT_TXT) if (re.test(e.txt)) return c || (e.k === "band" ? "bandas" : "comercial");
+  return "admin";
+}
+var sumObj = (o) => money(Object.values(o || {}).reduce((x, y) => x + y, 0));
+function adminDeleteLog(s, idx) {
+  const e = s.log[idx];
+  if (!e) return null;
+  const cat = logCat(e);
+  s.log.splice(idx, 1);
+  if (!cat || !e.amt) return { reverted: 0 };
+  const amt = money(Math.abs(e.amt));
+  const side = e.amt > 0 ? "ing" : "egr";
+  s.cash = money(s.cash - e.amt);
+  const dec = (o, k, v) => {
+    if (o) {
+      const n = money((o[k] || 0) - v);
+      if (Math.abs(n) < 0.01) delete o[k];
+      else o[k] = n;
+    }
+  };
+  dec(s.totals[side], cat, amt);
+  const a = s.acct[cdmx(e.m * MIN).monthKey];
+  if (a) {
+    dec(a[side], cat, amt);
+    if (side === "ing") {
+      const v = /^Ajuste de capital/.test(e.txt) ? 0 : iva(amt);
+      a.ivaC = money(a.ivaC - v);
+      a.ingNeto = money(a.ingNeto - (amt - v));
+    } else {
+      const v = IVA_EGR.has(cat) ? iva(amt) : 0;
+      a.ivaA = money(a.ivaA - v);
+      if (DED_EGR.has(cat)) a.deducible = money(a.deducible - (amt - v));
+    }
+  }
+  const L = s.dayLedger;
+  const S2 = s.lastSummary;
+  if (L && e.m >= L.from) dec(L[side], cat, amt);
+  else if (S2 && e.m >= S2.from && e.m <= S2.at) {
+    dec(S2[side], cat, amt);
+    S2.totalIng = sumObj(S2.ing);
+    S2.totalEgr = sumObj(S2.egr);
+    S2.balance = money(S2.totalIng - S2.totalEgr);
+    S2.cash = money(S2.cash - e.amt);
+  }
+  return { reverted: e.amt, side, amt };
+}
+function adminTx(s, side, concept, amount) {
+  const amt = money(Number(amount) || 0);
+  const txt = String(concept || "").trim().slice(0, 80);
+  if (amt <= 0 || !txt) return null;
+  if (side === "ing") income(s, "admin", amt, `${txt} (Host)`, "admin");
+  else expense(s, "admin", amt, `${txt} (Host)`, { kind: "admin" });
+  return { side, amt, txt };
+}
+function adminDayTotals(s, { ing = null, egr = null } = {}) {
+  const L = s.dayLedger || (s.dayLedger = { from: s.minute, ing: {}, egr: {} });
+  const out = {};
+  for (const [side, target] of [["ing", ing], ["egr", egr]]) {
+    if (target == null || !isFinite(target) || target < 0) continue;
+    const t = money(target);
+    const cur = sumObj(L[side]);
+    const diff = money(t - cur);
+    if (!diff) continue;
+    L[side].ajuste = money((L[side].ajuste || 0) + diff);
+    if (!L[side].ajuste) delete L[side].ajuste;
+    out[side] = t;
+  }
+  if (out.ing != null || out.egr != null) log(s, `Totales del d\xEDa ajustados por el Host${out.ing != null ? ` \xB7 ingresos ${fmtMXN(out.ing)}` : ""}${out.egr != null ? ` \xB7 gastos ${fmtMXN(out.egr)}` : ""}`, null, "admin");
+  return out;
+}
+function dayTotals(s) {
+  const L = s.dayLedger || { ing: {}, egr: {} };
+  return { ing: sumObj(L.ing), egr: sumObj(L.egr) };
+}
+function adminSetCfg(s, patch) {
+  ensureState(s);
+  const changed = [];
+  for (const [k, v0] of Object.entries(patch || {})) {
+    if (!(k in CFG_DEFAULT)) continue;
+    let v = Number(v0);
+    if (!isFinite(v) || v < 0) continue;
+    v = k === "mostrador" || k === "proyectos" ? Math.round(clamp(v, 0.25, 4) * 100) / 100 : money(v);
+    if (s.cfg[k] !== v) {
+      s.cfg[k] = v;
+      changed.push(k);
+    }
+  }
+  if (s.cfg.cfeMax < s.cfg.cfeMin) s.cfg.cfeMax = s.cfg.cfeMin;
+  if (s.cfg.adsMax < s.cfg.adsMin) s.cfg.adsMax = s.cfg.adsMin;
+  if (changed.length) log(s, `Tarifas actualizadas por el Host (${changed.length})`, null, "admin");
+  return changed;
 }
 function adminBonusOne(s, id, amount) {
   const def = EMP[id];
@@ -2923,9 +3154,14 @@ function route(from, to) {
   return [...a, ...b, to.clone()];
 }
 var matCache = /* @__PURE__ */ new Map();
+var CACHED = /* @__PURE__ */ new WeakSet();
 function mat(color, opts = {}) {
   const key = color + JSON.stringify(opts);
-  if (!matCache.has(key)) matCache.set(key, new THREE.MeshStandardMaterial({ color, roughness: 0.72, metalness: 0.04, ...opts }));
+  if (!matCache.has(key)) {
+    const m = new THREE.MeshStandardMaterial({ color, roughness: 0.78, metalness: 0.03, ...opts });
+    matCache.set(key, m);
+    CACHED.add(m);
+  }
   return matCache.get(key);
 }
 function own(color, opts = {}) {
@@ -2991,6 +3227,18 @@ var TEX = {
       g.fillRect(i * 97 % w, i * h / 8, 3, h / 8);
     }
   }, 256, 256, rep),
+  polished: (rep) => canvasTex((g, w, h) => {
+    g.fillStyle = "#c9c7c1";
+    g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 700; i++) {
+      const v = 185 + i * 7919 % 40;
+      g.fillStyle = `rgba(${v},${v},${v - 3},.22)`;
+      g.fillRect(i * 37 % w, i * 91 % h, 3, 3);
+    }
+    g.strokeStyle = "rgba(90,90,85,.22)";
+    g.lineWidth = 2;
+    g.strokeRect(1, 1, w - 2, h - 2);
+  }, 256, 256, rep),
   concrete: (rep) => canvasTex((g, w, h) => {
     g.fillStyle = "#a9a7a1";
     g.fillRect(0, 0, w, h);
@@ -3021,6 +3269,66 @@ var TEX = {
     g.strokeRect(32, 32, w - 64, h - 64);
   }, 256, 256)
 };
+var SCREEN_TEX = null;
+function screenTexture() {
+  return canvasTex((g, w, h) => {
+    const gr = g.createLinearGradient(0, 0, w, h);
+    gr.addColorStop(0, "#1e3a8a");
+    gr.addColorStop(1, "#0e7490");
+    g.fillStyle = gr;
+    g.fillRect(0, 0, w, h);
+    g.fillStyle = "rgba(15,23,42,.85)";
+    g.fillRect(0, 0, w, 14);
+    g.fillRect(0, 14, 40, h);
+    const cols = ["#f472b6", "#facc15", "#38bdf8", "#a3e635", "#fb923c"];
+    for (let i = 0; i < 6; i++) {
+      g.fillStyle = cols[i % 5];
+      g.fillRect(52 + i % 3 * 64, 26 + Math.floor(i / 3) * 50, 54, 40);
+    }
+    g.fillStyle = "rgba(255,255,255,.7)";
+    for (let i = 0; i < 5; i++) g.fillRect(6, 22 + i * 18, 26, 4);
+  }, 256, 128);
+}
+function posterTexture(band, i) {
+  const pal = [["#7c3aed", "#f472b6"], ["#0f172a", "#22d3ee"], ["#b91c1c", "#facc15"], ["#065f46", "#a3e635"], ["#1e3a8a", "#f97316"], ["#111827", "#e5e7eb"], ["#9d174d", "#fde68a"], ["#0e7490", "#fef3c7"], ["#3f3f46", "#fb7185"]][i % 9];
+  const t = canvasTex((g, w, h) => {
+    const gr = g.createLinearGradient(0, 0, 0, h);
+    gr.addColorStop(0, pal[0]);
+    gr.addColorStop(1, "#0b0b10");
+    g.fillStyle = gr;
+    g.fillRect(0, 0, w, h);
+    g.fillStyle = pal[1];
+    g.globalAlpha = 0.85;
+    g.beginPath();
+    g.arc(w / 2, h * 0.38, w * 0.3, 0, Math.PI * 2);
+    g.fill();
+    g.globalAlpha = 1;
+    g.fillStyle = "#fff";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    const words = band.toUpperCase().split(" ");
+    const lines = [];
+    let cur = "";
+    for (const wd of words) {
+      if ((cur + " " + wd).trim().length > 11) {
+        lines.push(cur.trim());
+        cur = wd;
+      } else cur += " " + wd;
+    }
+    lines.push(cur.trim());
+    const fs = lines.length > 2 ? 30 : 38;
+    g.font = `900 ${fs}px Inter, Arial`;
+    lines.forEach((ln, k) => g.fillText(ln, w / 2, h * 0.72 + (k - (lines.length - 1) / 2) * (fs + 4)));
+    g.font = "700 15px Inter, Arial";
+    g.fillStyle = pal[1];
+    g.fillText("TOUR 2026 \xB7 CDMX", w / 2, h * 0.92);
+    g.strokeStyle = "#fff";
+    g.lineWidth = 6;
+    g.strokeRect(3, 3, w - 6, h - 6);
+  }, 200, 280);
+  t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+  return t;
+}
 function textTexture(text, { w = 512, h = 128, bg = "#111", fg = "#fff", font = "bold 64px Inter, Arial", stripes = false } = {}) {
   const t = canvasTex((g) => {
     g.fillStyle = bg;
@@ -3359,8 +3667,9 @@ function createScene(container) {
   renderer.shadowMap.autoUpdate = false;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1;
+  renderer.toneMappingExposure = 1.1;
   container.appendChild(renderer.domElement);
+  SCREEN_TEX = SCREEN_TEX || screenTexture();
   const labelR = new CSS2DRenderer();
   labelR.domElement.style.position = "absolute";
   labelR.domElement.style.inset = "0";
@@ -3423,9 +3732,14 @@ function createScene(container) {
   }
   scene2.add(box(260, 0.1, 2.6, 12893875, 0, -0.08, 16.6));
   scene2.add(box(45, 0.12, 31, 10262415, 0, -0.12, 0));
-  floor(scene2, 26, 17, -9, -6.5, new THREE.MeshStandardMaterial({ map: TEX.concrete([6, 4]), roughness: 0.9 }));
+  floor(scene2, 26, 17, -9, -6.5, new THREE.MeshStandardMaterial({ map: TEX.polished([8, 6]), roughness: 0.38, metalness: 0.05 }));
+  for (const [w, d, x, z] of [[24.4, 0.12, -9.6, -0.75], [24.4, 0.12, -9.6, -3.85], [24.4, 0.12, -9.6, -9.35], [24.4, 0.12, -9.6, -12.75], [0.12, 3.1, -21.8, -2.3], [0.12, 3.1, 2.6, -2.3], [0.12, 3.4, -21.8, -11.05], [0.12, 3.4, 2.6, -11.05]]) {
+    const l = floor(scene2, w, d, x, z, mat(16436245, { roughness: 0.5 }));
+    l.position.y = 7e-3;
+    l.receiveShadow = false;
+  }
   floor(scene2, 8, 17, 8, -6.5, new THREE.MeshStandardMaterial({ map: TEX.concrete([2, 4]), roughness: 0.9 }));
-  floor(scene2, 12, 9.8, -16, 10.1, new THREE.MeshStandardMaterial({ map: TEX.tiles([5, 4]), roughness: 0.55 }));
+  floor(scene2, 12, 9.8, -16, 10.1, new THREE.MeshStandardMaterial({ map: TEX.wood([4, 3]), roughness: 0.55, color: 16769732 }));
   floor(scene2, 12, 9.8, -4, 10.1, new THREE.MeshStandardMaterial({ map: TEX.wood([3, 3]), roughness: 0.6 }));
   floor(scene2, 8, 9.8, 6, 10.1, new THREE.MeshStandardMaterial({ map: TEX.wood([2, 3]), roughness: 0.6 }));
   floor(scene2, 12, 9.8, 16, 10.1, new THREE.MeshStandardMaterial({ map: TEX.tiles([5, 4], "#f3efe6", "#cbbfa8"), roughness: 0.55 }));
@@ -3444,6 +3758,10 @@ function createScene(container) {
   scene2.add(box(44.5, H, 0.3, WALL, 0, 0, -15.2));
   scene2.add(box(0.3, H, 30.5, WALL, -22.2, 0, 0));
   scene2.add(box(0.25, 1, 30.5, WALL, 22.1, 0, 0));
+  for (const zb of [box(44.4, 0.16, 0.05, 5978654, 0, 0, -15.03), box(0.05, 0.16, 30.4, 5978654, -22.03, 0, 0)]) {
+    zb.castShadow = false;
+    scene2.add(zb);
+  }
   scene2.add(box(5.8, 0.9, 0.25, WALL, -19.3, 0, 15.1));
   scene2.add(box(35.6, 0.9, 0.25, WALL, 4.2, 0, 15.1));
   ["#00aeef", "#ec008c", "#fff200", "#222222"].forEach((c, i) => scene2.add(box(11, 0.25, 0.05, new THREE.Color(c).getHex(), -16.5 + i * 11, 2.4, -15.03)));
@@ -3481,7 +3799,16 @@ function createScene(container) {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, 2.5, d), labGlass);
     m.position.set(x, 1.25, z);
     scene2.add(m);
-    scene2.add(box(Math.max(w, 0.08), 0.08, Math.max(d, 0.08), 1981023, x, 2.5, z));
+    scene2.add(box(Math.max(w, 0.09), 0.09, Math.max(d, 0.09), 1981023, x, 2.5, z, { roughness: 0.35, metalness: 0.6 }));
+    scene2.add(box(Math.max(w, 0.1), 0.12, Math.max(d, 0.1), 1981023, x, 0, z, { roughness: 0.35, metalness: 0.6 }));
+    const L = Math.max(w, d);
+    const n = Math.max(1, Math.round(L / 2));
+    for (let i = 0; i <= n; i++) {
+      const t = -L / 2 + i * L / n;
+      const mu = box(0.07, 2.5, 0.07, 1981023, w > d ? x + t : x, 0, w > d ? z : z + t, { roughness: 0.35, metalness: 0.6 });
+      mu.castShadow = false;
+      scene2.add(mu);
+    }
   };
   lg(0.06, 12, 12, -9);
   lg(0.5, 0.06, 12.25, -3);
@@ -3511,7 +3838,7 @@ function createScene(container) {
   scene2.add(rbox(6, 1.05, 0.9, 8145453, -16, 0, 9));
   scene2.add(rbox(6.1, 0.06, 1, 15067115, -16, 1.05, 9));
   scene2.add(rbox(0.5, 0.25, 0.4, 1120295, -14.2, 1.1, 9));
-  scene2.add(box(0.36, 0.28, 0.05, 2042167, -17.2, 1.1, 8.7, { emissive: 805486 }));
+  scene2.add(box(0.36, 0.28, 0.05, 2042167, -17.2, 1.1, 8.7, { emissive: 16777215, emissiveMap: SCREEN_TEX, emissiveIntensity: 0.7 }));
   scene2.add(rbox(1.1, 2.1, 0.9, 13114910, -21.4, 0, 13.4));
   scene2.add(box(0.05, 1.3, 0.8, 1120295, -20.83, 0.5, 13.4, { emissive: 1981066, emissiveIntensity: 0.5 }));
   const shelf = new THREE.Group();
@@ -3533,7 +3860,7 @@ function createScene(container) {
     scene2.add(box(0.08, 0.74, 1, 3621201, x - 1.3, 0, 9));
     scene2.add(box(0.08, 0.74, 1, 3621201, x + 1.3, 0, 9));
     for (const dx of [-0.48, 0.48]) {
-      scene2.add(rbox(0.85, 0.52, 0.05, 988970, x + dx, 1, 8.75, { emissive: 1920728, emissiveIntensity: 0.3 }, 0.02));
+      scene2.add(rbox(0.85, 0.52, 0.05, 988970, x + dx, 1, 8.75, { emissive: 16777215, emissiveMap: SCREEN_TEX, emissiveIntensity: 0.75 }, 0.02));
       scene2.add(box(0.06, 0.24, 0.06, 1120295, x + dx, 0.8, 8.8));
     }
     scene2.add(rbox(0.6, 0.5, 0.6, deskCols[i], x, 0, 10.5));
@@ -3578,6 +3905,54 @@ function createScene(container) {
   scene2.add(rbox(0.6, 0.9, 0.5, 6333946, 18.2, 0, 14.4));
   scene2.add(cyl(0.18, 0.45, 9684477, 18.2, 0.9, 14.4));
   scene2.add(sign("COCINA \xB7 COMEDOR", 3.4, 0.45, { w: 700, h: 90, bg: "#b45309", fg: "#fff" }, 16, 2.6, 7.2));
+  const posterGeo = new THREE.PlaneGeometry(1, 1.4);
+  const bandList = ["Eli Noise", ...BANDS.filter((b) => b !== "Eli Noise")];
+  const posterAt = (i, x, y, z, ry) => {
+    const m = new THREE.Mesh(posterGeo, new THREE.MeshStandardMaterial({ map: posterTexture(bandList[i % bandList.length], i), roughness: 0.6 }));
+    m.position.set(x, y, z);
+    m.rotation.y = ry;
+    scene2.add(m);
+    const fr = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.5), mat(2042167));
+    fr.position.set(x, y, z);
+    fr.rotation.y = ry;
+    fr.translateZ(-5e-3);
+    scene2.add(fr);
+  };
+  posterAt(0, -22.02, 2.1, 7, Math.PI / 2);
+  posterAt(1, -22.02, 2.1, 8.6, Math.PI / 2);
+  posterAt(2, -17.6, 1.25, 6.07, 0);
+  posterAt(3, -14.4, 1.25, 6.07, 0);
+  [-20.2, -0.9, 2].forEach((x, k) => posterAt(4 + k, x, 1.9, -15.04, 0));
+  posterAt(7, -22.02, 2, -6.6, Math.PI / 2);
+  posterAt(8, -22.02, 2, -8.1, Math.PI / 2);
+  const POT = new THREE.CylinderGeometry(0.26, 0.2, 0.5, 14);
+  const LEAF = new THREE.IcosahedronGeometry(0.34, 1);
+  const potMat = mat(11817737, { roughness: 0.85 });
+  const leafMats = [mat(1409085, { roughness: 0.85 }), mat(2270042, { roughness: 0.85 }), mat(1467700, { roughness: 0.85 })];
+  for (const [x, z, k] of [[-21.4, 6.1, 1], [-9.5, 14.4, 0.9], [2.7, 14.4, 1.1], [10.7, 14.4, 1], [21.5, -3.6, 0.9], [-21.5, -14.4, 1.2], [3.4, -14.4, 1]]) {
+    const g = new THREE.Group();
+    g.position.set(x, 0, z);
+    g.scale.setScalar(k);
+    const pot = new THREE.Mesh(POT, potMat);
+    pot.position.y = 0.25;
+    pot.castShadow = true;
+    g.add(pot);
+    [[0, 0.78, 0], [0.18, 0.98, 0.08], [-0.16, 1.05, -0.1], [0.02, 1.25, 0.04]].forEach(([dx, dy, dz2], i) => {
+      const lf = new THREE.Mesh(LEAF, leafMats[i % 3]);
+      lf.position.set(dx, dy, dz2);
+      lf.scale.setScalar(0.85 - i * 0.12);
+      lf.castShadow = true;
+      g.add(lf);
+    });
+    scene2.add(g);
+  }
+  const MUG = new THREE.CylinderGeometry(0.06, 0.05, 0.11, 12);
+  const mugMats = [mat(16317180, { roughness: 0.4 }), mat(14427686, { roughness: 0.4 }), mat(1920728, { roughness: 0.4 })];
+  [[-6.6, 9.25], [-2.9, 9.3], [0.8, 9.2], [-14.9, 9], [-17.9, 9.1]].forEach(([x, z], i) => {
+    const m = new THREE.Mesh(MUG, mugMats[i % 3]);
+    m.position.set(x, i < 3 ? 0.86 : 1.17, z);
+    scene2.add(m);
+  });
   const racks = [];
   const rackDef = [
     { p: V(4.9, -12.6), rot: Math.PI / 2, color: 16317180 },
@@ -3605,6 +3980,22 @@ function createScene(container) {
       items.push(m);
     }
     scene2.add(g);
+    racks.push(items);
+  }
+  {
+    const items = [];
+    const tape = mat(14071946);
+    for (const [px, pz] of [[5.95, -14.4], [10.05, -14.4]]) {
+      scene2.add(box(0.95, 0.12, 0.95, 10119999, px, 0, pz));
+      for (let l = 0; l < 3; l++) for (let k = 0; k < 2; k++) {
+        const b = rbox(0.42, 0.34, 0.84, [13148266, 12160858, 13806456][(l + k) % 3], px - 0.22 + k * 0.44, 0.12 + l * 0.35, pz, void 0, 0.02);
+        const t = new THREE.Mesh(new THREE.BoxGeometry(0.43, 0.012, 0.12), tape);
+        t.position.set(0, 0.17, 0);
+        b.add(t);
+        scene2.add(b);
+        items.push(b);
+      }
+    }
     racks.push(items);
   }
   const cotMeshes = [];
@@ -3637,6 +4028,12 @@ function createScene(container) {
     if (m.virtual) continue;
     const L = LAYOUT[m.id];
     const { g, anim } = buildMachine(m.id);
+    g.traverse((o) => {
+      if (!o.isMesh || !o.material || !CACHED.has(o.material)) return;
+      const c = o.material.color;
+      if (c.r > 0.85 && c.g > 0.85 && c.b > 0.85) return;
+      o.material = mat(c.getHex(), { roughness: 0.42, metalness: 0.38 });
+    });
     g.position.copy(L.p);
     if (m.id === "m3") g.rotation.y = Math.PI / 2;
     if (L.rot) g.rotation.y = L.rot;
@@ -3962,7 +4359,7 @@ ${job.product} de ${job.client}` : ""}`;
     snackMeshes.forEach((m, k) => {
       m.visible = k % 4 / 4 < sl[Math.floor(k / 4)];
     });
-    const byRack = [[], [], [], [], []];
+    const byRack = racks.map(() => []);
     for (const it of INVENTORY) byRack[it.rack].push(Math.min(1, (state.inv[it.id] || 0) / it.lot));
     let sumAll = 0;
     racks.forEach((items, r2) => {
@@ -4393,6 +4790,8 @@ function buildView() {
     totals: V2.finanzas && V2.finanzas.totals || { ing: {}, egr: {}, merma: 0 },
     counters: V2.finanzas && V2.finanzas.counters || {},
     lastSummary: V2.finanzas && V2.finanzas.lastSummary || null,
+    dayLedger: V2.finanzas && V2.finanzas.dayLedger || null,
+    cfg: V2.finanzas && V2.finanzas.cfg || null,
     log: log2
   };
 }
@@ -4524,7 +4923,7 @@ function stepDown() {
   toast("Dejaste de ser Host: esta pesta\xF1a ahora solo observa.");
 }
 var pub = null;
-var logEntry = (e) => typeof e.amt === "number" ? { m: e.m, k: e.k, txt: e.txt, amt: e.amt } : { m: e.m, k: e.k, txt: e.txt };
+var logEntry = (e) => typeof e.amt === "number" ? e.c ? { m: e.m, k: e.k, txt: e.txt, amt: e.amt, c: e.c } : { m: e.m, k: e.k, txt: e.txt, amt: e.amt } : { m: e.m, k: e.k, txt: e.txt };
 function logDelta() {
   const L = S.log;
   const tail = pub.logTail;
@@ -4561,7 +4960,7 @@ function publish(force = false, fullLog = false) {
   put("empleados", { emps: S.emps, bath: S.bath, xbox: S.xbox, cots: S.cots });
   put("maquinas", { machines: S.machines, jobs: S.jobs, orders: S.orders, lab: S.lab });
   put("dia", S.day);
-  put("finanzas", { acct: S.acct, totals: S.totals, counters: S.counters, lastSummary: S.lastSummary || null });
+  put("finanzas", { acct: S.acct, totals: S.totals, counters: S.counters, lastSummary: S.lastSummary || null, dayLedger: S.dayLedger || null, cfg: S.cfg || null });
   put("reabasto", S.restock);
   put("version", { engine: ENGINE_VERSION, genesis: CONFIG.GENESIS, seed: CONFIG.SEED });
   if (pub.fx.length) {
@@ -4679,6 +5078,7 @@ function frame(ts) {
   if (ts - panelTick > 1e3) {
     panelTick = ts;
     renderPanel();
+    renderFin();
   }
   requestAnimationFrame(frame);
 }
@@ -4780,13 +5180,16 @@ function renderHUD(ms) {
     } else if (d.kind === "normal" && t.mod >= d.lunchAt && t.mod < d.lunchAt + d.lunchDur) {
       st = "\u{1F372} Hora de la comida";
       sub = `${present} personas comiendo`;
+    } else if (d.kind === "normal" && t.mod < 7 * 60) {
+      st = "Producci\xF3n temprana";
+      sub = `${present} personas en planta \xB7 mostrador abre 7:00 AM`;
     } else {
       st = "Abierto";
       const xb = S.xbox && S.xbox.players && S.xbox.players.length ? " \xB7 \u{1F3AE} Xbox" : "";
       sub = `${present} personas en el local${outside ? ` \xB7 ${outside} afuera` : ""}${xb}`;
     }
-  } else if (d.kind === "normal" && t.mod < 9 * 60 + 30) sub = "Abre a las 9:30 AM";
-  else if (t.dow === 0 || t.dow === 6 && t.mod >= 17 * 60) sub = "Abre el lunes 9:30 AM";
+  } else if (d.kind === "normal" && t.mod < 7 * 60) sub = "Planta 6:00 AM \xB7 mostrador 7:00 AM";
+  else if (t.dow === 0 || t.dow === 6 && t.mod >= 17 * 60) sub = "Abre el lunes 6:00 AM (mostrador 7:00)";
   $("#shopState").textContent = st;
   $("#shopSub").textContent = sub;
   if (admin) {
@@ -4955,29 +5358,70 @@ function acctHTML() {
   const ing = Object.values(a.ing || {}).reduce((x, y) => x + y, 0);
   const egr = Object.values(a.egr || {}).reduce((x, y) => x + y, 0);
   const row = (k, v, c) => `<div class="flex text-xs py-1 border-b border-slate-700/30"><span class="flex-1 text-slate-300">${k}</span><span class="font-mono ${c}">${fmtMXN(v)}</span></div>`;
-  let h = `<div class="flex gap-2 items-center mb-3"><select id="acctSel" class="flex-1">${months.map((m) => `<option value="${m}" ${m === acctSel ? "selected" : ""}>${MES[+m.slice(5) - 1]} ${m.slice(0, 4)}</option>`).join("")}<option value="total" ${acctSel === "total" ? "selected" : ""}>Hist\xF3rico total</option></select></div>`;
+  const dt = dayTotals(S);
+  let h = `<div class="rounded-xl bg-slate-800/60 p-3 mb-3"><div class="text-[11px] text-slate-400 uppercase mb-1">Hoy (desde el \xFAltimo Resumen del D\xEDa)</div><div class="fin-hoy flex flex-wrap gap-x-5 gap-y-1 font-mono"><span class="text-emerald-300">+${fmtMXN(dt.ing)}</span><span class="text-rose-300">\u2212${fmtMXN(dt.egr)}</span><span class="${dt.ing - dt.egr >= 0 ? "text-emerald-200" : "text-rose-200"}">= ${fmtMXN(dt.ing - dt.egr)}</span><span class="text-slate-300">Caja ${fmtMXN(S.cash)}</span></div></div>`;
+  h += `<div class="flex gap-2 items-center mb-3"><select id="acctSel" class="flex-1">${months.map((m) => `<option value="${m}" ${m === acctSel ? "selected" : ""}>${MES[+m.slice(5) - 1]} ${m.slice(0, 4)}</option>`).join("")}<option value="total" ${acctSel === "total" ? "selected" : ""}>Hist\xF3rico total</option></select></div>`;
   h += `<div class="grid grid-cols-3 gap-2 mb-3 text-center">
     <div class="rounded-xl bg-emerald-500/10 p-2"><div class="text-[10px] text-slate-400 uppercase">Ingresos</div><div class="font-mono font-bold text-emerald-300 text-sm">${fmtMXN(ing)}</div></div>
     <div class="rounded-xl bg-rose-500/10 p-2"><div class="text-[10px] text-slate-400 uppercase">Egresos</div><div class="font-mono font-bold text-rose-300 text-sm">${fmtMXN(egr)}</div></div>
     <div class="rounded-xl bg-slate-700/40 p-2"><div class="text-[10px] text-slate-400 uppercase">Flujo neto</div><div class="font-mono font-bold text-sm ${ing - egr >= 0 ? "text-emerald-300" : "text-rose-300"}">${fmtMXN(ing - egr)}</div></div></div>`;
   h += `<div class="font-bold text-sm mb-1">Ingresos</div>`;
-  for (const [k, n] of Object.entries(ING_CATS)) h += row(n, a.ing[k] || 0, "text-emerald-300");
-  if (a.ing.admin) h += row("Ajustes del Host (+)", a.ing.admin, "text-pink-300");
+  for (const [k, n] of Object.entries(ING_CATS)) if (k !== "admin" && k !== "ajuste" || a.ing[k]) h += row(n, a.ing[k] || 0, k === "admin" ? "text-pink-300" : "text-emerald-300");
   h += `<div class="font-bold text-sm mt-3 mb-1">Egresos</div>`;
-  for (const [k, n] of Object.entries(EGR_CATS)) if (k !== "admin" || a.egr[k]) h += row(n, a.egr[k] || 0, "text-rose-300");
+  for (const [k, n] of Object.entries(EGR_CATS)) if (k !== "admin" && k !== "ajuste" && k !== "mantto" || a.egr[k]) h += row(n, a.egr[k] || 0, "text-rose-300");
   h += row("Mermas (valor de insumo destruido, ya pagado en compras)", a.merma || 0, "text-rose-300/70 italic");
   if (acctSel !== "total") {
     h += `<div class="font-bold text-sm mt-3 mb-1">Fiscal del mes</div>${row("IVA cobrado", a.ivaC, "text-slate-200")}${row("IVA acreditable", a.ivaA, "text-slate-200")}${row("Base gravable estimada (ISR)", Math.max(0, a.ingNeto - a.deducible), "text-slate-200")}`;
   }
   const staff = EMPLOYEES.filter((e) => e.payroll);
+  const C = S.cfg || CFG_DEFAULT;
   const ot = staff.reduce((x, e) => x + S.emps[e.id].otQ, 0);
   const t = cdmx(S.minute * MIN);
   const nextPay = t.day < 15 || t.day === 15 && t.mod < 18 * 60 ? `15/${t.mo}` : `${t.lastDay}/${t.mo}`;
   h += `<div class="font-bold text-sm mt-3 mb-1">Pr\xF3ximos compromisos</div>
-    ${row(`N\xF3mina ${nextPay} (base + extras acumuladas)`, staff.length * SUELDO_QUINCENA + ot, "text-amber-300")}
-    <div class="text-[11px] text-slate-500 mt-1">SAT e IMSS: d\xEDa 17 \xB7 CFE (m\xE1quinas + Xbox): d\xEDa 5 \xB7 Agua/Internet: d\xEDa 8 \xB7 Licencias Buster, Julia y Sara: d\xEDa 1 \xB7 Despensa de cocina: mi\xE9rcoles \xB7 Peri\xF3dico Estudiantil (+$50,000): d\xEDa 10.</div>
+    ${row(`N\xF3mina ${nextPay} (base + extras acumuladas)`, staff.length * C.sueldo + ot, "text-amber-300")}
+    <div class="text-[11px] text-slate-500 mt-1">SAT e IMSS: d\xEDa 17 \xB7 CFE ${fmtMXN(C.cfeMin)}\u2013${fmtMXN(C.cfeMax)}: d\xEDa 5 \xB7 Internet ${fmtMXN(C.internet)} y agua: d\xEDa 8 \xB7 Licencias ${fmtMXN(C.licencias)}: d\xEDa 1 \xB7 Comida de Julia ${fmtMXN(C.julia)}: viernes \xB7 Anuncios ${fmtMXN(C.adsMin)}\u2013${fmtMXN(C.adsMax)}: martes \xB7 Peri\xF3dico Estudiantil (+$50,000): d\xEDa 10.</div>
     <div class="text-[11px] text-slate-500 mt-2">Capital inicial ${fmtMXN(CAPITAL_INICIAL)} \xB7 Caja hoy ${fmtMXN(S.cash)} \xB7 Variaci\xF3n ${fmtMXN(S.cash - CAPITAL_INICIAL)}</div>`;
   return h;
+}
+var finKey = "";
+function finLogHTML() {
+  const canDel = role === "host";
+  let h = "";
+  let n = 0;
+  let lastDay = "";
+  for (let i = S.log.length - 1; i >= 0 && n < 200; i--) {
+    const l = S.log[i];
+    if (!logCat(l) || !l.amt) continue;
+    n++;
+    const t = cdmx(l.m * MIN);
+    if (t.dayKey !== lastDay) {
+      lastDay = t.dayKey;
+      h += `<div class="daysep">${DOW[t.dow]} ${t.day} de ${MES[t.mo - 1]}</div>`;
+    }
+    const rm = canDel ? `<button class="rm" data-del="${i}" data-m="${l.m}" title="Borrar y revertir en caja" aria-label="Borrar y revertir">${ICON.trash}</button>` : "";
+    h += `<div class="logrow k-${l.k}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(l.txt)}</span><span class="a ${l.amt > 0 ? "up" : "dn"}">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>${rm}</div>`;
+  }
+  return h || '<div class="text-slate-500 p-3">Sin movimientos de dinero en la bit\xE1cora.</div>';
+}
+function renderFin(force = false) {
+  if (!S || $("#finModal").classList.contains("hidden")) return;
+  const last = S.log[S.log.length - 1];
+  const key = role + acctSel + S.cash + ":" + S.log.length + ":" + (last && last.m) + ":" + (S.rev || 0) + ":" + JSON.stringify(dayTotals(S));
+  if (!force && key === finKey) return;
+  finKey = key;
+  const a = $("#finAcct"), b = $("#finLog");
+  const sa = a.scrollTop, sb = b.scrollTop;
+  a.innerHTML = acctHTML();
+  b.innerHTML = finLogHTML();
+  a.scrollTop = sa;
+  b.scrollTop = sb;
+}
+function openFin() {
+  if (!S) return;
+  openModal("#finModal");
+  finKey = "";
+  renderFin(true);
 }
 function toast(msg) {
   const t = $("#toast");
@@ -5053,6 +5497,10 @@ function lockAdmin() {
 }
 function wireUI() {
   document.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.tab === "acct") {
+      openFin();
+      return;
+    }
     document.querySelectorAll("[data-tab]").forEach((x) => x.classList.toggle("on", x === b));
     tab = b.dataset.tab;
     lastLogKey = "";
@@ -5066,6 +5514,17 @@ function wireUI() {
       renderPanel(true);
     }
   });
+  $("#finAcct").addEventListener("change", (e) => {
+    if (e.target.id === "acctSel") {
+      acctSel = e.target.value;
+      renderFin(true);
+    }
+  });
+  $("#finClose").addEventListener("click", () => closeModal("#finModal"));
+  $("#finModal").addEventListener("click", (e) => {
+    if (e.target.id === "finModal") closeModal("#finModal");
+  });
+  $("#finBtnHud").addEventListener("click", openFin);
   const FOLD_KEY = "imprenta.ui.fold";
   let fold = {};
   try {
@@ -5163,6 +5622,56 @@ function wireUI() {
     openAdmin();
   });
   $("#adminClose").addEventListener("click", lockAdmin);
+  $("#admDayBtn").addEventListener("click", () => {
+    if (!admin) return;
+    const vi = $("#admSetIng").value, ve = $("#admSetEgr").value;
+    const r2 = adminDayTotals(S, { ing: vi === "" ? null : parseFloat(vi), egr: ve === "" ? null : parseFloat(ve) });
+    if (r2.ing == null && r2.egr == null) {
+      toast("Sin cambios en los totales del d\xEDa");
+      return;
+    }
+    $("#admSetIng").value = "";
+    $("#admSetEgr").value = "";
+    commit();
+    openAdmin();
+    toast("Totales del d\xEDa actualizados");
+  });
+  $("#admTxBtn").addEventListener("click", () => {
+    if (!admin) return;
+    const v = parseFloat($("#admTxAmt").value);
+    const side = $("#admTxSide").value;
+    const c = $("#admTxConcept").value;
+    if (!isFinite(v) || v <= 0) {
+      toast("Monto inv\xE1lido");
+      return;
+    }
+    if (!c.trim()) {
+      toast("Escribe el concepto");
+      return;
+    }
+    const r2 = adminTx(S, side, c, v);
+    if (!r2) return;
+    $("#admTxAmt").value = "";
+    $("#admTxConcept").value = "";
+    commit();
+    openAdmin();
+    toast(`${side === "ing" ? "Ingreso" : "Gasto"} registrado: ${fmtMXN(r2.amt)}`);
+  });
+  $("#admCfgBtn").addEventListener("click", () => {
+    if (!admin) return;
+    const patch = {};
+    document.querySelectorAll("#admCfg input[data-cfg]").forEach((i) => {
+      if (i.value !== "") patch[i.dataset.cfg] = parseFloat(i.value);
+    });
+    const ch = adminSetCfg(S, patch);
+    if (!ch.length) {
+      toast("Sin cambios en las tarifas");
+      return;
+    }
+    commit();
+    openAdmin();
+    toast(`Tarifas guardadas (${ch.length})`);
+  });
   $("#admBonusBtn").addEventListener("click", () => {
     if (!admin) return;
     const v = parseFloat($("#admBonus").value);
@@ -5192,6 +5701,7 @@ function wireUI() {
       if (admin) lockAdmin();
       closeModal("#pwModal");
       closeModal("#sumModal");
+      closeModal("#finModal");
     }
   });
   document.querySelectorAll("[data-cash]").forEach((b) => b.addEventListener("click", () => {
@@ -5245,19 +5755,23 @@ function wireUI() {
     scene.snap();
     toast("Simulaci\xF3n reiniciada");
   });
-  $("#panelBody").addEventListener("click", (e) => {
+  const delLog = (e) => {
     const b = e.target.closest("[data-del]");
     if (!b || role !== "host" || !S) return;
     const i = +b.dataset.del;
     if (!S.log[i] || String(S.log[i].m) !== b.dataset.m) {
       lastLogKey = "";
       renderPanel(true);
+      renderFin(true);
       return;
     }
-    S.log.splice(i, 1);
+    const r2 = adminDeleteLog(S, i);
     commit(true);
-    toast("Registro borrado para todos");
-  });
+    renderFin(true);
+    toast(r2 && r2.reverted ? `Registro borrado \xB7 ${r2.reverted < 0 ? "regresaron" : "salieron"} ${fmtMXN(Math.abs(r2.reverted))} ${r2.reverted < 0 ? "a" : "de"} la caja` : "Registro borrado para todos");
+  };
+  $("#panelBody").addEventListener("click", delLog);
+  $("#finLog").addEventListener("click", delLog);
   $("#panelBody").addEventListener("click", (e) => {
     const b = e.target.closest("[data-delorder]");
     if (!b || role !== "host" || !S) return;
@@ -5316,6 +5830,23 @@ function wireUI() {
 }
 function openAdmin() {
   openModal("#adminModal");
+  const dt = dayTotals(S);
+  $("#admDayIng").textContent = fmtMXN(dt.ing);
+  $("#admDayEgr").textContent = fmtMXN(dt.egr);
+  const C = S.cfg || CFG_DEFAULT;
+  const CFG_LBL = [
+    ["sueldo", "Sueldo quincenal por persona (MXN)"],
+    ["julia", "Comida de Julia, viernes (MXN)"],
+    ["cfeMin", "Luz CFE m\xEDnimo (MXN)"],
+    ["cfeMax", "Luz CFE m\xE1ximo (MXN)"],
+    ["internet", "Internet y telefon\xEDa (MXN)"],
+    ["licencias", "Licencias y membres\xEDas (MXN)"],
+    ["adsMin", "Anuncios semanales m\xEDnimo (MXN)"],
+    ["adsMax", "Anuncios semanales m\xE1ximo (MXN)"],
+    ["mostrador", "Precios de mostrador (\xD7, 1 = normal)"],
+    ["proyectos", "Precio de proyectos (\xD7, 1 = normal)"]
+  ];
+  $("#admCfg").innerHTML = CFG_LBL.map(([k, l]) => `<label class="flex items-center justify-between gap-2"><span class="text-slate-300">${l}</span><input data-cfg="${k}" type="number" step="${k === "mostrador" || k === "proyectos" ? "0.05" : "0.5"}" min="0" value="${C[k]}" class="w-28" /></label>`).join("");
   const t = cdmx(simNowMs());
   $("#admJump").value = `${t.y}-${String(t.mo).padStart(2, "0")}-${String(t.day).padStart(2, "0")}T${String(t.h).padStart(2, "0")}:${String(t.mi).padStart(2, "0")}`;
   const old = store.oldestSnapMinute();
