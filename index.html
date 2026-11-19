@@ -94,7 +94,7 @@
   @media (min-width: 768px) {
     #panel { right: var(--tv-gap) !important; }
     #hud { right: calc(420px + var(--tv-gap) + 12px) !important; }
-    #finModal, #sumModal, #adminModal, #pwModal { padding-right: var(--tv-gap) !important; padding-left: 12px !important; }
+    #finModal, #sumModal, #adminModal, #pwModal, #hvModal { padding-right: var(--tv-gap) !important; padding-left: 12px !important; }
     .fin-card { width: min(1100px, calc(100vw - var(--tv-gap) - 40px)) !important; }
   }
   /* HUD: Ganancia Bruta y Neta del día junto a la caja */
@@ -119,6 +119,54 @@
   .fb-gi { padding-left: 14px; font-size: 11px; color: #94a3b8; } .fb-gi b { font-weight: 500; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cbd5e1; }
   .fb-note { font-size: 11px; color: #94a3b8; margin-top: 6px; } .fb-note b { color: #e2e8f0; }
   #sumModal > .glass { width: min(700px, calc(100vw - 110px)) !important; }
+  /* v22 Conciliación: Entradas (verde) vs. Gastos (rojo), tachado visual y verificación rápida */
+  .cc { margin: 6px 0 12px; }
+  .cc-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
+  @media (max-width: 560px) { .cc-grid { grid-template-columns: 1fr; } }
+  .cc-col { border-radius: 12px; padding: 8px 10px; font-size: 12.5px; }
+  .cc-in { background: rgba(16,185,129,.08); border: 1px solid rgba(52,211,153,.35); } .cc-out { background: rgba(244,63,94,.07); border: 1px solid rgba(251,113,133,.35); }
+  .cc-h { font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; } .cc-in .cc-h { color: #6ee7b7; } .cc-out .cc-h { color: #fda4af; }
+  .cc-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(71,85,105,.25); transition: opacity 200ms var(--ease); }
+  .cc-row .cc-n { flex: 1; min-width: 0; color: #e2e8f0; } .cc-row b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+  .cc-in .cc-row b { color: #6ee7b7; } .cc-out .cc-row b { color: #fda4af; }
+  .cc-empty { color: #64748b; font-size: 11px; padding: 4px 0; }
+  .cc-sub { display: flex; justify-content: space-between; gap: 8px; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(148,163,184,.4); font-weight: 800; }
+  .cc-sub b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; } .cc-in .cc-sub b { color: #34d399; } .cc-out .cc-sub b { color: #fb7185; }
+  .cc-net { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; padding: 8px 10px; border-radius: 12px; font-weight: 800; background: rgba(15,23,42,.6); border: 1px solid rgba(71,85,105,.5); }
+  .cc-net b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; } .cc-net.pos b { color: #7dd3fc; } .cc-net.neg b { color: #fb7185; }
+  .cc-tach { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 6px; font-size: 11.5px; color: #94a3b8; }
+  .cc-tach b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; } .cc-tach b.ok { color: #cbd5e1; } .cc-tach b.due { color: #fcd34d; }
+  .cc-tach .cc-clr { margin-left: auto; padding: 5px 10px; font-size: 11px; }
+  .tch { flex: none; width: 22px; height: 22px; border-radius: 6px; border: 2px solid #64748b; background: transparent; color: #0f172a; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; transition: background 150ms, border-color 150ms; }
+  .tch:hover { border-color: #e2e8f0; } .tch.on { background: #94a3b8; border-color: #94a3b8; }
+  .tachado > :not(.tch) { text-decoration: line-through; text-decoration-thickness: 2px; opacity: .42; }
+  .tachado .hv-c *, .tachado .hv-m * { text-decoration: line-through; text-decoration-thickness: 2px; }
+  .logrow .tch { width: 18px; height: 18px; font-size: 11px; margin-right: 4px; }
+  .vq { margin: 4px 0 14px; border-radius: 12px; padding: 8px 10px; font-size: 12.5px; background: rgba(15,23,42,.6); border: 1px solid rgba(71,85,105,.5); }
+  .vq.ok { border-color: rgba(52,211,153,.5); } .vq.bad { border-color: rgba(251,191,36,.6); }
+  .vq-h { font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: #e2e8f0; margin-bottom: 4px; }
+  .vq-r { display: flex; justify-content: space-between; gap: 10px; padding: 1px 0; color: #cbd5e1; } .vq-r b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; color: #e2e8f0; }
+  .vq-r i { font-style: normal; color: #64748b; font-size: 11px; } .vq-r.g b { color: #6ee7b7; } .vq-r.r b { color: #fda4af; }
+  .vq-r.eq { border-top: 1px solid rgba(148,163,184,.4); margin-top: 3px; padding-top: 4px; font-weight: 700; }
+  .vq-st { margin-top: 5px; font-weight: 800; } .vq.ok .vq-st { color: #34d399; } .vq.bad .vq-st { color: #fbbf24; }
+  .vq-n { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+  /* v22 Historial de Ventas */
+  .hv-grid { grid-template-columns: 1fr !important; grid-template-rows: minmax(0,1fr) !important; padding-top: 8px; }
+  .hv-kpis { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
+  @media (max-width: 640px) { .hv-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  .hv-kpis > div { border-radius: 10px; background: rgba(15,23,42,.6); border: 1px solid rgba(71,85,105,.45); padding: 6px 10px; }
+  .hv-kpis span { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: #94a3b8; }
+  .hv-kpis b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; color: #e2e8f0; } .hv-kpis .g { color: #6ee7b7; } .hv-kpis .r { color: #fda4af; } .hv-kpis .n { color: #7dd3fc; }
+  .hv-note { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+  .hv-row { display: flex; align-items: flex-start; gap: 8px; padding: 7px 2px; border-bottom: 1px solid rgba(71,85,105,.3); font-size: 13px; }
+  .hv-row .t { font-family: 'JetBrains Mono', monospace; color: #64748b; font-size: 11px; padding-top: 2px; }
+  .hv-c { flex: 1; min-width: 0; } .hv-x { color: #e2e8f0; } .hv-s { font-size: 11px; color: #94a3b8; margin-top: 2px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .hv-p { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: #334155; color: #e2e8f0; }
+  .hv-mostrador { background: rgba(16,185,129,.2); color: #6ee7b7; } .hv-proyectos { background: rgba(56,189,248,.2); color: #7dd3fc; } .hv-bandas { background: rgba(192,132,252,.2); color: #d8b4fe; } .hv-snacks { background: rgba(250,204,21,.2); color: #fde047; }
+  .hv-m { text-align: right; white-space: nowrap; } .hv-m b { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #6ee7b7; } .hv-m span { font-size: 10.5px; color: #94a3b8; }
+  .hv-row.anul .hv-x, .hv-row.anul .hv-m b { color: #fb7185; text-decoration: line-through; }
+  /* Teléfono: sin botones ▲▼ (se desliza con el dedo) para que Finanzas e Historial no se corten a lo ancho */
+  @media (max-width: 640px) { #finModal .sc-btns, #hvModal .sc-btns { display: none; } .fin-scroll { overflow-x: hidden; } .hv-row { flex-wrap: wrap; } .hv-m { margin-left: auto; } }
   .fb-sep { height: 1px; background: rgba(71,85,105,.6); margin: 18px 0 12px; }
   .sc-wrap { display: flex; gap: 8px; min-height: 0; flex: 1; }
   .sc-wrap > .lscroll { flex: 1; min-width: 0; min-height: 0; }
@@ -168,6 +216,7 @@
   }
 .ico{display:inline-block;vertical-align:-0.15em;flex:none}
 #finModal .text-xs{font-size:14px;line-height:1.5}#finModal .text-sm{font-size:16px}#finModal .text-\[11px\],#finModal .text-\[10px\]{font-size:13px}#finModal .logrow{font-size:14px;padding:6px 4px;grid-template-columns:96px 1fr auto}#finModal .logrow.del{grid-template-columns:96px 1fr auto 30px}#finModal .logrow .a{font-size:13px}.fin-hoy span{margin-right:18px}
+#finModal .logrow.tk{grid-template-columns:28px 92px minmax(0,1fr) auto;align-items:start}#finModal .logrow.tk.del{grid-template-columns:28px 92px minmax(0,1fr) auto 30px}#finModal .logrow.tk .tch{margin-top:1px}
 .fin-card{width:min(1100px,96vw);height:min(88vh,900px);display:flex;flex-direction:column;font-size:15px}.fin-grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:16px;padding:16px}@media (min-width:768px){.fin-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr)}}.fin-col{display:flex;flex-direction:column;min-height:0}.fin-col .fin-scroll{flex:1}
 .fin-scroll{min-height:0;overflow-y:auto;padding:0 8px;scrollbar-width:auto;scrollbar-color:#64748b #1e293b;overscroll-behavior:contain}.fin-scroll::-webkit-scrollbar{width:16px}.fin-scroll::-webkit-scrollbar-thumb{background:#64748b;border-radius:8px;border:3px solid #1e293b}.fin-scroll::-webkit-scrollbar-track{background:#1e293b;border-radius:8px}
 </style>
@@ -198,6 +247,7 @@
   </div>
   <div id="cargaBox" class="glass rounded-2xl px-3 py-2 pointer-events-auto text-xs font-bold max-w-[260px]">—</div>
   <button id="finBtnHud" class="foldbtn glass pointer-events-auto" title="Finanzas" aria-label="Finanzas"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></button>
+  <button id="hvBtnHud" class="foldbtn glass pointer-events-auto" title="Historial de Ventas" aria-label="Historial de Ventas"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></button>
   <button id="sumBtnHud" class="foldbtn glass pointer-events-auto" title="Último Resumen del Día" aria-label="Último Resumen del Día"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></button>
   <button class="foldbtn glass pointer-events-auto" data-fold="hud" title="Ocultar encabezado" aria-label="Ocultar encabezado">▴</button>
 </div>
@@ -230,6 +280,7 @@
     <button class="tab" data-tab="inv">Bodega</button>
     <button class="tab" data-tab="proj">Proyectos</button>
     <button class="tab" data-tab="acct">Finanzas</button>
+    <button class="tab" id="hvBtn" title="Historial de Ventas de toda la partida">Ventas</button>
     <div class="flex-1"></div>
     <button class="tab" id="sumBtn" title="Ver el último Resumen del Día" aria-label="Resumen del Día"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></button>
     <button class="tab" id="cleanBtn2" title="Pantalla limpia: ocultar todos los menús" aria-label="Pantalla limpia"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 3 11 11"/><path d="M11 11c-2-1-5 0-6 3l-2 7 7-2c3-1 4-4 3-6z"/><path d="M6 16l2 2"/></svg></button>
@@ -264,11 +315,32 @@
   <div class="glass rounded-2xl fin-card">
     <div class="flex items-center justify-between gap-3 px-5 pt-4 pb-3 border-b border-slate-700/50">
       <div class="text-xl font-extrabold">Finanzas</div>
-      <button type="button" class="btn text-base px-4 py-2" id="finClose" aria-label="Cerrar finanzas">Cerrar</button>
+      <div class="flex gap-2"><button type="button" class="btn text-base px-4 py-2" id="hvBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg> Historial de Ventas</button><button type="button" class="btn text-base px-4 py-2" id="finClose" aria-label="Cerrar finanzas">Cerrar</button></div>
     </div>
     <div class="fin-grid">
       <div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#finAcct" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#finAcct" data-dir="1">▼ Bajar</button></div><div id="finAcct" class="fin-scroll lscroll"></div></div>
-      <div class="fin-col"><div class="font-bold mb-2">Bitácora financiera</div><div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#finLog" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#finLog" data-dir="1">▼ Bajar</button></div><div id="finLog" class="fin-scroll lscroll"></div></div></div>
+      <div class="fin-col"><div class="font-bold mb-1">Bitácora financiera</div><div id="finLogBar" class="mb-2"></div><div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#finLog" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#finLog" data-dir="1">▼ Bajar</button></div><div id="finLog" class="fin-scroll lscroll"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Historial de Ventas (v22): todas las ventas de la partida, guardadas en /partida/historialVentas -->
+<div id="hvModal" class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-3">
+  <div class="glass rounded-2xl fin-card">
+    <div class="flex items-center justify-between gap-3 px-5 pt-4 pb-3 border-b border-slate-700/50">
+      <div><div class="text-xl font-extrabold"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg> Historial de Ventas</div><div id="hvCount" class="text-xs text-slate-400 mt-0.5">—</div></div>
+      <button type="button" class="btn text-base px-4 py-2" id="hvClose" aria-label="Cerrar historial">Cerrar</button>
+    </div>
+    <div class="px-5 pt-3 flex flex-wrap gap-2 items-center">
+      <button type="button" class="btn on" data-hvf="all">Todas</button>
+      <button type="button" class="btn" data-hvf="mostrador">Mostrador</button>
+      <button type="button" class="btn" data-hvf="proy">Proyectos / Bandas</button>
+      <button type="button" class="btn" data-hvf="snacks">Snacks</button>
+      <input id="hvSearch" type="search" class="flex-1 min-w-[180px]" placeholder="Buscar por concepto, cliente o banda…" autocomplete="off" />
+    </div>
+    <div id="hvTot" class="px-5 pt-2"></div>
+    <div class="fin-grid hv-grid">
+      <div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#hvList" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#hvList" data-dir="1">▼ Bajar</button></div><div id="hvList" class="fin-scroll lscroll"></div></div>
     </div>
   </div>
 </div>
@@ -768,6 +840,7 @@ var BUSINESSES = [
   "Despacho jur\xEDdico Morales",
   "Pasteler\xEDa Dulce Hogar"
 ];
+var ING_CATS = { mostrador: "Mostrador y papeler\xEDa", comercial: "Impresi\xF3n comercial y promocionales", bandas: "Merch de Bandas", periodico: "Peri\xF3dico Estudiantil", snacks: "Refrescos y Snacks", admin: "Ingresos manuales del Host", ajuste: "Ajuste del total del d\xEDa" };
 var EGR_CATS = {
   nomina: "N\xF3mina",
   extras: "Horas extra y primas",
@@ -1287,7 +1360,8 @@ function closeDay(s, dayMinute) {
   const ing = sum(L.ing), egr = sum(L.egr);
   const seq = (s.lastSummary && s.lastSummary.seq || 0) + 1;
   s.lastSummary = { seq, day: dayMinute, from: L.from, at: s.minute, ing: L.ing, egr: L.egr, totalIng: ing, totalEgr: egr, balance: money(ing - egr), cash: s.cash, clientes: L.clientes ?? (s.day.clientes || 0), cogs: L.cogs || {}, mat: L.mat || {}, insumosPre: L.insumosPre || 0 };
-  s.dayLedger = { from: s.minute, ing: {}, egr: {}, cogs: {}, mat: {} };
+  if (typeof L.cash0 === "number") s.lastSummary.cash0 = L.cash0;
+  s.dayLedger = { from: s.minute, ing: {}, egr: {}, cogs: {}, mat: {}, cash0: s.cash };
   log(s, "Resumen del d\xEDa listo", null, "sys");
 }
 function income(s, cat, amt, txt, kind = "in") {
@@ -1318,6 +1392,57 @@ function expense(s, cat, amt, txt, opts = {}) {
   if (txt) log(s, txt, -amt, opts.kind || "out", s.minute, cat);
   return amt;
 }
+var HV_TIPO = { mostrador: "mostrador", snacks: "snacks", bandas: "bandas", comercial: "proyectos", periodico: "proyectos" };
+var HV_CATS = new Set(Object.keys(HV_TIPO));
+var hvKey = (m, n, tag = "") => "v" + String(Math.max(0, m)).padStart(9, "0") + "_" + tag + String(n).padStart(3, "0");
+var HV_MAX_PEND = 2e4;
+function hvPush(s, op) {
+  const q = s.hvNew || (s.hvNew = []);
+  q.push(op);
+  if (q.length > HV_MAX_PEND) q.splice(0, q.length - HV_MAX_PEND);
+}
+function venta(s, cat, concepto, bruto, costo, estado, extra = {}) {
+  bruto = money(bruto);
+  if (!(bruto > 0)) return null;
+  const m = s.minute;
+  const n = s.hvLast && s.hvLast.m === m ? s.hvLast.n + 1 : 0;
+  s.hvLast = { m, n };
+  const key = hvKey(m, n);
+  const c = costo == null || !isFinite(costo) ? null : money(Math.max(0, costo));
+  const e = { m, tipo: HV_TIPO[cat] || "otros", cat, concepto: String(concepto).slice(0, 160), bruto, estado };
+  if (c != null) {
+    e.costo = c;
+    e.neta = money(bruto - c);
+  }
+  for (const [k, v] of Object.entries(extra)) if (v != null) e[k] = v;
+  hvPush(s, { key, e });
+  const last = s.log[s.log.length - 1];
+  if (last && last.m === m && last.amt === bruto) last.hv = key;
+  return key;
+}
+function ventaEstado(s, key, estado, extra = {}) {
+  if (key) hvPush(s, { key, set: { estado, ...extra } });
+}
+function hvBackfill(s) {
+  if (!s || !s.flags || s.flags.hvInit) return 0;
+  s.flags.hvInit = s.minute;
+  let n = 0;
+  let lastM = null;
+  let k = 0;
+  for (const e of s.log || []) {
+    if (!(typeof e.amt === "number" && e.amt > 0) || e.hv) continue;
+    const cat = logCat(e);
+    if (!HV_CATS.has(cat)) continue;
+    k = e.m === lastM ? k + 1 : 0;
+    lastM = e.m;
+    const key = hvKey(e.m, k, "r");
+    e.hv = key;
+    hvPush(s, { key, e: { m: e.m, tipo: HV_TIPO[cat], cat, concepto: String(e.txt).slice(0, 160), bruto: money(e.amt), estado: "Cobrada (recuperada de la bit\xE1cora)", rec: true } });
+    n++;
+  }
+  return n;
+}
+var cogsOf = (s, rubro) => s.totals && s.totals.cogs && s.totals.cogs[rubro] || 0;
 var list = (names) => names.length > 1 ? names.slice(0, -1).join(", ") + " y " + names[names.length - 1] : names[0];
 var RUBRO = "general";
 var ORDEN = null;
@@ -1371,6 +1496,7 @@ function cerrarCostoPedido(s, o) {
   const adj = r3((o.matUsed || 0) - (o.matRec || 0));
   recCogs(s, ordRubro(o), adj);
   o.matRec = r3((o.matRec || 0) + adj);
+  return adj;
 }
 function requestRestock(s, id, rng) {
   if (s.restock[id]) return;
@@ -1506,6 +1632,8 @@ function ensureState(s) {
     }
   }
   if (!Array.isArray(s.entregados)) s.entregados = [];
+  if (s.dayLedger && typeof s.dayLedger.cash0 !== "number" && s.lastSummary && s.lastSummary.at === s.dayLedger.from && typeof s.lastSummary.cash === "number") s.dayLedger.cash0 = s.lastSummary.cash;
+  if (!Array.isArray(s.hvNew)) s.hvNew = [];
   for (const o of Object.values(s.orders)) {
     if (o.st !== "prod" && o.st !== "listo") o.st = (o.left || 0) <= 0 ? "listo" : "prod";
     if (typeof o.paid !== "number") o.paid = 0;
@@ -1564,7 +1692,9 @@ function adminDeleteOrder(s, ref2) {
   }
   const client = isOrder ? s.orders[ref2].client : jobs[0].client;
   if (isOrder) {
-    cerrarCostoPedido(s, s.orders[ref2]);
+    const o = s.orders[ref2];
+    cerrarCostoPedido(s, o);
+    ventaEstado(s, o.hvA, "Anticipo \xB7 pedido cancelado por el Host");
     delete s.orders[ref2];
   }
   s.pickups = s.pickups.filter((o) => o.id !== ref2);
@@ -1707,7 +1837,7 @@ function createOrder(s, rng, kind, opts = {}) {
   if (kind === "banda") s.counters.pedidosBanda++;
   else s.counters.pedidosComerciales++;
   const via = kind === "banda" ? "" : rng.pick([" (por WhatsApp)", " (en mostrador)", " (por correo)", " (cliente recomendado por Sara)"]);
-  income(s, cat, anticipo, `Anticipo 50% - ${client}${opts.masivo ? " (pedido masivo)" : ""}`, kind === "banda" ? "band" : "in");
+  const cobrado = income(s, cat, anticipo, `Anticipo 50% - ${client}${opts.masivo ? " (pedido masivo)" : ""}`, kind === "banda" ? "band" : "in");
   tagLog(s, oid);
   let est = 0;
   for (const l of lines) for (const st of l.steps) for (const [id, q] of Object.entries(st.need || {})) if (INV[id]) est += q * INV[id].unitCost;
@@ -1716,6 +1846,7 @@ function createOrder(s, rng, kind, opts = {}) {
   o.matUsed = 0;
   o.matRec = r3(est / 2);
   recCogs(s, ordRubro(o), o.matRec);
+  o.hvA = venta(s, cat, `Anticipo 50% - ${client}${opts.masivo ? " (pedido masivo)" : ""}: ${o.desc}`, cobrado, o.matRec, "Anticipo 50% \xB7 en producci\xF3n", { o: oid, total });
   return o;
 }
 function createPeriodico(s, t) {
@@ -1814,12 +1945,16 @@ function deliverOrder(s, o, rng) {
     take(s, "sobres_entrega", 2, rng);
     take(s, "etiquetas", 5, rng);
   }, o.id);
-  cerrarCostoPedido(s, o);
+  const adj = cerrarCostoPedido(s, o);
   const rest = Math.max(0, money(o.total - o.paid));
+  ventaEstado(s, o.hvA, "Anticipo \xB7 pedido entregado y liquidado");
   if (rest > 0) {
     const half = money(o.total / 2) === rest;
-    income(s, o.kind === "banda" ? "bandas" : "comercial", rest, `${half ? "Liquidaci\xF3n 50% (Entrega)" : "Liquidaci\xF3n del saldo (Entrega)"} - ${o.client}`, o.kind === "banda" ? "band" : "in");
+    const cat = o.kind === "banda" ? "bandas" : "comercial";
+    const txt = `${half ? "Liquidaci\xF3n 50% (Entrega)" : "Liquidaci\xF3n del saldo (Entrega)"} - ${o.client}`;
+    const cobrado = income(s, cat, rest, txt, o.kind === "banda" ? "band" : "in");
     tagLog(s, o.id);
+    venta(s, cat, `${txt}: ${o.desc || ""}`, cobrado, adj, "Liquidado \xB7 entregado", { o: o.id, total: o.total });
   } else log(s, `Pedido entregado (ya estaba liquidado) - ${o.client}`, null, "info");
   o.paid = money(o.paid + rest);
   o.liq = rest;
@@ -2452,7 +2587,8 @@ function calendar(s, t, rng) {
   if (payDay && mod === 11 * 60 && f.perPaid !== t.monthKey) {
     f.perPaid = t.monthKey;
     const pend = s.jobs.filter((j) => j.client === "Peri\xF3dico Estudiantil");
-    income(s, "periodico", 5e4, "Pago del Peri\xF3dico Estudiantil", "band");
+    const cobrado = income(s, "periodico", 5e4, "Pago del Peri\xF3dico Estudiantil", "band");
+    venta(s, "periodico", "Pago mensual del Peri\xF3dico Estudiantil", cobrado, null, "Cobrado");
   }
   const satDay = t.day === 17 && t.dow !== 0 || t.day === 18 && t.dow === 1;
   if (satDay && mod === 11 * 60 && f.satMonth !== t.monthKey) {
@@ -2600,6 +2736,7 @@ function customers(s, t, rng, lunch, fx2) {
   let total = 0;
   let ricoh = 0;
   RUBRO = "mostrador";
+  const cog0 = cogsOf(s, "mostrador");
   const kinds = [rng.weighted([["bn", 36], ["color", 18], ["engargolado", 9], ["enmicado", 7], ["escaneo", 6], ["tesis", 3], ["pap", 15], ["tarjetas", 3], ["lona", 3]])];
   if (rng.chance(0.2)) kinds.push(rng.weighted([["bn", 30], ["color", 20], ["pap", 50]]));
   for (const k of kinds) {
@@ -2689,7 +2826,8 @@ function customers(s, t, rng, lunch, fx2) {
     return;
   }
   s.day.ventas = money(s.day.ventas + total);
-  income(s, "mostrador", total, "Venta en mostrador", "in");
+  const cobrado = income(s, "mostrador", total, "Venta en mostrador", "in");
+  venta(s, "mostrador", `Venta en mostrador - ${who}: ${items.filter((x) => x[0] !== "(").join(", ") || "varios"}`, cobrado, cogsOf(s, "mostrador") - cog0, "Pagada");
   if (ricoh) s.machines.m3.busyUntil = Math.max(s.machines.m3.busyUntil, s.minute + Math.ceil(ricoh / 50));
   const cid = cajera(s) || "natasha";
   const n = s.emps[cid];
@@ -2703,9 +2841,11 @@ function customers(s, t, rng, lunch, fx2) {
 function buySnack(s, rng, who) {
   const id = rng.weighted([["refrescos", 50], ["sabritas", 30], ["galletas", 20]]);
   if (s.inv[id] < 1) return null;
+  const cog0 = cogsOf(s, "snacks");
   withRubro("snacks", () => take(s, id, 1, rng));
   const sk = SNACKS[id];
-  income(s, "snacks", rng.money(sk.min, sk.max), "Compra en estante", "snack");
+  const cobrado = income(s, "snacks", rng.money(sk.min, sk.max), "Compra en estante", "snack");
+  venta(s, "snacks", `Compra en estante - ${who || "cliente"}: ${sk.name}`, cobrado, cogsOf(s, "snacks") - cog0, "Pagada");
   return id;
 }
 function inflow(s, t, rng) {
@@ -3033,6 +3173,9 @@ function adminDeleteLog(s, idx) {
     }
   }
   s.cash = money(s.cash - e.amt);
+  if (e.hv && side === "ing") ventaEstado(s, e.hv, "Anulada (registro borrado por el Host)", { anulada: true });
+  if (s.dayLedger && typeof s.dayLedger.cash0 === "number" && e.m < s.dayLedger.from) s.dayLedger.cash0 = money(s.dayLedger.cash0 - e.amt);
+  if (s.lastSummary && typeof s.lastSummary.cash0 === "number" && e.m < s.lastSummary.from) s.lastSummary.cash0 = money(s.lastSummary.cash0 - e.amt);
   const dec = (o, k, v) => {
     if (o) {
       const n = money((o[k] || 0) - v);
@@ -3185,6 +3328,7 @@ function serialize(s) {
 function snapshotOf(s) {
   const c = JSON.parse(serialize(s));
   c.log = c.log.slice(-120);
+  delete c.hvNew;
   return JSON.stringify(c);
 }
 var LocalStore = class {
@@ -3286,12 +3430,12 @@ var LocalStore = class {
 
 // src/cloud.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, update, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, update, get, onDisconnect, query, orderByKey, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 var app = initializeApp(CONFIG.FIREBASE);
 var db = getDatabase(app);
 var P = CONFIG.DB_PATH;
 var r = (k) => ref(db, k ? `${P}/${k}` : P);
-var VIEW_NODES = ["reloj", "caja", "multiplicador", "inventario", "empleados", "maquinas", "dia", "finanzas", "reabasto", "bitacora", "fx", "version"];
+var VIEW_NODES = ["reloj", "caja", "multiplicador", "inventario", "empleados", "maquinas", "dia", "finanzas", "reabasto", "bitacora", "fx", "version", "tachados"];
 var JSON_NODES = /* @__PURE__ */ new Set(["empleados", "maquinas", "dia", "finanzas", "reabasto", "fx"]);
 var LOG_KEEP = 300;
 var logKey = (seq) => "e" + String(seq).padStart(9, "0");
@@ -3330,6 +3474,17 @@ var cloud = {
     const out = {};
     for (const [k, v] of Object.entries(patch)) out[k] = JSON_NODES.has(k) && v !== null && typeof v !== "string" ? JSON.stringify(v) : v;
     return update(r(), out);
+  },
+  /** Historial de ventas: escucha las últimas `limit` ventas. Devuelve la función para dejar de escuchar. */
+  watchVentas(limit, cb, onErr) {
+    return onValue(query(r("historialVentas"), orderByKey(), limitToLast(limit)), (snap) => cb(snap.val() || {}), (e) => onErr && onErr(e));
+  },
+  /** Tacha o destacha una partida (marca visual; no toca caja ni métricas). */
+  tachar(key, on) {
+    return update(r("tachados"), { [key]: on ? true : null });
+  },
+  limpiarTachados() {
+    return set(r("tachados"), null);
   },
   replaceLog(entries) {
     return set(r("bitacora"), entries);
@@ -5098,6 +5253,14 @@ function onNode(k, v) {
     return;
   }
   V2[k] = v;
+  if (k === "tachados") {
+    tachVer++;
+    finKey = "";
+    renderFin(true);
+    if (!$("#sumModal").classList.contains("hidden")) openSummary(true);
+    renderHV();
+    return;
+  }
   if (k === "reloj" && v) {
     hostState = { online: !!v.online, hostAt: v.hostAt || 0, hostId: v.hostId || null, seenAt: Date.now() };
     if (role === "host" && v.hostId && v.hostId !== myId && (v.claimAt || 0) < myClaim) {
@@ -5193,6 +5356,9 @@ async function becomeHost() {
   const pick2 = remote || local || freshState();
   if (pick2 === remote && local && local.rev !== remote.rev) store.clearSnaps();
   if (pick2._logSeq == null) pick2._logSeq = pick2.log.length;
+  ensureState(pick2);
+  const rec = hvBackfill(pick2);
+  if (rec) toast(`Historial de Ventas: se recuperaron ${rec} ventas de la bit\xE1cora`);
   myClaim = Math.max(Date.now(), (rel && rel.claimAt || 0) + 1);
   pub = { nodes: {}, motorAt: 0, logTail: null, at: 0, fx: [], fxSeq: V2.fx && V2.fx.seq || 0 };
   await cloud.hostPresence(myId, myClaim);
@@ -5221,6 +5387,7 @@ var logEntry = (e) => {
   const r2 = { m: e.m, k: e.k, txt: e.txt, amt: e.amt };
   if (e.c) r2.c = e.c;
   if (e.o) r2.o = e.o;
+  if (e.hv) r2.hv = e.hv;
   return r2;
 };
 function logDelta() {
@@ -5289,13 +5456,29 @@ function publish(force = false, fullLog = false) {
     });
   }
   pub.logTail = S.log[S.log.length - 1] || null;
+  let hvOps = null;
+  if (S.hvNew && S.hvNew.length) {
+    hvOps = S.hvNew;
+    S.hvNew = [];
+    const full = {};
+    for (const op of hvOps) {
+      if (op.e) {
+        full[op.key] = { ...op.e };
+        patch["historialVentas/" + op.key] = full[op.key];
+      } else if (full[op.key]) Object.assign(full[op.key], op.set);
+      else for (const [f, v] of Object.entries(op.set || {})) if (v != null) patch[`historialVentas/${op.key}/${f}`] = v;
+    }
+  }
   if (force || now - pub.motorAt > 6e4) {
     pub.motorAt = now;
     const c = JSON.parse(serialize(S));
     c.log = c.log.slice(-LOG_KEEP);
     patch.motor = JSON.stringify(c);
   }
-  if (Object.keys(patch).length) cloud.write(patch).catch((e) => toast("Firebase rechaz\xF3 la escritura: " + (e && e.code || e)));
+  if (Object.keys(patch).length) cloud.write(patch).catch((e) => {
+    if (hvOps && S) S.hvNew = hvOps.concat(S.hvNew || []);
+    toast("Firebase rechaz\xF3 la escritura: " + (e && e.code || e));
+  });
 }
 function commit(fullLog = false) {
   S.rev = (S.rev || 0) + 1;
@@ -5751,8 +5934,13 @@ function acctHTML() {
   const row = (k, v, c) => `<div class="flex text-xs py-1 border-b border-slate-700/30"><span class="flex-1 text-slate-300">${k}</span><span class="font-mono ${c}">${fmtMXN(v)}</span></div>`;
   let h = `<div class="text-[11px] text-slate-400 uppercase mb-1">Hoy (desde el \xFAltimo Resumen del D\xEDa)</div>`;
   h += `<div class="cobrar-box mb-2"><div class="cobrar-lbl">Total por Cobrar (Saldos 50% Pendientes)</div><div class="cobrar-val">${fmtMXN(porCobrar(S))} MXN</div></div><div class="text-[11px] text-slate-500 mb-2">Caja actual ${fmtMXN(S.cash)} MXN</div>`;
-  h += breakHTML(todayP(), { mat: S.dayLedger && S.dayLedger.mat || {} });
+  const tp = todayP();
+  h += concilHTML(tp, "hoy" + (S.dayLedger && S.dayLedger.from || 0), "Conciliaci\xF3n de hoy: Entradas vs. Gastos");
+  h += verifHTML(tp, todayCash0(), S.cash);
+  h += breakHTML(tp, { mat: S.dayLedger && S.dayLedger.mat || {} });
   h += `<div class="fb-sep"></div><div class="flex gap-2 items-center mb-3"><select id="acctSel" class="flex-1">${months.map((m) => `<option value="${m}" ${m === acctSel ? "selected" : ""}>${MES[+m.slice(5) - 1]} ${m.slice(0, 4)}</option>`).join("")}<option value="total" ${acctSel === "total" ? "selected" : ""}>Hist\xF3rico total</option></select></div>`;
+  h += concilHTML(a, acctSel === "total" ? "total" : "m" + acctSel, `Conciliaci\xF3n de ${acctSel === "total" ? "toda la partida" : MES[+acctSel.slice(5) - 1] + " " + acctSel.slice(0, 4)}: Entradas vs. Gastos`);
+  if (acctSel === "total") h += verifHTML(a, CAPITAL_INICIAL, S.cash, { ini: "Capital inicial de la partida" });
   h += breakHTML(a);
   h += row("Mermas (valor de insumo destruido, ya incluido en el material usado)", a.merma || 0, "text-rose-300/70 italic");
   if (acctSel !== "total") {
@@ -5772,9 +5960,11 @@ function acctHTML() {
 var finKey = "";
 function finLogHTML() {
   const canDel = role === "host";
+  const T = TACH();
   let h = "";
   let n = 0;
   let lastDay = "";
+  let tach = 0, tot = 0;
   for (let i = S.log.length - 1; i >= 0 && n < 200; i--) {
     const l = S.log[i];
     if (!logCat(l) || !l.amt) continue;
@@ -5785,20 +5975,27 @@ function finLogHTML() {
       h += `<div class="daysep">${DOW[t.dow]} ${t.day} de ${MES[t.mo - 1]}</div>`;
     }
     const rm = canDel ? `<button class="rm" data-del="${i}" data-m="${l.m}" title="Borrar y revertir en caja" aria-label="Borrar y revertir">${ICON.trash}</button>` : "";
-    h += `<div class="logrow k-${l.k}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(l.txt)}</span><span class="a ${l.amt > 0 ? "up" : "dn"}">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>${rm}</div>`;
+    const tk = logTachKey(l);
+    const on = !!T[tk];
+    const v = Math.abs(l.amt);
+    tot += v;
+    if (on) tach += v;
+    h += `<div class="logrow tk k-${l.k}${canDel ? " del" : ""}${on ? " tachado" : ""}">${tchBtn(tk, on)}<span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(l.txt)}</span><span class="a ${l.amt > 0 ? "up" : "dn"}">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>${rm}</div>`;
   }
+  finLogHTML.bar = n ? tachBar(money(tach), money(tot), `${n} movimientos \xB7 `) : "";
   return h || '<div class="text-slate-500 p-3">Sin movimientos de dinero en la bit\xE1cora.</div>';
 }
 function renderFin(force = false) {
   if (!S || $("#finModal").classList.contains("hidden")) return;
   const last = S.log[S.log.length - 1];
-  const key = role + acctSel + S.cash + ":" + S.log.length + ":" + (last && last.m) + ":" + (S.rev || 0) + ":" + JSON.stringify(dayTotals(S));
+  const key = role + acctSel + S.cash + ":" + S.log.length + ":" + (last && last.m) + ":" + (S.rev || 0) + ":" + JSON.stringify(dayTotals(S)) + ":" + tachVer;
   if (!force && key === finKey) return;
   finKey = key;
   const a = $("#finAcct"), b = $("#finLog");
   const sa = a.scrollTop, sb = b.scrollTop;
   a.innerHTML = acctHTML();
   b.innerHTML = finLogHTML();
+  $("#finLogBar").innerHTML = finLogHTML.bar || "";
   a.scrollTop = sa;
   b.scrollTop = sb;
 }
@@ -5807,6 +6004,228 @@ function openFin() {
   openModal("#finModal");
   finKey = "";
   renderFin(true);
+}
+var tachVer = 0;
+var TACH = () => V2.tachados || {};
+var fbKey = (t) => String(t).replace(/[.#$[\]/\s]/g, "_");
+var cents = (v) => Math.round(Math.abs(v || 0) * 100);
+var hstr = (t) => {
+  let h = 0;
+  t = String(t || "");
+  for (let i = 0; i < t.length; i++) h = Math.imul(h, 31) + t.charCodeAt(i) | 0;
+  return (h >>> 0).toString(36);
+};
+var logTachKey = (l) => fbKey(`l_${l.m}_${cents(l.amt)}_${hstr(l.txt)}`);
+var CHK = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+var tchBtn = (key, on) => `<button type="button" class="tch${on ? " on" : ""}" data-tch="${esc(key)}" title="${on ? "Quitar tachado" : "Tachar: ya lo revis\xE9"}" aria-label="${on ? "Quitar tachado" : "Tachar"}" aria-pressed="${on}">${on ? CHK : ""}</button>`;
+var ING_ORDEN = [
+  ["mostrador", "Ventas de mostrador"],
+  ["comercial", "Proyectos (anticipos y liquidaciones)"],
+  ["bandas", "Merch de bandas (incl. Eli Noise)"],
+  ["periodico", "Peri\xF3dico Estudiantil"],
+  ["snacks", "Snacks, dulces y refrescos"],
+  ["admin", "Ingresos manuales / ajustes de capital del Host"],
+  ["ajuste", "Ajuste del total del d\xEDa (no mueve caja)"]
+];
+var EGR_ORDEN = [
+  ["nomina", "N\xF3mina quincenal"],
+  ["extras", "Horas extra y primas"],
+  ["comida", "Comida semanal de Julia (viernes)"],
+  ["luz", "Luz CFE"],
+  ["internet", "Internet y telefon\xEDa"],
+  ["licencias", "Licencias y membres\xEDas"],
+  ["marketing", "Anuncios en redes (Ads)"],
+  ["envios", "Env\xEDos y paqueter\xEDa"],
+  ["servicios", "Agua y otros servicios"],
+  ["gasolina", "Gasolina y camioneta"],
+  ["sat", "SAT e IMSS"],
+  ["cofepris", "COFEPRIS / Municipio"],
+  ["insumos", "Resurtido de bodega (al 20% \u2192 100%)"],
+  ["cenas", "Cenas de velada"],
+  ["hormiga", "Gastos hormiga"],
+  ["mantto", "Mantenimiento de m\xE1quinas"],
+  ["cocina", "Cocina y cafetera"],
+  ["bonos", "Bonos"],
+  ["admin", "Gastos manuales / ajustes de capital del Host"],
+  ["ajuste", "Ajuste del total del d\xEDa (no mueve caja)"]
+];
+function ordered(obj, orden, names) {
+  const out = [];
+  const seen = /* @__PURE__ */ new Set();
+  for (const [c, n] of orden) {
+    seen.add(c);
+    if (obj[c]) out.push([c, n, money(obj[c])]);
+  }
+  for (const [c, v] of Object.entries(obj)) if (!seen.has(c) && v) out.push([c, names[c] || c, money(v)]);
+  return out;
+}
+var sumRows = (rows) => money(rows.reduce((x, r2) => x + r2[2], 0));
+var sumNoAdj = (o) => money(Object.entries(o || {}).reduce((x, [k, v]) => k === "ajuste" ? x : x + (v || 0), 0));
+var signed = (v) => `${v < 0 ? "\u2212" : ""}${fmtMXN(Math.abs(v))}`;
+function tachBar(tach, tot, label = "") {
+  return `<div class="cc-tach"><span>${label}Tachado: <b class="ok">${fmtMXN(tach)} MXN</b></span><span>Pendiente por revisar: <b class="due">${fmtMXN(money(tot - tach))} MXN</b></span><button type="button" class="btn cc-clr" data-tchclear title="Quita todas las marcas de revisi\xF3n (no cambia la caja)">Limpiar tachados</button></div>`;
+}
+function concilHTML(p, pid, title = "") {
+  const T = TACH();
+  const ing = ordered(p.ing || {}, ING_ORDEN, ING_CATS), egr = ordered(p.egr || {}, EGR_ORDEN, EGR_CATS);
+  let tach = 0;
+  const col = (rows, side) => rows.map(([c, name, v]) => {
+    const key = fbKey(`c_${pid}_${side}_${c}_${cents(v)}`);
+    const on = !!T[key];
+    if (on) tach += v;
+    return `<div class="cc-row${on ? " tachado" : ""}">${tchBtn(key, on)}<span class="cc-n">${esc(name)}</span><b>${fmtMXN(v)}</b></div>`;
+  }).join("") || '<div class="cc-empty">Sin movimientos</div>';
+  const ci = col(ing, "ing"), ce = col(egr, "egr");
+  const si = sumRows(ing), se = sumRows(egr), neto = money(si - se);
+  return `<div class="cc">${title ? `<div class="fb-title">${title}</div>` : ""}<div class="cc-grid">
+    <div class="cc-col cc-in"><div class="cc-h">Ganancias / Entradas</div>${ci}<div class="cc-sub"><span>Subtotal entradas</span><b>${fmtMXN(si)} MXN</b></div></div>
+    <div class="cc-col cc-out"><div class="cc-h">P\xE9rdidas / Gastos</div>${ce}<div class="cc-sub"><span>Subtotal gastos</span><b>${fmtMXN(se)} MXN</b></div></div></div>
+    <div class="cc-net ${neto >= 0 ? "pos" : "neg"}"><span>Diferencia neta (Entradas \u2212 Gastos)</span><b>${signed(neto)} MXN</b></div>
+    ${tachBar(money(tach), money(si + se))}</div>`;
+}
+function verifHTML(p, cash0, cashEnd, { ini = "Caja al cierre anterior", fin = "Caja actual", deducida = false } = {}) {
+  const si = sumNoAdj(p.ing), se = sumNoAdj(p.egr);
+  if (typeof cash0 !== "number") {
+    cash0 = money(cashEnd - si + se);
+    deducida = true;
+  }
+  const calc = money(cash0 + si - se);
+  const diff = money(cashEnd - calc);
+  const ok = Math.abs(diff) < 0.01;
+  const adj = p.ing && p.ing.ajuste || p.egr && p.egr.ajuste;
+  return `<div class="vq ${ok ? "ok" : "bad"}"><div class="vq-h">Verificaci\xF3n R\xE1pida de Caja</div>
+    <div class="vq-r"><span>${ini}${deducida ? " <i>(deducida)</i>" : ""}</span><b>${fmtMXN(cash0)}</b></div>
+    <div class="vq-r g"><span>+ Entradas registradas</span><b>${fmtMXN(si)}</b></div>
+    <div class="vq-r r"><span>\u2212 Gastos registrados</span><b>${fmtMXN(se)}</b></div>
+    <div class="vq-r eq"><span>= Caja calculada</span><b>${fmtMXN(calc)}</b></div>
+    <div class="vq-r"><span>${fin}</span><b>${fmtMXN(cashEnd)} MXN</b></div>
+    <div class="vq-st">${ok ? "\u2714 Cuadra al centavo" : `\u26A0 Diferencia de ${signed(diff)} MXN (movimientos o ajustes de periodos anteriores)`}</div>
+    ${adj ? '<div class="vq-n">Los "Ajustes del total del d\xEDa" del Host no mueven la caja, por eso no entran en esta suma.</div>' : ""}</div>`;
+}
+function todayCash0() {
+  const L = S.dayLedger;
+  if (L && typeof L.cash0 === "number") return L.cash0;
+  const Ls = S.lastSummary;
+  if (L && Ls && Ls.at === L.from && typeof Ls.cash === "number") return Ls.cash;
+  if (!L && Ls && typeof Ls.cash === "number") return Ls.cash;
+  return null;
+}
+function rerenderTach() {
+  tachVer++;
+  finKey = "";
+  renderFin(true);
+  if (!$("#sumModal").classList.contains("hidden")) openSummary(true);
+  renderHV();
+}
+function toggleTach(key) {
+  const cur = { ...TACH() };
+  const on = !cur[key];
+  if (on) cur[key] = true;
+  else delete cur[key];
+  V2.tachados = cur;
+  rerenderTach();
+  cloud.tachar(key, on).catch(() => toast("No se pudo guardar el tachado en Firebase"));
+}
+var hvData = {};
+var hvUnsub = null;
+var hvLimit = 1500;
+var hvFilter = "all";
+var hvQuery = "";
+var hvState = "idle";
+var HV_TIPOS = { mostrador: "Mostrador", proyectos: "Proyecto", bandas: "Bandas", snacks: "Snacks", otros: "Otro" };
+var HV_F = { all: () => true, mostrador: (e) => e.tipo === "mostrador", proy: (e) => e.tipo === "proyectos" || e.tipo === "bandas", snacks: (e) => e.tipo === "snacks" };
+var norm = (t) => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+function hvSubscribe() {
+  if (hvUnsub) {
+    hvUnsub();
+    hvUnsub = null;
+  }
+  hvState = "loading";
+  renderHV();
+  hvUnsub = cloud.watchVentas(hvLimit, (d) => {
+    hvData = d;
+    hvState = "ok";
+    renderHV();
+  }, (e) => {
+    hvState = "error:" + (e && e.code || e);
+    renderHV();
+  });
+}
+function openHV() {
+  openModal("#hvModal");
+  hvSubscribe();
+}
+function closeHV() {
+  closeModal("#hvModal");
+  if (hvUnsub) {
+    hvUnsub();
+    hvUnsub = null;
+  }
+}
+function renderHV() {
+  if ($("#hvModal").classList.contains("hidden")) return;
+  const list2 = $("#hvList");
+  const st = list2.scrollTop;
+  if (hvState === "loading" && !Object.keys(hvData).length) {
+    list2.innerHTML = '<div class="text-slate-400 p-3">Cargando el historial de ventas\u2026</div>';
+    $("#hvTot").innerHTML = "";
+    return;
+  }
+  if (hvState.startsWith("error")) {
+    list2.innerHTML = `<div class="text-rose-300 p-3">No se pudo leer el historial en Firebase (${esc(hvState.slice(6))}).</div>`;
+    return;
+  }
+  const q = norm(hvQuery.trim());
+  const f = HV_F[hvFilter] || HV_F.all;
+  const T = TACH();
+  const rows = Object.entries(hvData).filter(([, e]) => e && typeof e.bruto === "number" && f(e) && (!q || norm(e.concepto + " " + e.estado + " " + (HV_TIPOS[e.tipo] || "")).includes(q))).sort((a, b) => a[0] < b[0] ? 1 : -1);
+  let n = 0, bruto = 0, costo = 0, neta = 0, sinCosto = 0, anul = 0, tach = 0, tot = 0;
+  for (const [k, e] of rows) {
+    if (e.anulada) {
+      anul++;
+      continue;
+    }
+    n++;
+    bruto += e.bruto;
+    tot += e.bruto;
+    if (T[fbKey("h_" + k)]) tach += e.bruto;
+    if (typeof e.costo === "number") {
+      costo += e.costo;
+      neta += e.neta ?? e.bruto - e.costo;
+    } else {
+      sinCosto++;
+      neta += e.bruto;
+    }
+  }
+  $("#hvCount").textContent = `${fmtNum(Object.keys(hvData).length)} ventas guardadas${Object.keys(hvData).length >= hvLimit ? ` (mostrando las ${fmtNum(hvLimit)} m\xE1s recientes)` : ""}`;
+  $("#hvTot").innerHTML = `<div class="hv-kpis"><div><span>Ventas</span><b>${fmtNum(n)}</b></div><div><span>Venta bruta</span><b class="g">${fmtMXN(money(bruto))} MXN</b></div><div><span>Costo de material</span><b class="r">${fmtMXN(money(costo))} MXN</b></div><div><span>Ganancia neta</span><b class="n">${fmtMXN(money(neta))} MXN</b></div></div>
+    ${sinCosto || anul ? `<div class="hv-note">${sinCosto ? `${fmtNum(sinCosto)} ventas recuperadas de la bit\xE1cora no tienen costo registrado (su neta = bruto). ` : ""}${anul ? `${fmtNum(anul)} anuladas por el Host no suman.` : ""}</div>` : ""}
+    ${tachBar(money(tach), money(tot))}`;
+  const MAXR = 700;
+  let h = "";
+  let lastDay = "";
+  let shown = 0;
+  for (const [k, e] of rows) {
+    if (shown++ >= MAXR) {
+      h += `<div class="hv-note p-3">Se muestran las ${MAXR} m\xE1s recientes de este filtro. Usa la b\xFAsqueda para encontrar una venta espec\xEDfica.</div>`;
+      break;
+    }
+    const t = cdmx(e.m * MIN);
+    if (t.dayKey !== lastDay) {
+      lastDay = t.dayKey;
+      h += `<div class="daysep">${DOW[t.dow]} ${t.day} de ${MES[t.mo - 1]} de ${t.y}</div>`;
+    }
+    const key = fbKey("h_" + k);
+    const on = !!T[key];
+    const cost = typeof e.costo === "number" ? `Costo ${fmtMXN(e.costo)} \xB7 Neta ${fmtMXN(e.neta ?? money(e.bruto - e.costo))}` : "Costo sin registrar";
+    h += `<div class="hv-row${on ? " tachado" : ""}${e.anulada ? " anul" : ""}">${tchBtn(key, on)}<span class="t">[${hhmm(t.mod)}]</span>
+      <div class="hv-c"><div class="hv-x">${esc(e.concepto)}</div><div class="hv-s"><span class="hv-p hv-${esc(e.tipo)}">${HV_TIPOS[e.tipo] || "Otro"}</span>${esc(e.estado || "")}</div></div>
+      <div class="hv-m"><b>+${fmtMXN(e.bruto)}</b><span>${cost}</span></div></div>`;
+  }
+  if (!rows.length) h = `<div class="text-slate-400 p-3">${Object.keys(hvData).length ? "Ninguna venta coincide con el filtro o la b\xFAsqueda." : "Todav\xEDa no hay ventas guardadas. Se registran en cuanto el Host transmite con esta versi\xF3n."}</div>`;
+  if (Object.keys(hvData).length >= hvLimit) h += `<div class="p-3 text-center"><button type="button" class="btn" id="hvMore">Cargar ventas m\xE1s antiguas</button></div>`;
+  list2.innerHTML = h;
+  list2.scrollTop = st;
 }
 function toast(msg) {
   const t = $("#toast");
@@ -5859,13 +6278,15 @@ function checkSummary() {
     openSummary();
   }
 }
-function openSummary() {
+function openSummary(refresh = false) {
+  if (refresh !== true) refresh = false;
   const L = S && S.lastSummary;
   const body = $("#sumBody");
+  const st = body.scrollTop;
   if (!L) {
     $("#sumDate").textContent = "Todav\xEDa no termina ninguna jornada";
     body.innerHTML = '<div class="text-slate-400 text-xs">El primer resumen aparece al cierre de las 5:00 PM (o al amanecer si hay velada).</div>';
-    openModal("#sumModal");
+    if (!refresh) openModal("#sumModal");
     return;
   }
   const t = cdmx(L.day * MIN);
@@ -5874,9 +6295,12 @@ function openSummary() {
   const rows = (obj, names, cls) => Object.entries(obj || {}).filter(([, v]) => v).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="flex justify-between gap-3 py-0.5"><span class="text-slate-300">${esc(names[k] || (k === "admin" ? "Ajustes del Host" : k))}</span><span class="font-mono ${cls}">${fmtMXN(v)}</span></div>`).join("") || '<div class="text-slate-500 text-xs py-0.5">Sin movimientos</div>';
   const pos = L.balance >= 0;
   body.innerHTML = `
+    ${concilHTML({ ing: L.ing, egr: L.egr }, "s" + L.seq + "_" + L.day, "Entradas vs. Gastos de la jornada")}
+    ${verifHTML({ ing: L.ing, egr: L.egr }, L.cash0, L.cash, { ini: "Caja al inicio de la jornada", fin: "Caja al cierre" })}
     ${breakHTML({ ing: L.ing, egr: L.egr, cogs: L.cogs || null, insumosPre: L.insumosPre || 0 }, { mat: L.cogs ? L.mat || {} : null, matTitle: "Materiales e Insumos Usados en la Jornada" })}
     <div class="mt-3 text-xs text-slate-400">Caja al cierre: <b class="text-slate-200">${fmtMXN(L.cash)} MXN</b> \xB7 ${L.clientes} clientes en mostrador. Incluye todo lo que entr\xF3 y sali\xF3 desde el resumen anterior.</div>`;
-  openModal("#sumModal");
+  if (refresh) body.scrollTop = st;
+  else openModal("#sumModal");
 }
 function closeModal(id) {
   const m = $(id);
@@ -5935,6 +6359,56 @@ function wireUI() {
     if (e.target.id === "finModal") closeModal("#finModal");
   });
   $("#finBtnHud").addEventListener("click", openFin);
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-tch]");
+    if (b) {
+      e.preventDefault();
+      toggleTach(b.dataset.tch);
+      return;
+    }
+    const c = e.target.closest("[data-tchclear]");
+    if (c) {
+      if (!Object.keys(TACH()).length) {
+        toast("No hay nada tachado");
+        return;
+      }
+      if (!confirm("\xBFQuitar todos los tachados? Solo se borran las marcas de revisi\xF3n; la caja y las cifras no cambian.")) return;
+      V2.tachados = null;
+      rerenderTach();
+      cloud.limpiarTachados().then(() => toast("Tachados limpiados")).catch(() => toast("No se pudieron limpiar los tachados en Firebase"));
+    }
+  });
+  $("#hvBtn").addEventListener("click", openHV);
+  $("#hvBtnHud").addEventListener("click", openHV);
+  $("#hvBtnFin").addEventListener("click", openHV);
+  $("#hvClose").addEventListener("click", closeHV);
+  $("#hvModal").addEventListener("click", (e) => {
+    if (e.target.id === "hvModal") {
+      closeHV();
+      return;
+    }
+    const f = e.target.closest("[data-hvf]");
+    if (f) {
+      hvFilter = f.dataset.hvf;
+      document.querySelectorAll("[data-hvf]").forEach((x) => x.classList.toggle("on", x === f));
+      $("#hvList").scrollTop = 0;
+      renderHV();
+      return;
+    }
+    if (e.target.closest("#hvMore")) {
+      hvLimit += 1500;
+      hvSubscribe();
+    }
+  });
+  let hvT = 0;
+  $("#hvSearch").addEventListener("input", (e) => {
+    clearTimeout(hvT);
+    hvT = setTimeout(() => {
+      hvQuery = e.target.value;
+      $("#hvList").scrollTop = 0;
+      renderHV();
+    }, 180);
+  });
   const FOLD_KEY = "imprenta.ui.fold";
   let fold = {};
   try {
@@ -6112,6 +6586,7 @@ function wireUI() {
       closeModal("#pwModal");
       closeModal("#sumModal");
       closeModal("#finModal");
+      closeHV();
     }
   });
   document.querySelectorAll("[data-cash]").forEach((b) => b.addEventListener("click", () => {
