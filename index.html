@@ -736,7 +736,21 @@ var PROTESIS = [
   "socket transfemoral",
   "adaptador piramidal",
   "mano mec\xE1nica",
-  "dedo prot\xE9sico"
+  "dedo prot\xE9sico",
+  // v23: más piezas del Taller 3D (resina y filamento)
+  "maqueta arquitect\xF3nica en resina (despacho de dise\xF1o)",
+  "maqueta de conjunto residencial a escala 1:200",
+  "maqueta de fachada para concurso de arquitectura",
+  "prototipo de engrane para estudiantes de ingenier\xEDa",
+  "carcasa prototipo de dron (proyecto ESIME)",
+  "brazo rob\xF3tico de prueba (equipo universitario)",
+  "soporte mec\xE1nico funcional en PETG",
+  "lote de miniaturas para juego de mesa",
+  "miniaturas de rol pintables (pedido de tienda de juegos)",
+  "set de fichas y dados personalizados",
+  "figura coleccionable de resina",
+  "molde de resina para joyer\xEDa",
+  "trofeo personalizado impreso en 3D"
 ];
 var SNACKS = {
   refrescos: { name: "un refresco", min: 18, max: 22 },
@@ -838,7 +852,37 @@ var BUSINESSES = [
   "Sal\xF3n de eventos Jard\xEDn Real",
   "Agencia de viajes Mundo",
   "Despacho jur\xEDdico Morales",
-  "Pasteler\xEDa Dulce Hogar"
+  "Pasteler\xEDa Dulce Hogar",
+  // v23
+  "Facultad de Arquitectura (UNAM)",
+  "IPN ESIME Zacatenco",
+  "UAM Xochimilco",
+  "Universidad Iberoamericana",
+  "Agencia Volkswagen Coyoac\xE1n",
+  "Desarrollos Santa Fe Towers",
+  "Bistr\xF3 Roma Norte",
+  "Cadena La Casa de To\xF1o",
+  "Foro Indie Rocks!",
+  "Promotora de conciertos Zignia",
+  "Paqueter\xEDa Express Vallejo",
+  "\xD3ptica Visi\xF3n Plus",
+  "Grupo Constructor del Valle",
+  "Club de corredores Los Viveros",
+  "Caf\xE9 de especialidad Quentin",
+  "Tostadores Almanegra",
+  "Hospital \xC1ngeles Lomas",
+  "Notar\xEDa P\xFAblica 105",
+  "Coworking WeWork Reforma",
+  "Agencia de marketing BTL",
+  "Tienda de juegos de mesa El Dado Rojo",
+  "Despacho de dise\xF1o Taller Norte",
+  "Barber\xEDa Old School Narvarte",
+  "Colectivo Fanzinero de la Roma",
+  "Festival Hipnosis",
+  "Gimnasio CrossFit Del Valle",
+  "Escuela de m\xFAsica Fusi\xF3n",
+  "Muebler\xEDa Roma Vintage",
+  "Cl\xEDnica est\xE9tica Polanco"
 ];
 var ING_CATS = { mostrador: "Mostrador y papeler\xEDa", comercial: "Impresi\xF3n comercial y promocionales", bandas: "Merch de Bandas", periodico: "Peri\xF3dico Estudiantil", snacks: "Refrescos y Snacks", admin: "Ingresos manuales del Host", ajuste: "Ajuste del total del d\xEDa" };
 var EGR_CATS = {
@@ -1189,8 +1233,350 @@ var COMERCIAL = {
       unit: u,
       steps: [dz(r2, 10, 25), { m: "m6", min: 20 + q * 0.25, need: { kraft: q, plastisol: q * 0.03 } }, { m: "m10", min: 15 + q * 0.04 }]
     };
+  },
+  // ============================================================
+  // v23: catálogo narrativo ampliado. Cada generador puede traer `cli`: clientes típicos de ese proyecto
+  // (el generador de pedidos los usa en lugar de la lista genérica). Mismas reglas: anticipo 50% / liquidación 50%.
+  // ============================================================
+  // ---------- Editorial y encuadernación (Offset, Láser B/N, Guillotina, Hot-Melt) ----------
+  tesis_hm: (r2, s) => {
+    const q = pick(r2, 3, 40, s);
+    const u = r2.money(260, 480);
+    const t = r2.pick(["Tesis de licenciatura", "Tesis de maestr\xEDa", "Tesina", "Tesis doctoral", "Memoria de residencia profesional"]);
+    return {
+      label: `${q} ejemplares de ${t} en r\xFAstica t\xE9rmica (B/N + portada a color)`,
+      q,
+      unit: u,
+      cli: TESISTAS,
+      steps: [dz(r2, 15, 40), { m: "m3", min: 15 + q * 4, need: { bond: q * 120, toner_bn: q * 0.3 } }, { m: "m2", min: 8 + q * 0.6, need: { cartulina: Math.ceil(q / 2), toner_color: q * 0.03 } }, { m: "m11", min: 20 + q * 1.2 }, { m: "m7", min: 10 + q * 0.4 }]
+    };
+  },
+  fanzine_comic: (r2, s) => {
+    const q = pick(r2, 50, 600, s);
+    const off = q >= 300;
+    const t = r2.pick(["fanzines engrapados", "c\xF3mics a color con lomo", "revistas independientes", "novelas gr\xE1ficas (tiraje corto)", "antolog\xEDas de ilustraci\xF3n"]);
+    const u = r2.money(32, 75);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: EDITORIALES,
+      steps: [dz(r2, 40, 100), off ? { m: "m1", min: 50 + q * 0.12, need: { couche: q * 3, tinta_offset: q * 0.012 } } : { m: "m2", min: 20 + q * 0.3, need: { couche: q * 3, toner_color: q * 0.08 } }, { m: "m7", min: 15 + q * 0.04 }, r2.chance(0.5) ? { m: "m11", min: 25 + q * 0.18 } : { m: "m9", min: 20 + q * 0.12 }]
+    };
+  },
+  catalogo_premium: (r2, s) => {
+    const q = pick(r2, 100, 1e3, s);
+    const off = q >= 300;
+    const t = r2.pick(["cat\xE1logos premium de desarrollos inmobiliarios", "cat\xE1logos de l\xEDnea de autos (agencia)", "brochures de lujo con laminado soft-touch", "carpetas de preventa de departamentos", "cat\xE1logos de seminuevos certificados"]);
+    const u = r2.money(70, 160);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: INMOBILIARIAS,
+      steps: [dz(r2, 60, 120), off ? { m: "m1", min: 60 + q * 0.2, need: { couche: q * 6, tinta_offset: q * 0.02 } } : { m: "m2", min: 30 + q * 0.4, need: { couche: q * 6, toner_color: q * 0.06 } }, { m: "m9", min: 20 + q * 0.08 }, { m: "m7", min: 15 + q * 0.04 }, { m: "m11", min: 25 + q * 0.2 }]
+    };
+  },
+  menu_lujo: (r2, s) => {
+    const q = pick(r2, 20, 150, s);
+    const u = r2.money(95, 230);
+    const t = r2.pick(["men\xFAs de lujo plastificados", "cartas de vinos con laminado mate", "men\xFAs de temporada con esquinas suajadas", "men\xFAs de barra y cocteler\xEDa"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: RESTAURANTES,
+      steps: [dz(r2, 25, 60), { m: "m2", min: 10 + q * 0.6, need: { couche: q * 2, toner_color: q * 0.04 } }, { m: "m9", min: 12 + q * 1.3, need: { micas: q * 2 } }, { m: "m7", min: 8 + q * 0.2 }, { m: "m8", min: 10 + q * 0.15 }]
+    };
+  },
+  // ---------- Gran formato (Plotter) ----------
+  lona_espectacular: (r2, s) => {
+    const q = pick(r2, 12, 90, s);
+    const u = r2.money(95, 150);
+    const v = r2.int(0, 2);
+    const t = r2.pick([["lona espectacular para campa\xF1a pol\xEDtica", "pend\xF3n de candidata para puente peatonal", "lona de cierre de campa\xF1a"], ["lona espectacular para concierto", "mega lona para palenque y jaripeo", "lona de escenario para festival"], ["lona de fachada para gran apertura", "lona de remodelaci\xF3n para plaza comercial", "lona de temporada navide\xF1a para fachada"]][v]);
+    return {
+      label: `${q} m\xB2 de ${t}`,
+      q,
+      unit: u,
+      cli: [POLITICA, CONCIERTOS, APERTURAS][v],
+      steps: [dz(r2, 20, 50), { m: "m4", min: 15 + q * 5, need: { lona: q, eco: q * 0.35 } }, { m: "m9", min: 10 + q * 0.6 }]
+    };
+  },
+  rotulacion: (r2, s) => {
+    const q = pick(r2, 4, 40, s);
+    const flot = r2.chance(0.55);
+    const u = flot ? r2.money(240, 380) : r2.money(180, 320);
+    const t = flot ? r2.pick(["rotulaci\xF3n de flotilla de camionetas", "rotulaci\xF3n de motos de reparto", "rotulaci\xF3n de unidades de transporte de personal"]) : r2.pick(["vinil de corte para escaparate", "rotulaci\xF3n de cristales de sucursal", "vinil esmerilado para oficinas"]);
+    return {
+      label: `${q} m\xB2 de ${t}`,
+      q,
+      unit: u,
+      cli: flot ? FLOTILLAS : TIENDAS,
+      steps: [dz(r2, 20, 45), { m: "m4", min: 15 + q * 7, need: flot ? { vinil: q, eco: q * 0.3 } : { vinil: q } }, { m: "m9", min: 10 + q * 1.5 }]
+    };
+  },
+  backdrop_evento: (r2, s) => {
+    const q = pick(r2, 6, 40, s);
+    const alf = r2.chance(0.35);
+    const u = alf ? r2.money(150, 230) : r2.money(120, 190);
+    const t = alf ? r2.pick(["alfombra roja impresa (vinil de piso)", "vinil de piso para pasillo VIP"]) : r2.pick(["backdrop de prensa para alfombra roja", "muro de fotos para lanzamiento de marca", "backdrop para gala de premiaci\xF3n", "photo-wall para boda en hacienda"]);
+    return {
+      label: `${q} m\xB2 de ${t}`,
+      q,
+      unit: u,
+      cli: EVENTOS,
+      steps: [dz(r2, 25, 60), alf ? { m: "m4", min: 15 + q * 6, need: { vinil: q, eco: q * 0.35 } } : { m: "m4", min: 15 + q * 5, need: { lona: q, eco: q * 0.35 } }, { m: "m9", min: 10 + q * 0.8 }]
+    };
+  },
+  // ---------- Serigrafía y textiles (Pulpo + Túnel de secado) ----------
+  uniformes: (r2, s) => {
+    const q = pick(r2, 30, 250, s);
+    const u = r2.money(150, 260);
+    const t = r2.pick(["uniformes industriales con logo frente y espalda", "chalecos de seguridad con reflejante serigrafiado", "camisolas de obra con logo de constructora", "playeras tipo polo para personal de planta"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: CONSTRUCTORAS,
+      steps: [dz(r2, 20, 50), { m: "m6", min: 25 + q * 0.6, need: { playeras: q, plastisol: q * 0.08 } }, { m: "m10", min: 20 + q * 0.07 }]
+    };
+  },
+  maraton: (r2, s) => {
+    const q = pick(r2, 150, 600, s);
+    const u = r2.money(72, 110);
+    const t = r2.pick(["playeras dry-fit para carrera 10K", "playeras de medio marat\xF3n con patrocinadores", "playeras de carrera con causa", "playeras para rodada ciclista nocturna"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: CARRERAS,
+      steps: [dz(r2, 30, 70), { m: "m6", min: 30 + q * 0.4, need: { playeras: q, plastisol: q * 0.05 } }, { m: "m10", min: 25 + q * 0.05 }]
+    };
+  },
+  totes_cafe: (r2, s) => {
+    const q = pick(r2, 50, 300, s);
+    const u = r2.money(85, 135);
+    const t = r2.pick(["tote bags ecol\xF3gicas de manta", "tote bags para kit de bienvenida", "bolsas de tela reutilizables con logo"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: CAFETERIAS,
+      steps: [dz(r2, 20, 45), { m: "m6", min: 20 + q * 0.4, need: { totes: q, plastisol: q * 0.05 } }, { m: "m10", min: 15 + q * 0.05 }]
+    };
+  },
+  // ---------- Rígidos y promocionales (Cama plana UV) ----------
+  acreditaciones: (r2, s) => {
+    const q = pick(r2, 100, 600, s);
+    const u = r2.money(28, 65);
+    const t = r2.pick(["gafetes de PVC y acreditaciones VIP", "pulseras r\xEDgidas y gafetes de staff", "acreditaciones de prensa con holograma", "gafetes all-access para backstage"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: FESTIVALES,
+      steps: [dz(r2, 20, 45), { m: "m5", min: 8 + q * 0.7, need: { acrilico: q, uv: q * 0.02 } }, { m: "m8", min: 10 + q * 0.06 }, { m: "m7", min: 5 + q * 0.04 }]
+    };
+  },
+  senaletica_acrilico: (r2, s) => {
+    const q = pick(r2, 6, 80, s);
+    const u = r2.money(260, 850);
+    const t = r2.pick(["placas de se\xF1al\xE9tica en acr\xEDlico", "directorio de pisos en acr\xEDlico", "se\xF1al\xE9tica de consultorios y quir\xF3fanos", "placas de sala de juntas y oficinas"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: HOSPITALES,
+      steps: [dz(r2, 25, 60), { m: "m5", min: 10 + q * 3, need: { acrilico: q * 4, uv: q * 0.1 } }, { m: "m8", min: 10 + q * 0.8 }]
+    };
+  },
+  directo_uv: (r2, s) => {
+    const q = pick(r2, 20, 200, s);
+    const termo = r2.chance(0.5);
+    const u = termo ? r2.money(190, 330) : r2.money(150, 260);
+    const t = termo ? r2.pick(["termos met\xE1licos con impresi\xF3n UV directa", "termos de acero para regalo corporativo", "cilindros t\xE9rmicos para kit de fin de a\xF1o"]) : r2.pick(["fundas de celular con impresi\xF3n UV directa", "fundas con logo para lanzamiento de app", "fundas edici\xF3n limitada para tienda en l\xEDnea"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: MARCAS,
+      steps: [dz(r2, 15, 35), { m: "m5", min: 8 + q * (termo ? 2.4 : 1.3), need: termo ? { tazas: q, uv: q * 0.06 } : { fundas: q, uv: q * 0.06 } }]
+    };
   }
 };
+var TESISTAS = [
+  "Tesista de la Facultad de Derecho (UNAM)",
+  "Tesista de Arquitectura (UNAM)",
+  "Egresada de Psicolog\xEDa (UAM Xochimilco)",
+  "Tesista de Ingenier\xEDa (IPN ESIME Zacatenco)",
+  "Maestrante del CIDE",
+  "Doctorando del Colmex",
+  "Egresado de Medicina (UNAM)",
+  "Tesista de Comunicaci\xF3n (Ibero)",
+  "Egresada de Enfermer\xEDa (IPN)",
+  "Tesista de Contadur\xEDa (UNAM FCA)",
+  "Residente de la UPIICSA",
+  "Egresado de la ENAH",
+  "Tesista de Biolog\xEDa (Facultad de Ciencias)",
+  "Egresada de Dise\xF1o Gr\xE1fico (La Esmeralda)",
+  "Tesista de Econom\xEDa (UAM Azcapotzalco)"
+];
+var EDITORIALES = [
+  "Colectivo Fanzinero de la Roma",
+  "Editorial independiente Tinta Roja",
+  "C\xF3mics Chilangos (autores locales)",
+  'Revista cultural "El Z\xF3calo Alterno"',
+  "Colectivo de ilustradoras Matriarca",
+  "Feria del C\xF3mic de Tlatelolco",
+  "Editorial cartonera La Banqueta",
+  'Revista de skate "Concreto"',
+  "Autor local de novela gr\xE1fica",
+  "Colectivo de poes\xEDa de Iztapalapa",
+  'Revista de m\xFAsica "Ruido Blanco"'
+];
+var INMOBILIARIAS = [
+  "Inmobiliaria Polanco Real",
+  "Desarrollos Santa Fe Towers",
+  "Grupo Inmobiliario Reforma 222",
+  "Agencia Volkswagen Coyoac\xE1n",
+  "Agencia Mazda Insurgentes",
+  "Toyota Universidad",
+  "Seminuevos Certificados del Valle",
+  "Lofts Condesa Living",
+  "Residencial Bosques de las Lomas",
+  "Agencia Kia Tlalpan",
+  "Torre Pedregal Premium",
+  "Nissan Perif\xE9rico Sur"
+];
+var RESTAURANTES = [
+  "Restaurante Los Arcos",
+  "Cadena La Casa de To\xF1o",
+  "Sanborns sucursal centro",
+  "Bistr\xF3 Roma Norte",
+  "Marisquer\xEDa El Puerto de Alvarado",
+  "Steakhouse Polanco",
+  "Cantina La Tlaxcalteca",
+  "Pizzer\xEDa Napolitana Condesa",
+  "Restaurante Azul Hist\xF3rico",
+  "Cadena de hamburguesas Smash CDMX",
+  "Bar de mezcal La Clandestina",
+  "Sushi bar Nikkei Santa Fe"
+];
+var POLITICA = ["Comit\xE9 de campa\xF1a de alcald\xEDa", "Candidata a diputaci\xF3n local", "Partido local (coordinaci\xF3n distrital)", "Candidato a concejal de Coyoac\xE1n", "Comit\xE9 vecinal de Iztapalapa", "Asociaci\xF3n civil en campa\xF1a de afiliaci\xF3n"];
+var CONCIERTOS = ["Promotora de conciertos Zignia", "Ocesa (producci\xF3n local)", "Foro Indie Rocks!", "Palenque de la feria de Texcoco", "Festival Vive Latino (proveedor)", "Arena CDMX (montaje)", "Pepsi Center WTC (montaje)", "Foro Lindbergh (festival al aire libre)"];
+var APERTURAS = ["Plaza comercial Parque Delta", "Gimnasio Fuerza Norte (gran apertura)", "Tienda departamental de Perisur", "Cadena de farmacias (nueva sucursal)", "Restaurante Los Arcos (nueva sucursal)", "Agencia Mazda Insurgentes (remodelaci\xF3n)"];
+var FLOTILLAS = [
+  "Paqueter\xEDa Express Vallejo",
+  "Purificadora Agua Viva (flotilla)",
+  "Fumigaciones Control Total",
+  "Mudanzas R\xE1pidas del Centro",
+  "Distribuidora de refrescos zona norte",
+  "Transporte de personal Grupo Bimbo (proveedor)",
+  "Florister\xEDa Xochimilco a domicilio",
+  "Gas LP del Valle (unidades)",
+  "Mensajer\xEDa en moto Rayo",
+  "Veterinaria Patitas (unidad m\xF3vil)"
+];
+var TIENDAS = [
+  "Boutique Coyoac\xE1n",
+  "Panader\xEDa La Espiga",
+  "\xD3ptica Visi\xF3n Plus",
+  "Tienda de tenis Sneaker Lab",
+  "Joyer\xEDa Madero",
+  "Barber\xEDa Old School Narvarte",
+  "Caf\xE9 La Esquina",
+  "Farmacia San Rafael",
+  "Tienda de vinos La Cava",
+  "Florer\xEDa P\xE9talo",
+  "Despacho jur\xEDdico Morales",
+  "Cl\xEDnica dental Sonrisa Feliz"
+];
+var EVENTOS = [
+  "Sal\xF3n de eventos Jard\xEDn Real",
+  "Premios de la m\xFAsica indie CDMX",
+  "Lanzamiento de marca en Polanco",
+  "Gala de beneficencia en el Castillo de Chapultepec",
+  "Agencia de bodas Hacienda Los Morales",
+  "Festival de cine de la Cineteca",
+  "Desfile de moda en la Roma",
+  "Convenci\xF3n en el WTC CDMX",
+  "Fiesta de fin de a\xF1o corporativa (Santa Fe)",
+  "Estreno de pel\xEDcula en Plaza Carso"
+];
+var CONSTRUCTORAS = [
+  "Constructora Tlalpan",
+  "Grupo Constructor del Valle",
+  "Obras Viales Perif\xE9rico",
+  "Constructora Torres Insurgentes",
+  "Ingenier\xEDa y Concretos Azcapotzalco",
+  "Planta de reciclaje Iztapalapa",
+  "Maquiladora industrial Vallejo",
+  "Talleres mec\xE1nicos Tlalnepantla",
+  "Seguridad privada Escudo Norte",
+  "Almac\xE9n log\xEDstico Cuautitl\xE1n"
+];
+var CARRERAS = [
+  "Medio Marat\xF3n de la Ciudad (proveedor)",
+  "Carrera 10K Bosque de Tlalpan",
+  "Carrera con causa Cruz Roja",
+  "Club de corredores Los Viveros",
+  "Rodada ciclista nocturna Reforma",
+  "Carrera Nocturna de Chapultepec",
+  "Trail run Ajusco",
+  "Carrera del D\xEDa del Padre (gimnasio)",
+  "Carrera Pink Ribbon (fundaci\xF3n)",
+  "Club de running Ciudad Universitaria"
+];
+var CAFETERIAS = [
+  "Caf\xE9 de especialidad Quentin",
+  "Cafeter\xEDa Buna (tostadores)",
+  "Caf\xE9 La Esquina",
+  "Tostadores Almanegra",
+  "Cafeter\xEDa Chiquitito",
+  "Caf\xE9 de olla y pan Condesa",
+  "Barra de especialidad Roma Sur",
+  "Caf\xE9 Avellaneda",
+  "Librer\xEDa-caf\xE9 El P\xE9ndulo",
+  "Tienda zero waste La Granel"
+];
+var FESTIVALES = [
+  "Festival Corona Capital (proveedor)",
+  "Festival Vive Latino (staff)",
+  "Festival Hipnosis",
+  "Festival Ceremonia",
+  "Foro Indie Rocks! (acreditaciones)",
+  "Pa'l Norte (gira CDMX)",
+  "Festival de electr\xF3nica en Santa Fe",
+  "Congreso m\xE9dico en el WTC",
+  "Convenci\xF3n de c\xF3mics La Mole",
+  "Expo de tatuaje en el Palacio de los Deportes"
+];
+var HOSPITALES = [
+  "Hospital \xC1ngeles Lomas",
+  "Cl\xEDnica M\xE9dica Sur (proveedor)",
+  "Hospital General de zona (licitaci\xF3n)",
+  "Consultorio Dra. Ram\xEDrez",
+  "Laboratorio cl\xEDnico Chopo (sucursal)",
+  "Corporativo Torre Mayor (oficinas)",
+  "Despacho Contable Hern\xE1ndez",
+  "Coworking WeWork Reforma",
+  "Notar\xEDa P\xFAblica 105",
+  "Cl\xEDnica veterinaria Patitas",
+  "Universidad del Valle (campus)"
+];
+var MARCAS = [
+  "Tienda en l\xEDnea de accesorios Fundafy",
+  "Startup de delivery CDMX",
+  "Agencia de marketing BTL",
+  "Gimnasio Fuerza Norte (kit de socios)",
+  "Banco regional (regalos de fin de a\xF1o)",
+  "Marca de caf\xE9 de especialidad",
+  "Influencer de TikTok (drop limitado)",
+  "Concesionaria de autos (kit de entrega)",
+  "Despacho de abogados (regalos corporativos)",
+  "Equipo de f\xFAtbol amateur"
+];
 var COMERCIAL_MIX = [
   ["tarjetas", 16],
   ["volantes", 12],
@@ -1222,7 +1608,21 @@ var COMERCIAL_MIX = [
   ["posters_gf", 3],
   ["cajas", 3],
   ["etiquetas", 5],
-  ["kraft", 2]
+  ["kraft", 2],
+  // v23: catálogo ampliado
+  ["tesis_hm", 5],
+  ["fanzine_comic", 3],
+  ["catalogo_premium", 2],
+  ["menu_lujo", 3],
+  ["lona_espectacular", 3],
+  ["rotulacion", 4],
+  ["backdrop_evento", 3],
+  ["uniformes", 3],
+  ["maraton", 2],
+  ["totes_cafe", 3],
+  ["acreditaciones", 3],
+  ["senaletica_acrilico", 3],
+  ["directo_uv", 4]
 ];
 var BANDA = {
   playeras: (r2, q) => {
@@ -1247,9 +1647,28 @@ var BANDA = {
   boletos: (r2, q) => ({ label: "boletos con holograma y folio", unit: r2.money(2.5, 4.5), q, steps: [dz(r2, 15, 40), { m: "m2", min: 10 + q * 0.015, need: { opalina: Math.ceil(q / 24), toner_color: q * 4e-3 } }, { m: "m8", min: 20 + q * 0.012 }, { m: "m7", min: 15 + q * 0.01 }] }),
   fanzines: (r2, q) => ({ label: "fanzines", unit: r2.money(28, 45), q, steps: [dz(r2, 40, 90), { m: "m2", min: 20 + q * 0.35, need: { couche: q * 2, toner_color: q * 0.09 } }, { m: "m7", min: 15 + q * 0.03 }, { m: "m11", min: 25 + q * 0.2 }] }),
   backdrop: (r2, q) => ({ label: "m\xB2 de backdrop (lona de escenario)", unit: r2.money(110, 140), q, steps: [dz(r2, 20, 45), { m: "m4", min: 15 + q * 5, need: { lona: q, eco: q * 0.35 } }] }),
-  fundas: (r2, q) => ({ label: "fundas de celular edici\xF3n especial", unit: r2.money(150, 220), q, steps: [dz(r2, 20, 45), { m: "m5", min: 10 + q * 1.2, need: { fundas: q, uv: q * 0.06 } }] })
+  fundas: (r2, q) => ({ label: "fundas de celular edici\xF3n especial", unit: r2.money(150, 220), q, steps: [dz(r2, 20, 45), { m: "m5", min: 10 + q * 1.2, need: { fundas: q, uv: q * 0.06 } }] }),
+  // v23: más merch oficial
+  posters_holo: (r2, q) => ({ label: "p\xF3sters de gira hologr\xE1ficos numerados", unit: r2.money(35, 60), q, steps: [dz(r2, 30, 70), { m: "m2", min: 15 + q * 0.18, need: { couche: Math.ceil(q / 2), toner_color: q * 0.035 } }, { m: "m9", min: 15 + q * 0.08 }, { m: "m7", min: 12 + q * 0.02 }] }),
+  lanyards: (r2, q) => ({ label: "lanyards serigrafiados de la gira", unit: r2.money(30, 55), q, steps: [dz(r2, 15, 35), { m: "m6", min: 20 + q * 0.25, need: { plastisol: q * 0.02 } }, { m: "m10", min: 15 + q * 0.03 }, { m: "m7", min: 8 + q * 0.02 }] }),
+  stickers_suaje: (r2, q) => ({ label: "stickers suajados (planilla de la banda)", unit: r2.money(4, 8), q, steps: [dz(r2, 15, 40), { m: "m2", min: 10 + q * 6e-3, need: { adhesivo: Math.ceil(q / 20), toner_color: q * 1e-3 } }, { m: "m8", min: 20 + q * 0.01 }] }),
+  pines: (r2, q) => ({ label: "pines / botones con arte del disco", unit: r2.money(12, 22), q, steps: [dz(r2, 15, 35), { m: "m2", min: 8 + q * 0.02, need: { couche: Math.ceil(q / 20), toner_color: q * 3e-3 } }, { m: "m9", min: 10 + q * 0.12 }] })
 };
-var BANDA_MIX = [["playeras", 30], ["hoodies", 9], ["totes", 7], ["posters", 14], ["stickers", 12], ["boletos", 7], ["fanzines", 6], ["backdrop", 8], ["fundas", 7]];
+var BANDA_MIX = [
+  ["playeras", 30],
+  ["hoodies", 9],
+  ["totes", 7],
+  ["posters", 14],
+  ["stickers", 12],
+  ["boletos", 7],
+  ["fanzines", 6],
+  ["backdrop", 8],
+  ["fundas", 7],
+  ["posters_holo", 6],
+  ["lanyards", 5],
+  ["stickers_suaje", 6],
+  ["pines", 5]
+];
 
 // src/engine.js
 var ENGINE_VERSION = 6;
@@ -1817,8 +2236,10 @@ function createOrder(s, rng, kind, opts = {}) {
       used.add(p);
       const u = rng.next();
       const def = COMERCIAL[p](rng, u * u * u);
-      lines.push({ label: def.label, prod: def.label, q: def.q, steps: def.steps, amt: money(def.unit * def.q) });
+      lines.push({ label: def.label, prod: def.label, q: def.q, steps: def.steps, amt: money(def.unit * def.q), cli: def.cli });
     }
+    const pool = !opts.client && (lines.find((l) => l.cli) || {}).cli;
+    if (pool && pool.length && rng.chance(0.85)) client = rng.pick(pool);
     total = money(lines.reduce((a, l) => a + l.amt, 0));
     if (cfg(s).proyectos !== 1) total = money(total * cfg(s).proyectos);
   }
