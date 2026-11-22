@@ -248,19 +248,28 @@
 .fl-big .fl-main { grid-column: 1 / -1; background: rgba(30,41,59,.7); border-color: rgba(148,163,184,.35); } .fl-big .fl-main b { font-size: 38px; }
 .fl-note { font-size: 13.5px; color: #94a3b8; margin-top: 8px; line-height: 1.5; }
 .fl-empty { color: #64748b; padding: 10px 2px; font-size: 15px; }
-#finBody .logrow { font-size: 15px; padding: 7px 4px; grid-template-columns: 84px 1fr auto; } #finBody .logrow.del { grid-template-columns: 84px 1fr auto 34px; } #finBody .logrow .a { font-size: 14px; color: #e2e8f0; } #finBody .logrow .rm { font-size: 15px; padding: 5px; }
+#finBody .logrow { font-size: 15px; padding: 7px 4px; grid-template-columns: 84px 1fr auto; } #finBody .logrow.del { grid-template-columns: 84px 1fr auto 34px; } #finBody .logrow .a { font-size: 14px; } #finBody .logrow .rm { font-size: 15px; padding: 5px; }
 #finBody .daysep { font-size: 12px; padding: 12px 2px 4px; }
 #finBody .fl-blk > .daysep:first-of-type { padding-top: 4px; }
 #sumBody .fl-line { font-size: 14px; padding: 7px 2px; grid-template-columns: minmax(0,1fr) auto auto; } #sumBody .fl-line.fl-g { grid-template-columns: minmax(0,1fr) auto; } #sumBody .fl-v b { font-size: 14px; } #sumBody .fl-v { font-size: 12px; }
 #sumBody .fl-h { font-size: 16px; } #sumBody .fl-big b { font-size: 20px; } #sumBody .fl-big .fl-main b { font-size: 26px; } #sumBody .fl-big > div { padding: 10px 12px; } #sumBody .fl-blk { margin-bottom: 18px; }
+/* v27 Código de color: entra dinero = verde, sale dinero = rojo (bitácora, Finanzas, historiales, Resumen) */
+:root { --in: #22c55e; --out: #ef4444; }
+.logrow.mi .x, .logrow.mi .a, .logrow.mi .a.up { color: var(--in) !important; } .logrow.mo .x, .logrow.mo .a, .logrow.mo .a.dn { color: var(--out) !important; }
+.logrow .a.up { color: var(--in); } .logrow .a.dn { color: var(--out); }
+.gi { color: var(--in) !important; } .ge { color: var(--out) !important; }
+.fl-in .fl-v b { color: var(--in); } .fl-out .fl-v b { color: var(--out); } .fl-out .fl-c { color: #fca5a5; }
+.fl-in.fl-tot2 .fl-c, .fl-out.fl-tot2 .fl-c { color: #fff; }
+#hvList .hv-n { color: var(--in); } #hvList .hv-head > span, #hvList .hv-row.anul .hv-n { color: #64748b; }
+#hdModal .hd-t.g { color: var(--in); } #hdModal .hd-t.r { color: var(--out); } #hdModal .hv-kpis b.g { color: var(--in); } #hdModal .hv-kpis b.r { color: var(--out); }
 /* Historial de Ventas: tabla limpia */
 #hvList .hv-row { display: grid; grid-template-columns: 74px minmax(0,1fr) 92px 120px 120px; gap: 10px; align-items: baseline; padding: 9px 4px; font-size: 15px; border-bottom: 1px solid rgba(148,163,184,.09); }
 #hvList .hv-row .t { font-family: 'JetBrains Mono', monospace; color: #94a3b8; font-size: 13px; padding: 0; }
 #hvList .hv-x { color: #e2e8f0; min-width: 0; } #hvList .hv-x small { display: block; font-size: 12.5px; color: #64748b; }
-#hvList .hv-tp { font-size: 13px; color: #94a3b8; } #hvList .hv-n { text-align: right; font-family: 'JetBrains Mono', monospace; color: #f1f5f9; white-space: nowrap; } #hvList .hv-ne { color: #cbd5e1; }
+#hvList .hv-tp { font-size: 13px; color: #94a3b8; } #hvList .hv-n { text-align: right; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
 #hvList .hv-head { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid rgba(148,163,184,.35); padding-top: 2px; } #hvList .hv-head > span { color: #94a3b8 !important; font-family: Inter, system-ui, sans-serif !important; font-size: 11.5px; }
 #hvList .hv-row.anul .hv-x, #hvList .hv-row.anul .hv-n { color: #64748b; } #hvList .hv-row.anul .hv-x::after { content: ' (anulada por el Host)'; font-size: 12px; }
-#hvModal .hv-kpis b.g, #hvModal .hv-kpis b.r, #hvModal .hv-kpis b.n { color: #f1f5f9; }
+
 @media (max-width: 767px) {
   .fl-line { grid-template-columns: 1fr 1fr; } .fl-line > .fl-c { grid-column: 1 / -1; } .fl-line > .fl-v { text-align: left; } .fl-line.fl-g { grid-template-columns: minmax(0,1fr) auto; } .fl-line.fl-g > .fl-c { grid-column: auto; } .fl-line.fl-g > .fl-v { text-align: right; } .fl-big { grid-template-columns: 1fr; } .fl-big b { font-size: 22px; } .fl-big .fl-main b { font-size: 26px; }
   .fl-acts { justify-content: flex-start; } .fl-btn { font-size: 13px; padding: 8px 12px; }
@@ -2451,7 +2460,9 @@ function createOrder(s, rng, kind, opts = {}) {
   if (kind === "banda") s.counters.pedidosBanda++;
   else s.counters.pedidosComerciales++;
   const via = kind === "banda" ? "" : rng.pick([" (por WhatsApp)", " (en mostrador)", " (por correo)", " (cliente recomendado por Sara)"]);
-  const cobrado = income(s, cat, anticipo, `Anticipo 50% - ${client}${opts.masivo ? " (pedido masivo)" : ""}`, kind === "banda" ? "band" : "in");
+  const quien = `${kind === "banda" ? "Pedido de" : "Pedido corporativo de"} ${client}${opts.masivo ? " (pedido masivo)" : ""}`;
+  const qtxt = `Anticipo 50% \xB7 ${quien}: ${desc}`.slice(0, 150);
+  const cobrado = income(s, cat, anticipo, qtxt, kind === "banda" ? "band" : "in");
   tagLog(s, oid);
   let est = 0;
   for (const l of lines) for (const st of l.steps) for (const [id, q] of Object.entries(st.need || {})) if (INV[id]) est += q * INV[id].unitCost;
@@ -2460,7 +2471,7 @@ function createOrder(s, rng, kind, opts = {}) {
   o.matUsed = 0;
   o.matRec = r3(est / 2);
   recCogs(s, ordRubro(o), o.matRec);
-  o.hvA = venta(s, cat, `Anticipo 50% - ${client}${opts.masivo ? " (pedido masivo)" : ""}: ${o.desc}`, cobrado, o.matRec, "Anticipo 50% \xB7 en producci\xF3n", { o: oid, total });
+  o.hvA = venta(s, cat, qtxt, cobrado, o.matRec, "Anticipo 50% \xB7 en producci\xF3n", { o: oid, total });
   return o;
 }
 function createPeriodico(s, t) {
@@ -2565,10 +2576,10 @@ function deliverOrder(s, o, rng) {
   if (rest > 0) {
     const half = money(o.total / 2) === rest;
     const cat = o.kind === "banda" ? "bandas" : "comercial";
-    const txt = `${half ? "Liquidaci\xF3n 50% (Entrega)" : "Liquidaci\xF3n del saldo (Entrega)"} - ${o.client}`;
+    const txt = `${half ? "Liquidaci\xF3n 50% (Entrega)" : "Liquidaci\xF3n del saldo (Entrega)"} \xB7 ${o.kind === "banda" ? "Pedido de" : "Pedido corporativo de"} ${o.client}${o.desc ? ": " + o.desc : ""}`.slice(0, 150);
     const cobrado = income(s, cat, rest, txt, o.kind === "banda" ? "band" : "in");
     tagLog(s, o.id);
-    venta(s, cat, `${txt}: ${o.desc || ""}`, cobrado, adj, "Liquidado \xB7 entregado", { o: o.id, total: o.total });
+    venta(s, cat, txt, cobrado, adj, "Liquidado \xB7 entregado", { o: o.id, total: o.total });
   } else log(s, `Pedido entregado (ya estaba liquidado) - ${o.client}`, null, "info");
   o.paid = money(o.paid + rest);
   o.liq = rest;
@@ -3440,8 +3451,9 @@ function customers(s, t, rng, lunch, fx2) {
     return;
   }
   s.day.ventas = money(s.day.ventas + total);
-  const cobrado = income(s, "mostrador", total, "Venta en mostrador", "in");
-  venta(s, "mostrador", `Venta en mostrador - ${who}: ${items.filter((x) => x[0] !== "(").join(", ") || "varios"}`, cobrado, cogsOf(s, "mostrador") - cog0, "Pagada");
+  const vtxt = `Venta de mostrador: ${items.filter((x) => x[0] !== "(").join(", ") || "varios"}`.slice(0, 150);
+  const cobrado = income(s, "mostrador", total, vtxt, "in");
+  venta(s, "mostrador", vtxt, cobrado, cogsOf(s, "mostrador") - cog0, "Pagada");
   if (ricoh) s.machines.m3.busyUntil = Math.max(s.machines.m3.busyUntil, s.minute + Math.ceil(ricoh / 50));
   const cid = cajera(s) || "natasha";
   const n = s.emps[cid];
@@ -3458,8 +3470,8 @@ function buySnack(s, rng, who) {
   const cog0 = cogsOf(s, "snacks");
   withRubro("snacks", () => take(s, id, 1, rng));
   const sk = SNACKS[id];
-  const cobrado = income(s, "snacks", rng.money(sk.min, sk.max), "Compra en estante", "snack");
-  venta(s, "snacks", `Compra en estante - ${who || "cliente"}: ${sk.name}`, cobrado, cogsOf(s, "snacks") - cog0, "Pagada");
+  const cobrado = income(s, "snacks", rng.money(sk.min, sk.max), `Venta de snacks: ${sk.name}`, "snack");
+  venta(s, "snacks", `Venta de snacks: ${sk.name}`, cobrado, cogsOf(s, "snacks") - cog0, "Pagada");
   return id;
 }
 function inflow(s, t, rng) {
@@ -3731,8 +3743,8 @@ function adminCash(s, mode, amount) {
   log(s, "Ajuste de capital del Host", delta, "admin", s.minute, "admin");
 }
 var CAT_TXT = [
-  [/^Venta en mostrador/, "mostrador"],
-  [/^Compra en estante/, "snacks"],
+  [/^Venta (en|de) mostrador/, "mostrador"],
+  [/^(Compra en estante|Venta de snacks)/, "snacks"],
   [/Periódico/, "periodico"],
   [/^(Nuevo pedido|Pedido masivo|Pedido entregado)/, null],
   [/^Compra de material/, "insumos"],
@@ -5773,6 +5785,8 @@ function installTvFallback(root = document.body) {
 // src/main.js
 var $ = (s) => document.querySelector(s);
 var esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+var txtPub = (t) => String(t || "").replace(/^Venta en mostrador - [^:]*: /, "Venta de mostrador: ").replace(/^Venta en mostrador$/, "Venta de mostrador").replace(/^Compra en estante - [^:]*: /, "Venta de snacks: ").replace(/^Compra en estante$/, "Venta de snacks").replace(/^(Anticipo 50%|Liquidación 50% \(Entrega\)|Liquidación del saldo \(Entrega\)) - /, "$1 \xB7 Pedido de ");
+var mcls = (amt) => typeof amt === "number" && amt ? amt > 0 ? " mi" : " mo" : "";
 var store = new LocalStore();
 var S = null;
 var role = "spectator";
@@ -6372,7 +6386,7 @@ function renderPanel(force = false) {
       }
       const amt = typeof l.amt === "number" && l.amt !== 0 ? `<span class="a ${l.amt > 0 ? "up" : "dn"}">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>` : '<span class="a"></span>';
       const rm = canDel ? `<button class="rm" data-del="${i}" data-m="${l.m}" title="Borrar este registro" aria-label="Borrar registro">${ICON.trash}</button>` : "";
-      html += `<div class="logrow k-${l.k}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(l.txt)}</span>${amt}${rm}</div>`;
+      html += `<div class="logrow k-${l.k}${mcls(l.amt)}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(txtPub(l.txt))}</span>${amt}${rm}</div>`;
     }
     body.innerHTML = html;
     return;
@@ -6552,10 +6566,10 @@ function finLogHTML() {
     const rm = canDel ? `<button class="rm" data-del="${i}" data-m="${l.m}" title="Borrar y revertir en caja" aria-label="Borrar y revertir">${ICON.trash}</button>` : "";
     if (l.amt > 0) inn += l.amt;
     else out -= l.amt;
-    h += `<div class="logrow${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(l.txt)}</span><span class="a">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>${rm}</div>`;
+    h += `<div class="logrow${mcls(l.amt)}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(txtPub(l.txt))}</span><span class="a">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>${rm}</div>`;
   }
   if (!n) return '<div class="fl-empty">Sin movimientos de dinero en la bit\xE1cora.</div>';
-  return h + `<div class="fl-line fl-tot2"><span class="fl-c">Total de los ${n} movimientos mostrados</span><span class="fl-v">Entradas: <b>${fmtMXN(money(inn))}</b></span><span class="fl-v">Salidas: <b>${fmtMXN(money(out))}</b></span></div>`;
+  return h + `<div class="fl-line fl-tot2"><span class="fl-c">Total de los ${n} movimientos mostrados</span><span class="fl-v">Entradas: <b class="gi">+${fmtMXN(money(inn))}</b></span><span class="fl-v">Salidas: <b class="ge">\u2212${fmtMXN(money(out))}</b></span></div>`;
 }
 function finPeriod() {
   const months = Object.keys(S.acct || {}).sort().reverse();
@@ -6581,10 +6595,10 @@ function finBlocksHTML(p, { extra = "" } = {}) {
   const f = finBreak(p);
   const egr = p.egr || {};
   let h = '<div class="fl-blk"><div class="fl-h"><span>Bloque 1</span>Ingresos (Bruto vs. Neto)</div>';
-  for (const r2 of f.rub) h += `<div class="fl-line"><span class="fl-c">${ING_LBL[r2.k] || esc(r2.name)}</span><span class="fl-v">Bruto: <b>${fmtMXN(r2.bruta)}</b></span><span class="fl-v">Neto: <b>${f.baseCaja ? "\u2014" : fmtMXN(r2.neta)}</b></span></div>`;
-  if (f.otros) h += `<div class="fl-line"><span class="fl-c">Otros ingresos (Host / ajustes)</span><span class="fl-v">Bruto: <b>${fmtMXN(f.otros)}</b></span><span class="fl-v">Neto: <b>${fmtMXN(f.otros)}</b></span></div>`;
-  if (!f.baseCaja && f.matGen) h += `<div class="fl-line"><span class="fl-c">Insumos generales (empaque, limpieza, cocina)</span><span class="fl-v">Bruto: <b>\u2014</b></span><span class="fl-v">Neto: <b>${sgn(-f.matGen)}</b></span></div>`;
-  h += `<div class="fl-line fl-tot2"><span class="fl-c">Total de ingresos</span><span class="fl-v">Bruto: <b>${fmtMXN(f.bruta)}</b></span><span class="fl-v">Neto: <b>${f.baseCaja ? "\u2014" : sgn(money(f.bruta - f.costoMat))}</b></span></div>`;
+  for (const r2 of f.rub) h += `<div class="fl-line fl-in"><span class="fl-c">${ING_LBL[r2.k] || esc(r2.name)}</span><span class="fl-v">Bruto: <b>${fmtMXN(r2.bruta)}</b></span><span class="fl-v">Neto: <b class="${r2.neta < 0 ? "ge" : ""}">${f.baseCaja ? "\u2014" : fmtMXN(r2.neta)}</b></span></div>`;
+  if (f.otros) h += `<div class="fl-line fl-in"><span class="fl-c">Otros ingresos (Host / ajustes)</span><span class="fl-v">Bruto: <b>${fmtMXN(f.otros)}</b></span><span class="fl-v">Neto: <b>${fmtMXN(f.otros)}</b></span></div>`;
+  if (!f.baseCaja && f.matGen) h += `<div class="fl-line fl-out"><span class="fl-c">Insumos generales (empaque, limpieza, cocina)</span><span class="fl-v">Bruto: <b>\u2014</b></span><span class="fl-v">Neto: <b>${sgn(-f.matGen)}</b></span></div>`;
+  h += `<div class="fl-line fl-in fl-tot2"><span class="fl-c">Total de ingresos</span><span class="fl-v">Bruto: <b>${fmtMXN(f.bruta)}</b></span><span class="fl-v">Neto: <b>${f.baseCaja ? "\u2014" : sgn(money(f.bruta - f.costoMat))}</b></span></div>`;
   h += `<div class="fl-note">Neto = bruto menos el material de bodega que se us\xF3 para producir esas ventas.${f.baseCaja ? " En este periodo no hay registro de material por rubro (versi\xF3n anterior)." : ""}</div></div>`;
   h += '<div class="fl-blk"><div class="fl-h"><span>Bloque 2</span>Gastos detallados</div>';
   const known = /* @__PURE__ */ new Set();
@@ -6592,17 +6606,17 @@ function finBlocksHTML(p, { extra = "" } = {}) {
     cats.forEach((c) => known.add(c));
     const tot = money(cats.reduce((x, c) => x + (egr[c] || 0), 0));
     const det = cats.length > 1 ? cats.filter((c) => egr[c]).map((c) => `${esc(EGR_CATS[c] || c)} ${fmtMXN(egr[c])}`).join(" \xB7 ") : "";
-    h += `<div class="fl-line fl-g"><span class="fl-c">${name}${det ? `<small>${det}</small>` : ""}</span><span class="fl-v"><b>${fmtMXN(tot)}</b></span></div>`;
+    h += `<div class="fl-line fl-g${tot ? " fl-out" : ""}"><span class="fl-c">${name}${det ? `<small>${det}</small>` : ""}</span><span class="fl-v"><b>${tot ? "\u2212" : ""}${fmtMXN(tot)}</b></span></div>`;
   }
-  for (const [c, v] of Object.entries(egr)) if (!known.has(c) && v) h += `<div class="fl-line fl-g"><span class="fl-c">${esc(EGR_CATS[c] || c)}</span><span class="fl-v"><b>${fmtMXN(v)}</b></span></div>`;
-  h += `<div class="fl-line fl-g fl-tot2"><span class="fl-c">Total de gastos pagados</span><span class="fl-v"><b>${fmtMXN(f.egrTot)}</b></span></div>`;
+  for (const [c, v] of Object.entries(egr)) if (!known.has(c) && v) h += `<div class="fl-line fl-g fl-out"><span class="fl-c">${esc(EGR_CATS[c] || c)}</span><span class="fl-v"><b>\u2212${fmtMXN(v)}</b></span></div>`;
+  h += `<div class="fl-line fl-g fl-out fl-tot2"><span class="fl-c">Total de gastos pagados</span><span class="fl-v"><b>\u2212${fmtMXN(f.egrTot)}</b></span></div>`;
   h += `<div class="fl-line fl-g fl-info"><span class="fl-c">Costo de insumos de bodega usados en producci\xF3n${f.baseCaja ? " (base caja: compras del periodo)" : p.insumosPre ? " (incluye compras previas)" : ""}<small>Informativo: es el material que sali\xF3 de Bodega; se resta en el Neto, no es un pago extra.</small></span><span class="fl-v"><b>${fmtMXN(f.costoMat)}</b></span></div></div>`;
   const saldo = money(f.bruta - f.egrTot);
   h += `<div class="fl-blk"><div class="fl-h"><span>Bloque 3</span>Totales: el balance final</div><div class="fl-big">
-    <div><span>Total de Ingresos</span><b>${fmtMXN(f.bruta)} MXN</b></div>
-    <div><span>Total de Gastos</span><b>${fmtMXN(f.egrTot)} MXN</b></div>
-    <div><span>Saldo (Ingresos \u2212 Gastos)</span><b>${sgn(saldo)} MXN</b></div>
-    <div class="fl-main"><span>Ganancia Neta Total</span><b>${sgn(f.neta)} MXN</b></div></div>
+    <div><span>Total de Ingresos</span><b class="gi">${fmtMXN(f.bruta)} MXN</b></div>
+    <div><span>Total de Gastos</span><b class="ge">\u2212${fmtMXN(f.egrTot)} MXN</b></div>
+    <div><span>Saldo (Ingresos \u2212 Gastos)</span><b class="${saldo < 0 ? "ge" : "gi"}">${sgn(saldo)} MXN</b></div>
+    <div class="fl-main"><span>Ganancia Neta Total</span><b class="${f.neta < 0 ? "ge" : "gi"}">${sgn(f.neta)} MXN</b></div></div>
     <div class="fl-note">Ganancia Neta Total = Ingresos \u2212 material usado (${fmtMXN(f.costoMat)}) \u2212 gastos operativos (${fmtMXN(f.opex)}). Las compras de bodega se invierten en inventario y cuentan cuando el material se usa, por eso el Saldo y la Ganancia Neta pueden ser distintos.</div>${extra}</div>`;
   return h;
 }
@@ -6610,7 +6624,7 @@ function finContentHTML() {
   const per = finPeriod();
   const p = per.p;
   let extra = `<div class="fl-line fl-g"><span class="fl-c">Dinero en caja ahora</span><span class="fl-v"><b>${fmtMXN(S.cash)} MXN</b></span></div>
-    <div class="fl-line fl-g"><span class="fl-c">Por cobrar (saldos 50% de proyectos)</span><span class="fl-v"><b>${fmtMXN(porCobrar(S))} MXN</b></span></div>`;
+    <div class="fl-line fl-g fl-in"><span class="fl-c">Por cobrar (saldos 50% de proyectos)</span><span class="fl-v"><b>${fmtMXN(porCobrar(S))} MXN</b></span></div>`;
   let h = finBlocksHTML(p, { extra });
   h += '<div class="fl-blk"><div class="fl-h"><span>Bloque 4</span>Informaci\xF3n adicional</div>';
   if (per.mat) {
@@ -6728,7 +6742,7 @@ function renderHV() {
   }
   const q = norm(hvQuery.trim());
   const f = HV_F[hvFilter] || HV_F.all;
-  const rows = Object.entries(hvData).filter(([, e]) => e && typeof e.bruto === "number" && f(e) && (!q || norm(e.concepto + " " + e.estado + " " + (HV_TIPOS[e.tipo] || "")).includes(q))).sort((a, b) => a[0] < b[0] ? 1 : -1);
+  const rows = Object.entries(hvData).filter(([, e]) => e && typeof e.bruto === "number" && f(e) && (!q || norm(txtPub(e.concepto) + " " + e.estado + " " + (HV_TIPOS[e.tipo] || "")).includes(q))).sort((a, b) => a[0] < b[0] ? 1 : -1);
   let n = 0, bruto = 0, costo = 0, neta = 0, sinCosto = 0, anul = 0;
   for (const [k, e] of rows) {
     if (e.anulada) {
@@ -6746,7 +6760,7 @@ function renderHV() {
     }
   }
   $("#hvCount").textContent = `${fmtNum(Object.keys(hvData).length)} ventas guardadas${Object.keys(hvData).length >= hvLimit ? ` (mostrando las ${fmtNum(hvLimit)} m\xE1s recientes)` : ""}`;
-  $("#hvTot").innerHTML = `<div class="hv-kpis"><div><span>Ventas</span><b>${fmtNum(n)}</b></div><div><span>Venta bruta</span><b class="g">${fmtMXN(money(bruto))} MXN</b></div><div><span>Costo de material</span><b class="r">${fmtMXN(money(costo))} MXN</b></div><div><span>Ganancia neta</span><b class="n">${fmtMXN(money(neta))} MXN</b></div></div>
+  $("#hvTot").innerHTML = `<div class="hv-kpis"><div><span>Ventas</span><b>${fmtNum(n)}</b></div><div><span>Venta bruta</span><b class="gi">${fmtMXN(money(bruto))} MXN</b></div><div><span>Costo de material</span><b class="ge">${fmtMXN(money(costo))} MXN</b></div><div><span>Ganancia neta</span><b class="gi">${fmtMXN(money(neta))} MXN</b></div></div>
     ${sinCosto || anul ? `<div class="hv-note">${sinCosto ? `${fmtNum(sinCosto)} ventas recuperadas de la bit\xE1cora no tienen costo registrado (su neta = bruto). ` : ""}${anul ? `${fmtNum(anul)} anuladas por el Host no suman.` : ""}</div>` : ""}
 `;
   const MAXR = 700;
@@ -6765,7 +6779,7 @@ function renderHV() {
       h += `<div class="daysep">${DOW[t.dow]} ${t.day} de ${MES[t.mo - 1]} de ${t.y}</div>`;
     }
     const net = typeof e.costo === "number" ? fmtMXN(e.neta ?? money(e.bruto - e.costo)) : "\u2014";
-    h += `<div class="hv-row${e.anulada ? " anul" : ""}"><span class="t">${hhmm(t.mod)}</span><span class="hv-x">${esc(e.concepto)}${e.estado ? `<small>${esc(e.estado)}</small>` : ""}</span><span class="hv-tp">${HV_TIPOS[e.tipo] || "Otro"}</span><span class="hv-n">${fmtMXN(e.bruto)}</span><span class="hv-n hv-ne">${net}</span></div>`;
+    h += `<div class="hv-row${e.anulada ? " anul" : ""}"><span class="t">${hhmm(t.mod)}</span><span class="hv-x">${esc(txtPub(e.concepto))}${e.estado ? `<small>${esc(e.estado)}</small>` : ""}</span><span class="hv-tp">${HV_TIPOS[e.tipo] || "Otro"}</span><span class="hv-n">${fmtMXN(e.bruto)}</span><span class="hv-n hv-ne">${net}</span></div>`;
   }
   if (!rows.length) h = `<div class="text-slate-400 p-3">${Object.keys(hvData).length ? "Ninguna venta coincide con el filtro o la b\xFAsqueda." : "Todav\xEDa no hay ventas guardadas. Se registran en cuanto el Host transmite con esta versi\xF3n."}</div>`;
   if (Object.keys(hvData).length >= hvLimit) h += `<div class="p-3 text-center"><button type="button" class="btn" id="hvMore">Cargar ventas m\xE1s antiguas</button></div>`;
@@ -6865,7 +6879,7 @@ function hdList(obj, sign2) {
   if (!rows.length) return '<div class="text-slate-500 p-3">Sin movimientos.</div>';
   return rows.map(([, x]) => {
     const t = cdmx(x.m * MIN);
-    return `<div class="logrow${x.anulada ? " hd-anul" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(x.txt)}${x.anulada ? ' <i class="hd-tag">anulado por el Host</i>' : ""}</span><span class="a ${sign2 > 0 ? "up" : "dn"}">${sign2 > 0 ? "+" : "\u2212"}${fmtMXN(x.amt)}</span></div>`;
+    return `<div class="logrow${sign2 > 0 ? " mi" : " mo"}${x.anulada ? " hd-anul" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(txtPub(x.txt))}${x.anulada ? ' <i class="hd-tag">anulado por el Host</i>' : ""}</span><span class="a ${sign2 > 0 ? "up" : "dn"}">${sign2 > 0 ? "+" : "\u2212"}${fmtMXN(x.amt)}</span></div>`;
   }).join("");
 }
 function renderHDDay() {
