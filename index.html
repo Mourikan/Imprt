@@ -94,7 +94,7 @@
   @media (min-width: 768px) {
     #panel { right: var(--tv-gap) !important; }
     #hud { right: calc(420px + var(--tv-gap) + 12px) !important; }
-    #finModal, #sumModal, #adminModal, #pwModal, #hvModal { padding-right: var(--tv-gap) !important; padding-left: 12px !important; }
+    #finModal, #sumModal, #adminModal, #pwModal, #hvModal, #hdModal { padding-right: var(--tv-gap) !important; padding-left: 12px !important; }
     .fin-card { width: min(1100px, calc(100vw - var(--tv-gap) - 40px)) !important; }
   }
   /* HUD: Ganancia Bruta y Neta del día junto a la caja */
@@ -166,7 +166,12 @@
   .hv-m { text-align: right; white-space: nowrap; } .hv-m b { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #6ee7b7; } .hv-m span { font-size: 10.5px; color: #94a3b8; }
   .hv-row.anul .hv-x, .hv-row.anul .hv-m b { color: #fb7185; text-decoration: line-through; }
   /* Teléfono: sin botones ▲▼ (se desliza con el dedo) para que Finanzas e Historial no se corten a lo ancho */
-  @media (max-width: 640px) { #finModal .sc-btns, #hvModal .sc-btns { display: none; } .fin-scroll { overflow-x: hidden; } .hv-row { flex-wrap: wrap; } .hv-m { margin-left: auto; } }
+  @media (max-width: 640px) { #finModal .sc-btns, #hvModal .sc-btns, #hdModal .sc-btns { display: none; } .fin-scroll { overflow-x: hidden; } .hv-row { flex-wrap: wrap; } .hv-m { margin-left: auto; } }
+  /* v24 Historial de Días Anteriores */
+  #hdModal .logrow { font-size: 14px; padding: 6px 4px; grid-template-columns: 76px 1fr auto; } #hdModal .logrow .a { font-size: 13px; }
+  .hd-t.g { color: #6ee7b7; } .hd-t.r { color: #fda4af; } .hd-n { font-weight: 500; font-size: 12px; color: #94a3b8; margin-left: 6px; }
+  .hd-anul .x, .hd-anul .a { text-decoration: line-through; opacity: .6; } .hd-tag { font-size: 11px; color: #fb7185; text-decoration: none; }
+  #hdSel { font-size: 15px; padding: 8px 10px; }
   .fb-sep { height: 1px; background: rgba(71,85,105,.6); margin: 18px 0 12px; }
   .sc-wrap { display: flex; gap: 8px; min-height: 0; flex: 1; }
   .sc-wrap > .lscroll { flex: 1; min-width: 0; min-height: 0; }
@@ -315,7 +320,7 @@
   <div class="glass rounded-2xl fin-card">
     <div class="flex items-center justify-between gap-3 px-5 pt-4 pb-3 border-b border-slate-700/50">
       <div class="text-xl font-extrabold">Finanzas</div>
-      <div class="flex gap-2"><button type="button" class="btn text-base px-4 py-2" id="hvBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg> Historial de Ventas</button><button type="button" class="btn text-base px-4 py-2" id="finClose" aria-label="Cerrar finanzas">Cerrar</button></div>
+      <div class="flex flex-wrap justify-end gap-2"><button type="button" class="btn text-base px-4 py-2" id="hvBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg> Historial de Ventas</button><button type="button" class="btn text-base px-4 py-2" id="hdBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h6"/></svg> Historial de Días Anteriores</button><button type="button" class="btn text-base px-4 py-2" id="finClose" aria-label="Cerrar finanzas">Cerrar</button></div>
     </div>
     <div class="fin-grid">
       <div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#finAcct" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#finAcct" data-dir="1">▼ Bajar</button></div><div id="finAcct" class="fin-scroll lscroll"></div></div>
@@ -341,6 +346,22 @@
     <div id="hvTot" class="px-5 pt-2"></div>
     <div class="fin-grid hv-grid">
       <div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#hvList" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#hvList" data-dir="1">▼ Bajar</button></div><div id="hvList" class="fin-scroll lscroll"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Historial de Días Anteriores (v24): /partida/historialDiario, permanente (no se borra al limpiar la bitácora) -->
+<div id="hdModal" class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-3">
+  <div class="glass rounded-2xl fin-card">
+    <div class="flex items-center justify-between gap-3 px-5 pt-4 pb-3 border-b border-slate-700/50">
+      <div><div class="text-xl font-extrabold"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h6"/></svg> Historial de Días Anteriores</div><div id="hdCount" class="text-xs text-slate-400 mt-0.5">—</div></div>
+      <button type="button" class="btn text-base px-4 py-2" id="hdClose" aria-label="Cerrar historial de días">Cerrar</button>
+    </div>
+    <div class="px-5 pt-3 flex flex-wrap gap-2 items-center"><label for="hdSel" class="text-sm text-slate-300 font-semibold">Día:</label><select id="hdSel" class="flex-1 min-w-[220px]"></select></div>
+    <div id="hdHead" class="px-5 pt-2"></div>
+    <div class="fin-grid hd-grid">
+      <div class="fin-col"><div class="font-bold mb-1 hd-t g">Ventas concretadas y cobradas <span id="hdVN" class="hd-n"></span></div><div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#hdVentas" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#hdVentas" data-dir="1">▼ Bajar</button></div><div id="hdVentas" class="fin-scroll lscroll"></div></div></div>
+      <div class="fin-col"><div class="font-bold mb-1 hd-t r">Gastos operativos <span id="hdGN" class="hd-n"></span></div><div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#hdGastos" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#hdGastos" data-dir="1">▼ Bajar</button></div><div id="hdGastos" class="fin-scroll lscroll"></div></div></div>
     </div>
   </div>
 </div>
@@ -736,7 +757,21 @@ var PROTESIS = [
   "socket transfemoral",
   "adaptador piramidal",
   "mano mec\xE1nica",
-  "dedo prot\xE9sico"
+  "dedo prot\xE9sico",
+  // v23: más piezas del Taller 3D (resina y filamento)
+  "maqueta arquitect\xF3nica en resina (despacho de dise\xF1o)",
+  "maqueta de conjunto residencial a escala 1:200",
+  "maqueta de fachada para concurso de arquitectura",
+  "prototipo de engrane para estudiantes de ingenier\xEDa",
+  "carcasa prototipo de dron (proyecto ESIME)",
+  "brazo rob\xF3tico de prueba (equipo universitario)",
+  "soporte mec\xE1nico funcional en PETG",
+  "lote de miniaturas para juego de mesa",
+  "miniaturas de rol pintables (pedido de tienda de juegos)",
+  "set de fichas y dados personalizados",
+  "figura coleccionable de resina",
+  "molde de resina para joyer\xEDa",
+  "trofeo personalizado impreso en 3D"
 ];
 var SNACKS = {
   refrescos: { name: "un refresco", min: 18, max: 22 },
@@ -838,7 +873,37 @@ var BUSINESSES = [
   "Sal\xF3n de eventos Jard\xEDn Real",
   "Agencia de viajes Mundo",
   "Despacho jur\xEDdico Morales",
-  "Pasteler\xEDa Dulce Hogar"
+  "Pasteler\xEDa Dulce Hogar",
+  // v23
+  "Facultad de Arquitectura (UNAM)",
+  "IPN ESIME Zacatenco",
+  "UAM Xochimilco",
+  "Universidad Iberoamericana",
+  "Agencia Volkswagen Coyoac\xE1n",
+  "Desarrollos Santa Fe Towers",
+  "Bistr\xF3 Roma Norte",
+  "Cadena La Casa de To\xF1o",
+  "Foro Indie Rocks!",
+  "Promotora de conciertos Zignia",
+  "Paqueter\xEDa Express Vallejo",
+  "\xD3ptica Visi\xF3n Plus",
+  "Grupo Constructor del Valle",
+  "Club de corredores Los Viveros",
+  "Caf\xE9 de especialidad Quentin",
+  "Tostadores Almanegra",
+  "Hospital \xC1ngeles Lomas",
+  "Notar\xEDa P\xFAblica 105",
+  "Coworking WeWork Reforma",
+  "Agencia de marketing BTL",
+  "Tienda de juegos de mesa El Dado Rojo",
+  "Despacho de dise\xF1o Taller Norte",
+  "Barber\xEDa Old School Narvarte",
+  "Colectivo Fanzinero de la Roma",
+  "Festival Hipnosis",
+  "Gimnasio CrossFit Del Valle",
+  "Escuela de m\xFAsica Fusi\xF3n",
+  "Muebler\xEDa Roma Vintage",
+  "Cl\xEDnica est\xE9tica Polanco"
 ];
 var ING_CATS = { mostrador: "Mostrador y papeler\xEDa", comercial: "Impresi\xF3n comercial y promocionales", bandas: "Merch de Bandas", periodico: "Peri\xF3dico Estudiantil", snacks: "Refrescos y Snacks", admin: "Ingresos manuales del Host", ajuste: "Ajuste del total del d\xEDa" };
 var EGR_CATS = {
@@ -1189,8 +1254,350 @@ var COMERCIAL = {
       unit: u,
       steps: [dz(r2, 10, 25), { m: "m6", min: 20 + q * 0.25, need: { kraft: q, plastisol: q * 0.03 } }, { m: "m10", min: 15 + q * 0.04 }]
     };
+  },
+  // ============================================================
+  // v23: catálogo narrativo ampliado. Cada generador puede traer `cli`: clientes típicos de ese proyecto
+  // (el generador de pedidos los usa en lugar de la lista genérica). Mismas reglas: anticipo 50% / liquidación 50%.
+  // ============================================================
+  // ---------- Editorial y encuadernación (Offset, Láser B/N, Guillotina, Hot-Melt) ----------
+  tesis_hm: (r2, s) => {
+    const q = pick(r2, 3, 40, s);
+    const u = r2.money(260, 480);
+    const t = r2.pick(["Tesis de licenciatura", "Tesis de maestr\xEDa", "Tesina", "Tesis doctoral", "Memoria de residencia profesional"]);
+    return {
+      label: `${q} ejemplares de ${t} en r\xFAstica t\xE9rmica (B/N + portada a color)`,
+      q,
+      unit: u,
+      cli: TESISTAS,
+      steps: [dz(r2, 15, 40), { m: "m3", min: 15 + q * 4, need: { bond: q * 120, toner_bn: q * 0.3 } }, { m: "m2", min: 8 + q * 0.6, need: { cartulina: Math.ceil(q / 2), toner_color: q * 0.03 } }, { m: "m11", min: 20 + q * 1.2 }, { m: "m7", min: 10 + q * 0.4 }]
+    };
+  },
+  fanzine_comic: (r2, s) => {
+    const q = pick(r2, 50, 600, s);
+    const off = q >= 300;
+    const t = r2.pick(["fanzines engrapados", "c\xF3mics a color con lomo", "revistas independientes", "novelas gr\xE1ficas (tiraje corto)", "antolog\xEDas de ilustraci\xF3n"]);
+    const u = r2.money(32, 75);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: EDITORIALES,
+      steps: [dz(r2, 40, 100), off ? { m: "m1", min: 50 + q * 0.12, need: { couche: q * 3, tinta_offset: q * 0.012 } } : { m: "m2", min: 20 + q * 0.3, need: { couche: q * 3, toner_color: q * 0.08 } }, { m: "m7", min: 15 + q * 0.04 }, r2.chance(0.5) ? { m: "m11", min: 25 + q * 0.18 } : { m: "m9", min: 20 + q * 0.12 }]
+    };
+  },
+  catalogo_premium: (r2, s) => {
+    const q = pick(r2, 100, 1e3, s);
+    const off = q >= 300;
+    const t = r2.pick(["cat\xE1logos premium de desarrollos inmobiliarios", "cat\xE1logos de l\xEDnea de autos (agencia)", "brochures de lujo con laminado soft-touch", "carpetas de preventa de departamentos", "cat\xE1logos de seminuevos certificados"]);
+    const u = r2.money(70, 160);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: INMOBILIARIAS,
+      steps: [dz(r2, 60, 120), off ? { m: "m1", min: 60 + q * 0.2, need: { couche: q * 6, tinta_offset: q * 0.02 } } : { m: "m2", min: 30 + q * 0.4, need: { couche: q * 6, toner_color: q * 0.06 } }, { m: "m9", min: 20 + q * 0.08 }, { m: "m7", min: 15 + q * 0.04 }, { m: "m11", min: 25 + q * 0.2 }]
+    };
+  },
+  menu_lujo: (r2, s) => {
+    const q = pick(r2, 20, 150, s);
+    const u = r2.money(95, 230);
+    const t = r2.pick(["men\xFAs de lujo plastificados", "cartas de vinos con laminado mate", "men\xFAs de temporada con esquinas suajadas", "men\xFAs de barra y cocteler\xEDa"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: RESTAURANTES,
+      steps: [dz(r2, 25, 60), { m: "m2", min: 10 + q * 0.6, need: { couche: q * 2, toner_color: q * 0.04 } }, { m: "m9", min: 12 + q * 1.3, need: { micas: q * 2 } }, { m: "m7", min: 8 + q * 0.2 }, { m: "m8", min: 10 + q * 0.15 }]
+    };
+  },
+  // ---------- Gran formato (Plotter) ----------
+  lona_espectacular: (r2, s) => {
+    const q = pick(r2, 12, 90, s);
+    const u = r2.money(95, 150);
+    const v = r2.int(0, 2);
+    const t = r2.pick([["lona espectacular para campa\xF1a pol\xEDtica", "pend\xF3n de candidata para puente peatonal", "lona de cierre de campa\xF1a"], ["lona espectacular para concierto", "mega lona para palenque y jaripeo", "lona de escenario para festival"], ["lona de fachada para gran apertura", "lona de remodelaci\xF3n para plaza comercial", "lona de temporada navide\xF1a para fachada"]][v]);
+    return {
+      label: `${q} m\xB2 de ${t}`,
+      q,
+      unit: u,
+      cli: [POLITICA, CONCIERTOS, APERTURAS][v],
+      steps: [dz(r2, 20, 50), { m: "m4", min: 15 + q * 5, need: { lona: q, eco: q * 0.35 } }, { m: "m9", min: 10 + q * 0.6 }]
+    };
+  },
+  rotulacion: (r2, s) => {
+    const q = pick(r2, 4, 40, s);
+    const flot = r2.chance(0.55);
+    const u = flot ? r2.money(240, 380) : r2.money(180, 320);
+    const t = flot ? r2.pick(["rotulaci\xF3n de flotilla de camionetas", "rotulaci\xF3n de motos de reparto", "rotulaci\xF3n de unidades de transporte de personal"]) : r2.pick(["vinil de corte para escaparate", "rotulaci\xF3n de cristales de sucursal", "vinil esmerilado para oficinas"]);
+    return {
+      label: `${q} m\xB2 de ${t}`,
+      q,
+      unit: u,
+      cli: flot ? FLOTILLAS : TIENDAS,
+      steps: [dz(r2, 20, 45), { m: "m4", min: 15 + q * 7, need: flot ? { vinil: q, eco: q * 0.3 } : { vinil: q } }, { m: "m9", min: 10 + q * 1.5 }]
+    };
+  },
+  backdrop_evento: (r2, s) => {
+    const q = pick(r2, 6, 40, s);
+    const alf = r2.chance(0.35);
+    const u = alf ? r2.money(150, 230) : r2.money(120, 190);
+    const t = alf ? r2.pick(["alfombra roja impresa (vinil de piso)", "vinil de piso para pasillo VIP"]) : r2.pick(["backdrop de prensa para alfombra roja", "muro de fotos para lanzamiento de marca", "backdrop para gala de premiaci\xF3n", "photo-wall para boda en hacienda"]);
+    return {
+      label: `${q} m\xB2 de ${t}`,
+      q,
+      unit: u,
+      cli: EVENTOS,
+      steps: [dz(r2, 25, 60), alf ? { m: "m4", min: 15 + q * 6, need: { vinil: q, eco: q * 0.35 } } : { m: "m4", min: 15 + q * 5, need: { lona: q, eco: q * 0.35 } }, { m: "m9", min: 10 + q * 0.8 }]
+    };
+  },
+  // ---------- Serigrafía y textiles (Pulpo + Túnel de secado) ----------
+  uniformes: (r2, s) => {
+    const q = pick(r2, 30, 250, s);
+    const u = r2.money(150, 260);
+    const t = r2.pick(["uniformes industriales con logo frente y espalda", "chalecos de seguridad con reflejante serigrafiado", "camisolas de obra con logo de constructora", "playeras tipo polo para personal de planta"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: CONSTRUCTORAS,
+      steps: [dz(r2, 20, 50), { m: "m6", min: 25 + q * 0.6, need: { playeras: q, plastisol: q * 0.08 } }, { m: "m10", min: 20 + q * 0.07 }]
+    };
+  },
+  maraton: (r2, s) => {
+    const q = pick(r2, 150, 600, s);
+    const u = r2.money(72, 110);
+    const t = r2.pick(["playeras dry-fit para carrera 10K", "playeras de medio marat\xF3n con patrocinadores", "playeras de carrera con causa", "playeras para rodada ciclista nocturna"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: CARRERAS,
+      steps: [dz(r2, 30, 70), { m: "m6", min: 30 + q * 0.4, need: { playeras: q, plastisol: q * 0.05 } }, { m: "m10", min: 25 + q * 0.05 }]
+    };
+  },
+  totes_cafe: (r2, s) => {
+    const q = pick(r2, 50, 300, s);
+    const u = r2.money(85, 135);
+    const t = r2.pick(["tote bags ecol\xF3gicas de manta", "tote bags para kit de bienvenida", "bolsas de tela reutilizables con logo"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: CAFETERIAS,
+      steps: [dz(r2, 20, 45), { m: "m6", min: 20 + q * 0.4, need: { totes: q, plastisol: q * 0.05 } }, { m: "m10", min: 15 + q * 0.05 }]
+    };
+  },
+  // ---------- Rígidos y promocionales (Cama plana UV) ----------
+  acreditaciones: (r2, s) => {
+    const q = pick(r2, 100, 600, s);
+    const u = r2.money(28, 65);
+    const t = r2.pick(["gafetes de PVC y acreditaciones VIP", "pulseras r\xEDgidas y gafetes de staff", "acreditaciones de prensa con holograma", "gafetes all-access para backstage"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: FESTIVALES,
+      steps: [dz(r2, 20, 45), { m: "m5", min: 8 + q * 0.7, need: { acrilico: q, uv: q * 0.02 } }, { m: "m8", min: 10 + q * 0.06 }, { m: "m7", min: 5 + q * 0.04 }]
+    };
+  },
+  senaletica_acrilico: (r2, s) => {
+    const q = pick(r2, 6, 80, s);
+    const u = r2.money(260, 850);
+    const t = r2.pick(["placas de se\xF1al\xE9tica en acr\xEDlico", "directorio de pisos en acr\xEDlico", "se\xF1al\xE9tica de consultorios y quir\xF3fanos", "placas de sala de juntas y oficinas"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: HOSPITALES,
+      steps: [dz(r2, 25, 60), { m: "m5", min: 10 + q * 3, need: { acrilico: q * 4, uv: q * 0.1 } }, { m: "m8", min: 10 + q * 0.8 }]
+    };
+  },
+  directo_uv: (r2, s) => {
+    const q = pick(r2, 20, 200, s);
+    const termo = r2.chance(0.5);
+    const u = termo ? r2.money(190, 330) : r2.money(150, 260);
+    const t = termo ? r2.pick(["termos met\xE1licos con impresi\xF3n UV directa", "termos de acero para regalo corporativo", "cilindros t\xE9rmicos para kit de fin de a\xF1o"]) : r2.pick(["fundas de celular con impresi\xF3n UV directa", "fundas con logo para lanzamiento de app", "fundas edici\xF3n limitada para tienda en l\xEDnea"]);
+    return {
+      label: `${q} ${t}`,
+      q,
+      unit: u,
+      cli: MARCAS,
+      steps: [dz(r2, 15, 35), { m: "m5", min: 8 + q * (termo ? 2.4 : 1.3), need: termo ? { tazas: q, uv: q * 0.06 } : { fundas: q, uv: q * 0.06 } }]
+    };
   }
 };
+var TESISTAS = [
+  "Tesista de la Facultad de Derecho (UNAM)",
+  "Tesista de Arquitectura (UNAM)",
+  "Egresada de Psicolog\xEDa (UAM Xochimilco)",
+  "Tesista de Ingenier\xEDa (IPN ESIME Zacatenco)",
+  "Maestrante del CIDE",
+  "Doctorando del Colmex",
+  "Egresado de Medicina (UNAM)",
+  "Tesista de Comunicaci\xF3n (Ibero)",
+  "Egresada de Enfermer\xEDa (IPN)",
+  "Tesista de Contadur\xEDa (UNAM FCA)",
+  "Residente de la UPIICSA",
+  "Egresado de la ENAH",
+  "Tesista de Biolog\xEDa (Facultad de Ciencias)",
+  "Egresada de Dise\xF1o Gr\xE1fico (La Esmeralda)",
+  "Tesista de Econom\xEDa (UAM Azcapotzalco)"
+];
+var EDITORIALES = [
+  "Colectivo Fanzinero de la Roma",
+  "Editorial independiente Tinta Roja",
+  "C\xF3mics Chilangos (autores locales)",
+  'Revista cultural "El Z\xF3calo Alterno"',
+  "Colectivo de ilustradoras Matriarca",
+  "Feria del C\xF3mic de Tlatelolco",
+  "Editorial cartonera La Banqueta",
+  'Revista de skate "Concreto"',
+  "Autor local de novela gr\xE1fica",
+  "Colectivo de poes\xEDa de Iztapalapa",
+  'Revista de m\xFAsica "Ruido Blanco"'
+];
+var INMOBILIARIAS = [
+  "Inmobiliaria Polanco Real",
+  "Desarrollos Santa Fe Towers",
+  "Grupo Inmobiliario Reforma 222",
+  "Agencia Volkswagen Coyoac\xE1n",
+  "Agencia Mazda Insurgentes",
+  "Toyota Universidad",
+  "Seminuevos Certificados del Valle",
+  "Lofts Condesa Living",
+  "Residencial Bosques de las Lomas",
+  "Agencia Kia Tlalpan",
+  "Torre Pedregal Premium",
+  "Nissan Perif\xE9rico Sur"
+];
+var RESTAURANTES = [
+  "Restaurante Los Arcos",
+  "Cadena La Casa de To\xF1o",
+  "Sanborns sucursal centro",
+  "Bistr\xF3 Roma Norte",
+  "Marisquer\xEDa El Puerto de Alvarado",
+  "Steakhouse Polanco",
+  "Cantina La Tlaxcalteca",
+  "Pizzer\xEDa Napolitana Condesa",
+  "Restaurante Azul Hist\xF3rico",
+  "Cadena de hamburguesas Smash CDMX",
+  "Bar de mezcal La Clandestina",
+  "Sushi bar Nikkei Santa Fe"
+];
+var POLITICA = ["Comit\xE9 de campa\xF1a de alcald\xEDa", "Candidata a diputaci\xF3n local", "Partido local (coordinaci\xF3n distrital)", "Candidato a concejal de Coyoac\xE1n", "Comit\xE9 vecinal de Iztapalapa", "Asociaci\xF3n civil en campa\xF1a de afiliaci\xF3n"];
+var CONCIERTOS = ["Promotora de conciertos Zignia", "Ocesa (producci\xF3n local)", "Foro Indie Rocks!", "Palenque de la feria de Texcoco", "Festival Vive Latino (proveedor)", "Arena CDMX (montaje)", "Pepsi Center WTC (montaje)", "Foro Lindbergh (festival al aire libre)"];
+var APERTURAS = ["Plaza comercial Parque Delta", "Gimnasio Fuerza Norte (gran apertura)", "Tienda departamental de Perisur", "Cadena de farmacias (nueva sucursal)", "Restaurante Los Arcos (nueva sucursal)", "Agencia Mazda Insurgentes (remodelaci\xF3n)"];
+var FLOTILLAS = [
+  "Paqueter\xEDa Express Vallejo",
+  "Purificadora Agua Viva (flotilla)",
+  "Fumigaciones Control Total",
+  "Mudanzas R\xE1pidas del Centro",
+  "Distribuidora de refrescos zona norte",
+  "Transporte de personal Grupo Bimbo (proveedor)",
+  "Florister\xEDa Xochimilco a domicilio",
+  "Gas LP del Valle (unidades)",
+  "Mensajer\xEDa en moto Rayo",
+  "Veterinaria Patitas (unidad m\xF3vil)"
+];
+var TIENDAS = [
+  "Boutique Coyoac\xE1n",
+  "Panader\xEDa La Espiga",
+  "\xD3ptica Visi\xF3n Plus",
+  "Tienda de tenis Sneaker Lab",
+  "Joyer\xEDa Madero",
+  "Barber\xEDa Old School Narvarte",
+  "Caf\xE9 La Esquina",
+  "Farmacia San Rafael",
+  "Tienda de vinos La Cava",
+  "Florer\xEDa P\xE9talo",
+  "Despacho jur\xEDdico Morales",
+  "Cl\xEDnica dental Sonrisa Feliz"
+];
+var EVENTOS = [
+  "Sal\xF3n de eventos Jard\xEDn Real",
+  "Premios de la m\xFAsica indie CDMX",
+  "Lanzamiento de marca en Polanco",
+  "Gala de beneficencia en el Castillo de Chapultepec",
+  "Agencia de bodas Hacienda Los Morales",
+  "Festival de cine de la Cineteca",
+  "Desfile de moda en la Roma",
+  "Convenci\xF3n en el WTC CDMX",
+  "Fiesta de fin de a\xF1o corporativa (Santa Fe)",
+  "Estreno de pel\xEDcula en Plaza Carso"
+];
+var CONSTRUCTORAS = [
+  "Constructora Tlalpan",
+  "Grupo Constructor del Valle",
+  "Obras Viales Perif\xE9rico",
+  "Constructora Torres Insurgentes",
+  "Ingenier\xEDa y Concretos Azcapotzalco",
+  "Planta de reciclaje Iztapalapa",
+  "Maquiladora industrial Vallejo",
+  "Talleres mec\xE1nicos Tlalnepantla",
+  "Seguridad privada Escudo Norte",
+  "Almac\xE9n log\xEDstico Cuautitl\xE1n"
+];
+var CARRERAS = [
+  "Medio Marat\xF3n de la Ciudad (proveedor)",
+  "Carrera 10K Bosque de Tlalpan",
+  "Carrera con causa Cruz Roja",
+  "Club de corredores Los Viveros",
+  "Rodada ciclista nocturna Reforma",
+  "Carrera Nocturna de Chapultepec",
+  "Trail run Ajusco",
+  "Carrera del D\xEDa del Padre (gimnasio)",
+  "Carrera Pink Ribbon (fundaci\xF3n)",
+  "Club de running Ciudad Universitaria"
+];
+var CAFETERIAS = [
+  "Caf\xE9 de especialidad Quentin",
+  "Cafeter\xEDa Buna (tostadores)",
+  "Caf\xE9 La Esquina",
+  "Tostadores Almanegra",
+  "Cafeter\xEDa Chiquitito",
+  "Caf\xE9 de olla y pan Condesa",
+  "Barra de especialidad Roma Sur",
+  "Caf\xE9 Avellaneda",
+  "Librer\xEDa-caf\xE9 El P\xE9ndulo",
+  "Tienda zero waste La Granel"
+];
+var FESTIVALES = [
+  "Festival Corona Capital (proveedor)",
+  "Festival Vive Latino (staff)",
+  "Festival Hipnosis",
+  "Festival Ceremonia",
+  "Foro Indie Rocks! (acreditaciones)",
+  "Pa'l Norte (gira CDMX)",
+  "Festival de electr\xF3nica en Santa Fe",
+  "Congreso m\xE9dico en el WTC",
+  "Convenci\xF3n de c\xF3mics La Mole",
+  "Expo de tatuaje en el Palacio de los Deportes"
+];
+var HOSPITALES = [
+  "Hospital \xC1ngeles Lomas",
+  "Cl\xEDnica M\xE9dica Sur (proveedor)",
+  "Hospital General de zona (licitaci\xF3n)",
+  "Consultorio Dra. Ram\xEDrez",
+  "Laboratorio cl\xEDnico Chopo (sucursal)",
+  "Corporativo Torre Mayor (oficinas)",
+  "Despacho Contable Hern\xE1ndez",
+  "Coworking WeWork Reforma",
+  "Notar\xEDa P\xFAblica 105",
+  "Cl\xEDnica veterinaria Patitas",
+  "Universidad del Valle (campus)"
+];
+var MARCAS = [
+  "Tienda en l\xEDnea de accesorios Fundafy",
+  "Startup de delivery CDMX",
+  "Agencia de marketing BTL",
+  "Gimnasio Fuerza Norte (kit de socios)",
+  "Banco regional (regalos de fin de a\xF1o)",
+  "Marca de caf\xE9 de especialidad",
+  "Influencer de TikTok (drop limitado)",
+  "Concesionaria de autos (kit de entrega)",
+  "Despacho de abogados (regalos corporativos)",
+  "Equipo de f\xFAtbol amateur"
+];
 var COMERCIAL_MIX = [
   ["tarjetas", 16],
   ["volantes", 12],
@@ -1222,7 +1629,21 @@ var COMERCIAL_MIX = [
   ["posters_gf", 3],
   ["cajas", 3],
   ["etiquetas", 5],
-  ["kraft", 2]
+  ["kraft", 2],
+  // v23: catálogo ampliado
+  ["tesis_hm", 5],
+  ["fanzine_comic", 3],
+  ["catalogo_premium", 2],
+  ["menu_lujo", 3],
+  ["lona_espectacular", 3],
+  ["rotulacion", 4],
+  ["backdrop_evento", 3],
+  ["uniformes", 3],
+  ["maraton", 2],
+  ["totes_cafe", 3],
+  ["acreditaciones", 3],
+  ["senaletica_acrilico", 3],
+  ["directo_uv", 4]
 ];
 var BANDA = {
   playeras: (r2, q) => {
@@ -1247,9 +1668,28 @@ var BANDA = {
   boletos: (r2, q) => ({ label: "boletos con holograma y folio", unit: r2.money(2.5, 4.5), q, steps: [dz(r2, 15, 40), { m: "m2", min: 10 + q * 0.015, need: { opalina: Math.ceil(q / 24), toner_color: q * 4e-3 } }, { m: "m8", min: 20 + q * 0.012 }, { m: "m7", min: 15 + q * 0.01 }] }),
   fanzines: (r2, q) => ({ label: "fanzines", unit: r2.money(28, 45), q, steps: [dz(r2, 40, 90), { m: "m2", min: 20 + q * 0.35, need: { couche: q * 2, toner_color: q * 0.09 } }, { m: "m7", min: 15 + q * 0.03 }, { m: "m11", min: 25 + q * 0.2 }] }),
   backdrop: (r2, q) => ({ label: "m\xB2 de backdrop (lona de escenario)", unit: r2.money(110, 140), q, steps: [dz(r2, 20, 45), { m: "m4", min: 15 + q * 5, need: { lona: q, eco: q * 0.35 } }] }),
-  fundas: (r2, q) => ({ label: "fundas de celular edici\xF3n especial", unit: r2.money(150, 220), q, steps: [dz(r2, 20, 45), { m: "m5", min: 10 + q * 1.2, need: { fundas: q, uv: q * 0.06 } }] })
+  fundas: (r2, q) => ({ label: "fundas de celular edici\xF3n especial", unit: r2.money(150, 220), q, steps: [dz(r2, 20, 45), { m: "m5", min: 10 + q * 1.2, need: { fundas: q, uv: q * 0.06 } }] }),
+  // v23: más merch oficial
+  posters_holo: (r2, q) => ({ label: "p\xF3sters de gira hologr\xE1ficos numerados", unit: r2.money(35, 60), q, steps: [dz(r2, 30, 70), { m: "m2", min: 15 + q * 0.18, need: { couche: Math.ceil(q / 2), toner_color: q * 0.035 } }, { m: "m9", min: 15 + q * 0.08 }, { m: "m7", min: 12 + q * 0.02 }] }),
+  lanyards: (r2, q) => ({ label: "lanyards serigrafiados de la gira", unit: r2.money(30, 55), q, steps: [dz(r2, 15, 35), { m: "m6", min: 20 + q * 0.25, need: { plastisol: q * 0.02 } }, { m: "m10", min: 15 + q * 0.03 }, { m: "m7", min: 8 + q * 0.02 }] }),
+  stickers_suaje: (r2, q) => ({ label: "stickers suajados (planilla de la banda)", unit: r2.money(4, 8), q, steps: [dz(r2, 15, 40), { m: "m2", min: 10 + q * 6e-3, need: { adhesivo: Math.ceil(q / 20), toner_color: q * 1e-3 } }, { m: "m8", min: 20 + q * 0.01 }] }),
+  pines: (r2, q) => ({ label: "pines / botones con arte del disco", unit: r2.money(12, 22), q, steps: [dz(r2, 15, 35), { m: "m2", min: 8 + q * 0.02, need: { couche: Math.ceil(q / 20), toner_color: q * 3e-3 } }, { m: "m9", min: 10 + q * 0.12 }] })
 };
-var BANDA_MIX = [["playeras", 30], ["hoodies", 9], ["totes", 7], ["posters", 14], ["stickers", 12], ["boletos", 7], ["fanzines", 6], ["backdrop", 8], ["fundas", 7]];
+var BANDA_MIX = [
+  ["playeras", 30],
+  ["hoodies", 9],
+  ["totes", 7],
+  ["posters", 14],
+  ["stickers", 12],
+  ["boletos", 7],
+  ["fanzines", 6],
+  ["backdrop", 8],
+  ["fundas", 7],
+  ["posters_holo", 6],
+  ["lanyards", 5],
+  ["stickers_suaje", 6],
+  ["pines", 5]
+];
 
 // src/engine.js
 var ENGINE_VERSION = 6;
@@ -1259,6 +1699,7 @@ var XBOX_PROB = 4e-3;
 var EMP = Object.fromEntries(EMPLOYEES.map((e) => [e.id, e]));
 var MACH = Object.fromEntries(MACHINES.map((m) => [m.id, m]));
 var LOG_MAX = 900;
+var HORMIGA_PROB = 0.05;
 var TIME_SCALE = 1.45;
 var COTS = 3;
 var PERSONAL = /* @__PURE__ */ new Set(["bano", "banoWait", "desayuno", "xbox", "platica", "cel", "calle", "siesta", "snack", "afuera"]);
@@ -1336,6 +1777,7 @@ function createState({ genesisMs: genesisMs2, seed }) {
 function log(s, txt, amt = null, kind = "info", m = s.minute, cat = null) {
   const e = { m, txt, amt, k: kind };
   if (cat) e.c = cat;
+  if (typeof amt === "number" && amt && kind !== "sys") movPush(s, e);
   s.log.push(e);
   if (s.log.length > LOG_MAX) s.log.splice(0, s.log.length - LOG_MAX);
 }
@@ -1354,6 +1796,122 @@ function ledger(s, side, cat, amt) {
   const L = s.dayLedger || (s.dayLedger = { from: s.minute, ing: {}, egr: {}, cogs: {}, mat: {} });
   L[side][cat] = money((L[side][cat] || 0) + amt);
 }
+var HD_MAX_PEND = 400;
+var HD_DAYS_KEEP = 800;
+var movKey = (n) => "k" + String(n).padStart(9, "0");
+function movPush(s, e) {
+  if (!Array.isArray(s.dayMov)) s.dayMov = [];
+  s.movSeq = (s.movSeq || 0) + 1;
+  const id = movKey(s.movSeq);
+  e.mv = id;
+  const r2 = { id, m: e.m, txt: String(e.txt).slice(0, 160), amt: e.amt, k: e.k };
+  if (e.c) r2.c = e.c;
+  s.dayMov.push(r2);
+}
+function hdPush(s, op) {
+  const q = s.hdNew || (s.hdNew = []);
+  q.push(op);
+  if (q.length > HD_MAX_PEND) q.splice(0, q.length - HD_MAX_PEND);
+}
+var hdItem = (x) => {
+  const r2 = { m: x.m, txt: x.txt, amt: money(Math.abs(x.amt)) };
+  if (x.c) r2.c = x.c;
+  if (x.k) r2.k = x.k;
+  if (x.rec) r2.rec = true;
+  return r2;
+};
+function hdRecord(sum, movs, extra = {}) {
+  const fecha = cdmx(sum.day * MIN).dayKey;
+  const ventas = {}, gastos = {};
+  let tv2 = 0, tg = 0, nv = 0, ng = 0;
+  for (const x of movs) {
+    if (!x || typeof x.amt !== "number" || !x.amt) continue;
+    if (x.amt > 0) {
+      ventas[x.id] = hdItem(x);
+      tv2 += x.amt;
+      nv++;
+    } else {
+      gastos[x.id] = hdItem(x);
+      tg -= x.amt;
+      ng++;
+    }
+  }
+  const rec = {
+    fecha,
+    day: sum.day,
+    from: sum.from,
+    at: sum.at,
+    ventas,
+    gastos,
+    nv,
+    ng,
+    sumVentas: money(tv2),
+    sumGastos: money(tg),
+    ing: sum.ing || {},
+    egr: sum.egr || {},
+    totalIng: sum.totalIng,
+    totalEgr: sum.totalEgr,
+    neta: sum.balance,
+    cash: sum.cash,
+    clientes: sum.clientes || 0,
+    v: 24
+  };
+  if (typeof sum.cash0 === "number") rec.cash0 = sum.cash0;
+  const fb = finBreak({ ing: sum.ing, egr: sum.egr, cogs: sum.cogs && Object.keys(sum.cogs).length ? sum.cogs : sum.cogs ? {} : null, insumosPre: sum.insumosPre || 0 });
+  rec.netaReal = fb.neta;
+  rec.costoMat = fb.costoMat;
+  Object.assign(rec, extra);
+  return rec;
+}
+var hdIdx = (r2) => ({ fecha: r2.fecha, day: r2.day, totalIng: r2.totalIng, totalEgr: r2.totalEgr, neta: r2.neta, nv: r2.nv, ng: r2.ng, ...r2.parcial ? { parcial: true } : {} });
+function hdArchive(s, rec) {
+  hdPush(s, { key: rec.fecha, rec, idx: hdIdx(rec) });
+  if (!Array.isArray(s.hdDays)) s.hdDays = [];
+  s.hdDays = s.hdDays.filter((d) => d.key !== rec.fecha);
+  s.hdDays.push({ key: rec.fecha, from: rec.from, at: rec.at, totalIng: rec.totalIng, totalEgr: rec.totalEgr });
+  if (s.hdDays.length > HD_DAYS_KEEP) s.hdDays.splice(0, s.hdDays.length - HD_DAYS_KEEP);
+}
+function hdAnular(s, e, amt, side, cat) {
+  const d = (s.hdDays || []).find((x) => e.m >= x.from && e.m <= x.at);
+  if (!d) return;
+  if (side === "ing") d.totalIng = money(d.totalIng - amt);
+  else d.totalEgr = money(d.totalEgr - amt);
+  hdPush(s, {
+    key: d.key,
+    anular: e.mv || null,
+    side: side === "ing" ? "ventas" : "gastos",
+    match: { m: e.m, amt: money(Math.abs(e.amt)), txt: String(e.txt).slice(0, 160) },
+    set: { totalIng: d.totalIng, totalEgr: d.totalEgr, neta: money(d.totalIng - d.totalEgr) },
+    cat
+  });
+}
+function hdInit(s) {
+  if (!s || !s.flags) return 0;
+  if (!Array.isArray(s.hdDays)) s.hdDays = [];
+  if (!Array.isArray(s.hdNew)) s.hdNew = [];
+  if (s.flags.hdInit) return 0;
+  s.flags.hdInit = s.minute;
+  const L = s.dayLedger;
+  const S2 = s.lastSummary;
+  const from = L && typeof L.from === "number" ? L.from : s.minute;
+  s.dayMov = [];
+  const prev = [];
+  for (const e of s.log || []) {
+    if (typeof e.amt !== "number" || !e.amt || e.k === "sys") continue;
+    s.movSeq = (s.movSeq || 0) + 1;
+    e.mv = movKey(s.movSeq);
+    const r2 = { id: e.mv, m: e.m, txt: String(e.txt).slice(0, 160), amt: e.amt, k: e.k, rec: true };
+    if (e.c) r2.c = e.c;
+    if (e.m >= from) s.dayMov.push(r2);
+    else if (S2 && e.m >= S2.from && e.m <= S2.at) prev.push(r2);
+  }
+  if (S2 && typeof S2.day === "number") {
+    const sv = prev.filter((x) => x.amt > 0).reduce((a, x) => a + x.amt, 0), sg = prev.filter((x) => x.amt < 0).reduce((a, x) => a - x.amt, 0);
+    const parcial = Math.abs(money(sv) - money(S2.totalIng || 0)) > 0.5 || Math.abs(money(sg) - money(S2.totalEgr || 0)) > 0.5;
+    hdArchive(s, hdRecord(S2, prev, { recuperado: true, ...parcial ? { parcial: true } : {} }));
+  }
+  return 1 + s.dayMov.length;
+}
 function closeDay(s, dayMinute) {
   const L = s.dayLedger || { from: s.minute, ing: {}, egr: {} };
   const sum = (o) => money(Object.values(o).reduce((x, y) => x + y, 0));
@@ -1362,6 +1920,8 @@ function closeDay(s, dayMinute) {
   s.lastSummary = { seq, day: dayMinute, from: L.from, at: s.minute, ing: L.ing, egr: L.egr, totalIng: ing, totalEgr: egr, balance: money(ing - egr), cash: s.cash, clientes: L.clientes ?? (s.day.clientes || 0), cogs: L.cogs || {}, mat: L.mat || {}, insumosPre: L.insumosPre || 0 };
   if (typeof L.cash0 === "number") s.lastSummary.cash0 = L.cash0;
   s.dayLedger = { from: s.minute, ing: {}, egr: {}, cogs: {}, mat: {}, cash0: s.cash };
+  hdArchive(s, hdRecord(s.lastSummary, s.dayMov || []));
+  s.dayMov = [];
   log(s, "Resumen del d\xEDa listo", null, "sys");
 }
 function income(s, cat, amt, txt, kind = "in") {
@@ -1634,6 +2194,12 @@ function ensureState(s) {
   if (!Array.isArray(s.entregados)) s.entregados = [];
   if (s.dayLedger && typeof s.dayLedger.cash0 !== "number" && s.lastSummary && s.lastSummary.at === s.dayLedger.from && typeof s.lastSummary.cash === "number") s.dayLedger.cash0 = s.lastSummary.cash;
   if (!Array.isArray(s.hvNew)) s.hvNew = [];
+  if (!Array.isArray(s.hdNew)) s.hdNew = [];
+  if (!Array.isArray(s.hdDays)) s.hdDays = [];
+  if (!s.flags.v24hormiga) {
+    s.flags.v24hormiga = s.minute;
+    if (s.day && Array.isArray(s.day.hormiga)) s.day.hormiga = [];
+  }
   for (const o of Object.values(s.orders)) {
     if (o.st !== "prod" && o.st !== "listo") o.st = (o.left || 0) <= 0 ? "listo" : "prod";
     if (typeof o.paid !== "number") o.paid = 0;
@@ -1817,8 +2383,10 @@ function createOrder(s, rng, kind, opts = {}) {
       used.add(p);
       const u = rng.next();
       const def = COMERCIAL[p](rng, u * u * u);
-      lines.push({ label: def.label, prod: def.label, q: def.q, steps: def.steps, amt: money(def.unit * def.q) });
+      lines.push({ label: def.label, prod: def.label, q: def.q, steps: def.steps, amt: money(def.unit * def.q), cli: def.cli });
     }
+    const pool = !opts.client && (lines.find((l) => l.cli) || {}).cli;
+    if (pool && pool.length && rng.chance(0.85)) client = rng.pick(pool);
     total = money(lines.reduce((a, l) => a + l.amt, 0));
     if (cfg(s).proyectos !== 1) total = money(total * cfg(s).proyectos);
   }
@@ -2058,7 +2626,7 @@ function startDay(s, t, rng) {
       dur: rng.int(40, 110),
       why: rng.pick(["Entregando tarjetas y volantes a clientes", "Llevando lonas a un foro", "Pagando en el banco y recogiendo tintas", "Recogiendo playeras en el Centro", "Entregando paqueter\xEDa", "Llevando cajas a una cafeter\xEDa"])
     });
-    const nh = rng.int(1, 3) && rng.chance(0.3) ? rng.chance(0.15) ? 2 : 1 : 0;
+    const nh = rng.int(1, 3) && rng.chance(HORMIGA_PROB) ? 1 : 0;
     for (let i = 0; i < nh; i++) d.hormiga.push(rng.int(ABRE + 5, CIERRA - 10));
     if (rng.chance(0.075)) d.cofepris = rng.int(10 * 60 + 30, 15 * 60 + 30);
     for (const m of MACHINES) if (!m.virtual && rng.chance(0.02)) d.maint.push({ id: m.id, at: rng.int(ABRE + 30, CIERRA - 60), dur: rng.int(30, 120) });
@@ -3173,6 +3741,9 @@ function adminDeleteLog(s, idx) {
     }
   }
   s.cash = money(s.cash - e.amt);
+  const iMov = e.mv && Array.isArray(s.dayMov) ? s.dayMov.findIndex((x) => x.id === e.mv) : -1;
+  if (iMov >= 0) s.dayMov.splice(iMov, 1);
+  else if (!(s.dayLedger && e.m >= s.dayLedger.from)) hdAnular(s, e, amt, side, cat);
   if (e.hv && side === "ing") ventaEstado(s, e.hv, "Anulada (registro borrado por el Host)", { anulada: true });
   if (s.dayLedger && typeof s.dayLedger.cash0 === "number" && e.m < s.dayLedger.from) s.dayLedger.cash0 = money(s.dayLedger.cash0 - e.amt);
   if (s.lastSummary && typeof s.lastSummary.cash0 === "number" && e.m < s.lastSummary.from) s.lastSummary.cash0 = money(s.lastSummary.cash0 - e.amt);
@@ -3329,6 +3900,7 @@ function snapshotOf(s) {
   const c = JSON.parse(serialize(s));
   c.log = c.log.slice(-120);
   delete c.hvNew;
+  delete c.hdNew;
   return JSON.stringify(c);
 }
 var LocalStore = class {
@@ -3478,6 +4050,14 @@ var cloud = {
   /** Historial de ventas: escucha las últimas `limit` ventas. Devuelve la función para dejar de escuchar. */
   watchVentas(limit, cb, onErr) {
     return onValue(query(r("historialVentas"), orderByKey(), limitToLast(limit)), (snap) => cb(snap.val() || {}), (e) => onErr && onErr(e));
+  },
+  /** Historial diario (v24): índice ligero de días guardados. */
+  watchDias(cb, onErr) {
+    return onValue(r("historialDiarioIndice"), (snap) => cb(snap.val() || {}), (e) => onErr && onErr(e));
+  },
+  /** Historial diario (v24): detalle completo de un día. */
+  watchDia(key, cb, onErr) {
+    return onValue(r("historialDiario/" + key), (snap) => cb(snap.val()), (e) => onErr && onErr(e));
   },
   /** Tacha o destacha una partida (marca visual; no toca caja ni métricas). */
   tachar(key, on) {
@@ -5359,6 +5939,7 @@ async function becomeHost() {
   ensureState(pick2);
   const rec = hvBackfill(pick2);
   if (rec) toast(`Historial de Ventas: se recuperaron ${rec} ventas de la bit\xE1cora`);
+  hdInit(pick2);
   myClaim = Math.max(Date.now(), (rel && rel.claimAt || 0) + 1);
   pub = { nodes: {}, motorAt: 0, logTail: null, at: 0, fx: [], fxSeq: V2.fx && V2.fx.seq || 0 };
   await cloud.hostPresence(myId, myClaim);
@@ -5469,6 +6050,32 @@ function publish(force = false, fullLog = false) {
       else for (const [f, v] of Object.entries(op.set || {})) if (v != null) patch[`historialVentas/${op.key}/${f}`] = v;
     }
   }
+  let hdOps = null;
+  if (S.hdNew && S.hdNew.length) {
+    hdOps = S.hdNew;
+    S.hdNew = [];
+    const full = {};
+    for (const op of hdOps) {
+      const k = op.key;
+      if (!k) continue;
+      if (op.rec) {
+        full[k] = { rec: JSON.parse(JSON.stringify(op.rec)), idx: { ...op.idx } };
+        patch["historialDiario/" + k] = full[k].rec;
+        patch["historialDiarioIndice/" + k] = full[k].idx;
+      } else if (full[k]) {
+        const f = full[k];
+        if (op.anular && f.rec[op.side] && f.rec[op.side][op.anular]) f.rec[op.side][op.anular].anulada = true;
+        Object.assign(f.rec, op.set);
+        Object.assign(f.idx, op.set);
+      } else {
+        if (op.anular) patch[`historialDiario/${k}/${op.side}/${op.anular}/anulada`] = true;
+        for (const [fk, v] of Object.entries(op.set || {})) if (v != null) {
+          patch[`historialDiario/${k}/${fk}`] = v;
+          patch[`historialDiarioIndice/${k}/${fk}`] = v;
+        }
+      }
+    }
+  }
   if (force || now - pub.motorAt > 6e4) {
     pub.motorAt = now;
     const c = JSON.parse(serialize(S));
@@ -5477,6 +6084,7 @@ function publish(force = false, fullLog = false) {
   }
   if (Object.keys(patch).length) cloud.write(patch).catch((e) => {
     if (hvOps && S) S.hvNew = hvOps.concat(S.hvNew || []);
+    if (hdOps && S) S.hdNew = hdOps.concat(S.hdNew || []);
     toast("Firebase rechaz\xF3 la escritura: " + (e && e.code || e));
   });
 }
@@ -6227,6 +6835,132 @@ function renderHV() {
   list2.innerHTML = h;
   list2.scrollTop = st;
 }
+var hdIdxData = {};
+var hdIdxUnsub = null;
+var hdDayUnsub = null;
+var hdSel = "";
+var hdDay = null;
+var hdState = "idle";
+var hdDayState = "idle";
+function openHD() {
+  openModal("#hdModal");
+  hdState = "loading";
+  renderHDSel();
+  renderHDDay();
+  if (hdIdxUnsub) hdIdxUnsub();
+  hdIdxUnsub = cloud.watchDias((d) => {
+    hdIdxData = d;
+    hdState = "ok";
+    const keys = Object.keys(d).sort().reverse();
+    if (!hdSel || !d[hdSel]) hdSelect(keys[0] || "");
+    else renderHDSel();
+  }, (e) => {
+    hdState = "error:" + (e && e.code || e);
+    renderHDSel();
+    renderHDDay();
+  });
+}
+function closeHD() {
+  closeModal("#hdModal");
+  if (hdIdxUnsub) {
+    hdIdxUnsub();
+    hdIdxUnsub = null;
+  }
+  if (hdDayUnsub) {
+    hdDayUnsub();
+    hdDayUnsub = null;
+  }
+}
+function hdSelect(key) {
+  hdSel = key;
+  hdDay = null;
+  renderHDSel();
+  if (hdDayUnsub) {
+    hdDayUnsub();
+    hdDayUnsub = null;
+  }
+  if (!key) {
+    hdDayState = "none";
+    renderHDDay();
+    return;
+  }
+  hdDayState = "loading";
+  renderHDDay();
+  hdDayUnsub = cloud.watchDia(key, (v) => {
+    hdDay = v;
+    hdDayState = "ok";
+    renderHDDay();
+  }, (e) => {
+    hdDayState = "error:" + (e && e.code || e);
+    renderHDDay();
+  });
+  $("#hdVentas").scrollTop = 0;
+  $("#hdGastos").scrollTop = 0;
+}
+var fechaLarga = (k) => {
+  const [y, mo, d] = String(k).split("-").map(Number);
+  if (!y) return k;
+  const dow = new Date(Date.UTC(y, mo - 1, d, 12)).getUTCDay();
+  return `${DOW[dow]} ${d} de ${MES[mo - 1]} de ${y}`;
+};
+function renderHDSel() {
+  if ($("#hdModal").classList.contains("hidden")) return;
+  const sel = $("#hdSel");
+  const keys = Object.keys(hdIdxData).sort().reverse();
+  if (hdState.startsWith("error")) {
+    sel.innerHTML = "<option>Sin conexi\xF3n con Firebase</option>";
+    $("#hdCount").textContent = "No se pudo leer el historial";
+    return;
+  }
+  if (!keys.length) {
+    sel.innerHTML = `<option value="">${hdState === "loading" ? "Cargando d\xEDas\u2026" : "Todav\xEDa no hay d\xEDas guardados"}</option>`;
+    $("#hdCount").textContent = hdState === "loading" ? "Cargando\u2026" : "Se guarda un d\xEDa cada vez que se detona el Resumen del D\xEDa";
+    return;
+  }
+  sel.innerHTML = keys.map((k) => {
+    const x = hdIdxData[k] || {};
+    return `<option value="${esc(k)}" ${k === hdSel ? "selected" : ""}>${esc(fechaLarga(k))} \xB7 neta ${fmtMXN(x.neta || 0)}</option>`;
+  }).join("");
+  $("#hdCount").textContent = `${fmtNum(keys.length)} ${keys.length === 1 ? "d\xEDa guardado" : "d\xEDas guardados"} \xB7 no se borran al limpiar la bit\xE1cora`;
+}
+function hdList(obj, sign2) {
+  const rows = Object.entries(obj || {}).filter(([, x]) => x && typeof x.amt === "number").sort((a, b) => a[1].m - b[1].m || (a[0] < b[0] ? -1 : 1));
+  if (!rows.length) return '<div class="text-slate-500 p-3">Sin movimientos.</div>';
+  return rows.map(([, x]) => {
+    const t = cdmx(x.m * MIN);
+    return `<div class="logrow${x.anulada ? " hd-anul" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(x.txt)}${x.anulada ? ' <i class="hd-tag">anulado por el Host</i>' : ""}</span><span class="a ${sign2 > 0 ? "up" : "dn"}">${sign2 > 0 ? "+" : "\u2212"}${fmtMXN(x.amt)}</span></div>`;
+  }).join("");
+}
+function renderHDDay() {
+  if ($("#hdModal").classList.contains("hidden")) return;
+  const head = $("#hdHead"), v = $("#hdVentas"), g = $("#hdGastos");
+  const msg = (t) => {
+    head.innerHTML = "";
+    v.innerHTML = `<div class="text-slate-400 p-3">${t}</div>`;
+    g.innerHTML = "";
+    $("#hdVN").textContent = "";
+    $("#hdGN").textContent = "";
+  };
+  if (hdState.startsWith("error")) return msg(`No se pudo leer el historial en Firebase (${esc(hdState.slice(6))}).`);
+  if (hdDayState.startsWith("error")) return msg(`No se pudo leer el d\xEDa en Firebase (${esc(hdDayState.slice(6))}).`);
+  if (hdDayState === "none" || !hdSel && hdState === "ok") return msg("Todav\xEDa no hay d\xEDas guardados. El primero se guarda en cuanto se detone el pr\xF3ximo Resumen del D\xEDa (5:00 PM, o al amanecer si hubo velada).");
+  if (!hdDay) return msg(hdDayState === "loading" || hdState === "loading" ? "Cargando el d\xEDa\u2026" : "Ese d\xEDa ya no est\xE1 disponible.");
+  const d = hdDay;
+  const live = (o) => Object.values(o || {}).filter((x) => x && !x.anulada && typeof x.amt === "number");
+  const vl = live(d.ventas), gl = live(d.gastos);
+  const sv = money(vl.reduce((a, x) => a + x.amt, 0)), sg = money(gl.reduce((a, x) => a + x.amt, 0));
+  const ti = typeof d.totalIng === "number" ? d.totalIng : sv, te = typeof d.totalEgr === "number" ? d.totalEgr : sg;
+  const neta = money(ti - te);
+  const dif = Math.abs(ti - sv) > 0.5 || Math.abs(te - sg) > 0.5;
+  const at = typeof d.at === "number" ? cdmx(d.at * MIN) : null;
+  head.innerHTML = `<div class="hv-kpis"><div><span>Ventas cobradas (${fmtNum(vl.length)})</span><b class="g">${fmtMXN(ti)} MXN</b></div><div><span>Gastos (${fmtNum(gl.length)})</span><b class="r">${fmtMXN(te)} MXN</b></div><div><span>Ganancia neta del d\xEDa</span><b class="${neta >= 0 ? "n" : "r"}">${neta >= 0 ? "" : "\u2212"}${fmtMXN(Math.abs(neta))} MXN</b></div><div><span>Caja ${typeof d.cash0 === "number" ? "inicio \u2192 cierre" : "al cierre"}</span><b>${typeof d.cash0 === "number" ? fmtMXN(d.cash0) + " \u2192 " : ""}${fmtMXN(d.cash || 0)}</b></div></div>
+    <div class="hv-note">${esc(fechaLarga(d.fecha || hdSel))}${at ? ` \xB7 cierre ${hhmm(at.mod)}` : ""} \xB7 ${fmtNum(d.clientes || 0)} clientes en mostrador${typeof d.netaReal === "number" ? ` \xB7 Neta Real (descontando material usado): ${d.netaReal < 0 ? "\u2212" : ""}${fmtMXN(Math.abs(d.netaReal))} MXN` : ""}.
+    ${dif ? " Los totales son los oficiales del Resumen del D\xEDa; incluyen ajustes del Host que no aparecen como rengl\xF3n." : ""}${d.parcial ? " D\xEDa recuperado de la bit\xE1cora al estrenar esta funci\xF3n: algunos renglones ya se hab\xEDan limpiado, los totales s\xED son exactos." : ""}</div>`;
+  v.innerHTML = hdList(d.ventas, 1);
+  g.innerHTML = hdList(d.gastos, -1);
+  $("#hdVN").textContent = `${fmtNum(vl.length)} \xB7 ${fmtMXN(sv)} MXN`;
+  $("#hdGN").textContent = `${fmtNum(gl.length)} \xB7 ${fmtMXN(sg)} MXN`;
+}
 function toast(msg) {
   const t = $("#toast");
   t.textContent = msg;
@@ -6381,6 +7115,12 @@ function wireUI() {
   $("#hvBtn").addEventListener("click", openHV);
   $("#hvBtnHud").addEventListener("click", openHV);
   $("#hvBtnFin").addEventListener("click", openHV);
+  $("#hdBtnFin").addEventListener("click", openHD);
+  $("#hdClose").addEventListener("click", closeHD);
+  $("#hdSel").addEventListener("change", (e) => hdSelect(e.target.value));
+  $("#hdModal").addEventListener("click", (e) => {
+    if (e.target.id === "hdModal") closeHD();
+  });
   $("#hvClose").addEventListener("click", closeHV);
   $("#hvModal").addEventListener("click", (e) => {
     if (e.target.id === "hvModal") {
@@ -6587,6 +7327,7 @@ function wireUI() {
       closeModal("#sumModal");
       closeModal("#finModal");
       closeHV();
+      closeHD();
     }
   });
   document.querySelectorAll("[data-cash]").forEach((b) => b.addEventListener("click", () => {
