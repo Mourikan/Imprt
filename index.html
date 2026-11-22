@@ -94,7 +94,7 @@
   @media (min-width: 768px) {
     #panel { right: var(--tv-gap) !important; }
     #hud { right: calc(420px + var(--tv-gap) + 12px) !important; }
-    #finModal, #sumModal, #adminModal, #pwModal, #hvModal { padding-right: var(--tv-gap) !important; padding-left: 12px !important; }
+    #finModal, #sumModal, #adminModal, #pwModal, #hvModal, #hdModal { padding-right: var(--tv-gap) !important; padding-left: 12px !important; }
     .fin-card { width: min(1100px, calc(100vw - var(--tv-gap) - 40px)) !important; }
   }
   /* HUD: Ganancia Bruta y Neta del día junto a la caja */
@@ -166,7 +166,12 @@
   .hv-m { text-align: right; white-space: nowrap; } .hv-m b { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #6ee7b7; } .hv-m span { font-size: 10.5px; color: #94a3b8; }
   .hv-row.anul .hv-x, .hv-row.anul .hv-m b { color: #fb7185; text-decoration: line-through; }
   /* Teléfono: sin botones ▲▼ (se desliza con el dedo) para que Finanzas e Historial no se corten a lo ancho */
-  @media (max-width: 640px) { #finModal .sc-btns, #hvModal .sc-btns { display: none; } .fin-scroll { overflow-x: hidden; } .hv-row { flex-wrap: wrap; } .hv-m { margin-left: auto; } }
+  @media (max-width: 640px) { #finModal .sc-btns, #hvModal .sc-btns, #hdModal .sc-btns { display: none; } .fin-scroll { overflow-x: hidden; } .hv-row { flex-wrap: wrap; } .hv-m { margin-left: auto; } }
+  /* v24 Historial de Días Anteriores */
+  #hdModal .logrow { font-size: 14px; padding: 6px 4px; grid-template-columns: 76px 1fr auto; } #hdModal .logrow .a { font-size: 13px; }
+  .hd-t.g { color: #6ee7b7; } .hd-t.r { color: #fda4af; } .hd-n { font-weight: 500; font-size: 12px; color: #94a3b8; margin-left: 6px; }
+  .hd-anul .x, .hd-anul .a { text-decoration: line-through; opacity: .6; } .hd-tag { font-size: 11px; color: #fb7185; text-decoration: none; }
+  #hdSel { font-size: 15px; padding: 8px 10px; }
   .fb-sep { height: 1px; background: rgba(71,85,105,.6); margin: 18px 0 12px; }
   .sc-wrap { display: flex; gap: 8px; min-height: 0; flex: 1; }
   .sc-wrap > .lscroll { flex: 1; min-width: 0; min-height: 0; }
@@ -315,7 +320,7 @@
   <div class="glass rounded-2xl fin-card">
     <div class="flex items-center justify-between gap-3 px-5 pt-4 pb-3 border-b border-slate-700/50">
       <div class="text-xl font-extrabold">Finanzas</div>
-      <div class="flex gap-2"><button type="button" class="btn text-base px-4 py-2" id="hvBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg> Historial de Ventas</button><button type="button" class="btn text-base px-4 py-2" id="finClose" aria-label="Cerrar finanzas">Cerrar</button></div>
+      <div class="flex flex-wrap justify-end gap-2"><button type="button" class="btn text-base px-4 py-2" id="hvBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg> Historial de Ventas</button><button type="button" class="btn text-base px-4 py-2" id="hdBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h6"/></svg> Historial de Días Anteriores</button><button type="button" class="btn text-base px-4 py-2" id="finClose" aria-label="Cerrar finanzas">Cerrar</button></div>
     </div>
     <div class="fin-grid">
       <div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#finAcct" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#finAcct" data-dir="1">▼ Bajar</button></div><div id="finAcct" class="fin-scroll lscroll"></div></div>
@@ -341,6 +346,22 @@
     <div id="hvTot" class="px-5 pt-2"></div>
     <div class="fin-grid hv-grid">
       <div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#hvList" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#hvList" data-dir="1">▼ Bajar</button></div><div id="hvList" class="fin-scroll lscroll"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Historial de Días Anteriores (v24): /partida/historialDiario, permanente (no se borra al limpiar la bitácora) -->
+<div id="hdModal" class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-3">
+  <div class="glass rounded-2xl fin-card">
+    <div class="flex items-center justify-between gap-3 px-5 pt-4 pb-3 border-b border-slate-700/50">
+      <div><div class="text-xl font-extrabold"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h6"/></svg> Historial de Días Anteriores</div><div id="hdCount" class="text-xs text-slate-400 mt-0.5">—</div></div>
+      <button type="button" class="btn text-base px-4 py-2" id="hdClose" aria-label="Cerrar historial de días">Cerrar</button>
+    </div>
+    <div class="px-5 pt-3 flex flex-wrap gap-2 items-center"><label for="hdSel" class="text-sm text-slate-300 font-semibold">Día:</label><select id="hdSel" class="flex-1 min-w-[220px]"></select></div>
+    <div id="hdHead" class="px-5 pt-2"></div>
+    <div class="fin-grid hd-grid">
+      <div class="fin-col"><div class="font-bold mb-1 hd-t g">Ventas concretadas y cobradas <span id="hdVN" class="hd-n"></span></div><div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#hdVentas" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#hdVentas" data-dir="1">▼ Bajar</button></div><div id="hdVentas" class="fin-scroll lscroll"></div></div></div>
+      <div class="fin-col"><div class="font-bold mb-1 hd-t r">Gastos operativos <span id="hdGN" class="hd-n"></span></div><div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#hdGastos" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#hdGastos" data-dir="1">▼ Bajar</button></div><div id="hdGastos" class="fin-scroll lscroll"></div></div></div>
     </div>
   </div>
 </div>
@@ -1678,6 +1699,7 @@ var XBOX_PROB = 4e-3;
 var EMP = Object.fromEntries(EMPLOYEES.map((e) => [e.id, e]));
 var MACH = Object.fromEntries(MACHINES.map((m) => [m.id, m]));
 var LOG_MAX = 900;
+var HORMIGA_PROB = 0.05;
 var TIME_SCALE = 1.45;
 var COTS = 3;
 var PERSONAL = /* @__PURE__ */ new Set(["bano", "banoWait", "desayuno", "xbox", "platica", "cel", "calle", "siesta", "snack", "afuera"]);
@@ -1755,6 +1777,7 @@ function createState({ genesisMs: genesisMs2, seed }) {
 function log(s, txt, amt = null, kind = "info", m = s.minute, cat = null) {
   const e = { m, txt, amt, k: kind };
   if (cat) e.c = cat;
+  if (typeof amt === "number" && amt && kind !== "sys") movPush(s, e);
   s.log.push(e);
   if (s.log.length > LOG_MAX) s.log.splice(0, s.log.length - LOG_MAX);
 }
@@ -1773,6 +1796,122 @@ function ledger(s, side, cat, amt) {
   const L = s.dayLedger || (s.dayLedger = { from: s.minute, ing: {}, egr: {}, cogs: {}, mat: {} });
   L[side][cat] = money((L[side][cat] || 0) + amt);
 }
+var HD_MAX_PEND = 400;
+var HD_DAYS_KEEP = 800;
+var movKey = (n) => "k" + String(n).padStart(9, "0");
+function movPush(s, e) {
+  if (!Array.isArray(s.dayMov)) s.dayMov = [];
+  s.movSeq = (s.movSeq || 0) + 1;
+  const id = movKey(s.movSeq);
+  e.mv = id;
+  const r2 = { id, m: e.m, txt: String(e.txt).slice(0, 160), amt: e.amt, k: e.k };
+  if (e.c) r2.c = e.c;
+  s.dayMov.push(r2);
+}
+function hdPush(s, op) {
+  const q = s.hdNew || (s.hdNew = []);
+  q.push(op);
+  if (q.length > HD_MAX_PEND) q.splice(0, q.length - HD_MAX_PEND);
+}
+var hdItem = (x) => {
+  const r2 = { m: x.m, txt: x.txt, amt: money(Math.abs(x.amt)) };
+  if (x.c) r2.c = x.c;
+  if (x.k) r2.k = x.k;
+  if (x.rec) r2.rec = true;
+  return r2;
+};
+function hdRecord(sum, movs, extra = {}) {
+  const fecha = cdmx(sum.day * MIN).dayKey;
+  const ventas = {}, gastos = {};
+  let tv2 = 0, tg = 0, nv = 0, ng = 0;
+  for (const x of movs) {
+    if (!x || typeof x.amt !== "number" || !x.amt) continue;
+    if (x.amt > 0) {
+      ventas[x.id] = hdItem(x);
+      tv2 += x.amt;
+      nv++;
+    } else {
+      gastos[x.id] = hdItem(x);
+      tg -= x.amt;
+      ng++;
+    }
+  }
+  const rec = {
+    fecha,
+    day: sum.day,
+    from: sum.from,
+    at: sum.at,
+    ventas,
+    gastos,
+    nv,
+    ng,
+    sumVentas: money(tv2),
+    sumGastos: money(tg),
+    ing: sum.ing || {},
+    egr: sum.egr || {},
+    totalIng: sum.totalIng,
+    totalEgr: sum.totalEgr,
+    neta: sum.balance,
+    cash: sum.cash,
+    clientes: sum.clientes || 0,
+    v: 24
+  };
+  if (typeof sum.cash0 === "number") rec.cash0 = sum.cash0;
+  const fb = finBreak({ ing: sum.ing, egr: sum.egr, cogs: sum.cogs && Object.keys(sum.cogs).length ? sum.cogs : sum.cogs ? {} : null, insumosPre: sum.insumosPre || 0 });
+  rec.netaReal = fb.neta;
+  rec.costoMat = fb.costoMat;
+  Object.assign(rec, extra);
+  return rec;
+}
+var hdIdx = (r2) => ({ fecha: r2.fecha, day: r2.day, totalIng: r2.totalIng, totalEgr: r2.totalEgr, neta: r2.neta, nv: r2.nv, ng: r2.ng, ...r2.parcial ? { parcial: true } : {} });
+function hdArchive(s, rec) {
+  hdPush(s, { key: rec.fecha, rec, idx: hdIdx(rec) });
+  if (!Array.isArray(s.hdDays)) s.hdDays = [];
+  s.hdDays = s.hdDays.filter((d) => d.key !== rec.fecha);
+  s.hdDays.push({ key: rec.fecha, from: rec.from, at: rec.at, totalIng: rec.totalIng, totalEgr: rec.totalEgr });
+  if (s.hdDays.length > HD_DAYS_KEEP) s.hdDays.splice(0, s.hdDays.length - HD_DAYS_KEEP);
+}
+function hdAnular(s, e, amt, side, cat) {
+  const d = (s.hdDays || []).find((x) => e.m >= x.from && e.m <= x.at);
+  if (!d) return;
+  if (side === "ing") d.totalIng = money(d.totalIng - amt);
+  else d.totalEgr = money(d.totalEgr - amt);
+  hdPush(s, {
+    key: d.key,
+    anular: e.mv || null,
+    side: side === "ing" ? "ventas" : "gastos",
+    match: { m: e.m, amt: money(Math.abs(e.amt)), txt: String(e.txt).slice(0, 160) },
+    set: { totalIng: d.totalIng, totalEgr: d.totalEgr, neta: money(d.totalIng - d.totalEgr) },
+    cat
+  });
+}
+function hdInit(s) {
+  if (!s || !s.flags) return 0;
+  if (!Array.isArray(s.hdDays)) s.hdDays = [];
+  if (!Array.isArray(s.hdNew)) s.hdNew = [];
+  if (s.flags.hdInit) return 0;
+  s.flags.hdInit = s.minute;
+  const L = s.dayLedger;
+  const S2 = s.lastSummary;
+  const from = L && typeof L.from === "number" ? L.from : s.minute;
+  s.dayMov = [];
+  const prev = [];
+  for (const e of s.log || []) {
+    if (typeof e.amt !== "number" || !e.amt || e.k === "sys") continue;
+    s.movSeq = (s.movSeq || 0) + 1;
+    e.mv = movKey(s.movSeq);
+    const r2 = { id: e.mv, m: e.m, txt: String(e.txt).slice(0, 160), amt: e.amt, k: e.k, rec: true };
+    if (e.c) r2.c = e.c;
+    if (e.m >= from) s.dayMov.push(r2);
+    else if (S2 && e.m >= S2.from && e.m <= S2.at) prev.push(r2);
+  }
+  if (S2 && typeof S2.day === "number") {
+    const sv = prev.filter((x) => x.amt > 0).reduce((a, x) => a + x.amt, 0), sg = prev.filter((x) => x.amt < 0).reduce((a, x) => a - x.amt, 0);
+    const parcial = Math.abs(money(sv) - money(S2.totalIng || 0)) > 0.5 || Math.abs(money(sg) - money(S2.totalEgr || 0)) > 0.5;
+    hdArchive(s, hdRecord(S2, prev, { recuperado: true, ...parcial ? { parcial: true } : {} }));
+  }
+  return 1 + s.dayMov.length;
+}
 function closeDay(s, dayMinute) {
   const L = s.dayLedger || { from: s.minute, ing: {}, egr: {} };
   const sum = (o) => money(Object.values(o).reduce((x, y) => x + y, 0));
@@ -1781,6 +1920,8 @@ function closeDay(s, dayMinute) {
   s.lastSummary = { seq, day: dayMinute, from: L.from, at: s.minute, ing: L.ing, egr: L.egr, totalIng: ing, totalEgr: egr, balance: money(ing - egr), cash: s.cash, clientes: L.clientes ?? (s.day.clientes || 0), cogs: L.cogs || {}, mat: L.mat || {}, insumosPre: L.insumosPre || 0 };
   if (typeof L.cash0 === "number") s.lastSummary.cash0 = L.cash0;
   s.dayLedger = { from: s.minute, ing: {}, egr: {}, cogs: {}, mat: {}, cash0: s.cash };
+  hdArchive(s, hdRecord(s.lastSummary, s.dayMov || []));
+  s.dayMov = [];
   log(s, "Resumen del d\xEDa listo", null, "sys");
 }
 function income(s, cat, amt, txt, kind = "in") {
@@ -2053,6 +2194,12 @@ function ensureState(s) {
   if (!Array.isArray(s.entregados)) s.entregados = [];
   if (s.dayLedger && typeof s.dayLedger.cash0 !== "number" && s.lastSummary && s.lastSummary.at === s.dayLedger.from && typeof s.lastSummary.cash === "number") s.dayLedger.cash0 = s.lastSummary.cash;
   if (!Array.isArray(s.hvNew)) s.hvNew = [];
+  if (!Array.isArray(s.hdNew)) s.hdNew = [];
+  if (!Array.isArray(s.hdDays)) s.hdDays = [];
+  if (!s.flags.v24hormiga) {
+    s.flags.v24hormiga = s.minute;
+    if (s.day && Array.isArray(s.day.hormiga)) s.day.hormiga = [];
+  }
   for (const o of Object.values(s.orders)) {
     if (o.st !== "prod" && o.st !== "listo") o.st = (o.left || 0) <= 0 ? "listo" : "prod";
     if (typeof o.paid !== "number") o.paid = 0;
@@ -2479,7 +2626,7 @@ function startDay(s, t, rng) {
       dur: rng.int(40, 110),
       why: rng.pick(["Entregando tarjetas y volantes a clientes", "Llevando lonas a un foro", "Pagando en el banco y recogiendo tintas", "Recogiendo playeras en el Centro", "Entregando paqueter\xEDa", "Llevando cajas a una cafeter\xEDa"])
     });
-    const nh = rng.int(1, 3) && rng.chance(0.3) ? rng.chance(0.15) ? 2 : 1 : 0;
+    const nh = rng.int(1, 3) && rng.chance(HORMIGA_PROB) ? 1 : 0;
     for (let i = 0; i < nh; i++) d.hormiga.push(rng.int(ABRE + 5, CIERRA - 10));
     if (rng.chance(0.075)) d.cofepris = rng.int(10 * 60 + 30, 15 * 60 + 30);
     for (const m of MACHINES) if (!m.virtual && rng.chance(0.02)) d.maint.push({ id: m.id, at: rng.int(ABRE + 30, CIERRA - 60), dur: rng.int(30, 120) });
@@ -3594,6 +3741,9 @@ function adminDeleteLog(s, idx) {
     }
   }
   s.cash = money(s.cash - e.amt);
+  const iMov = e.mv && Array.isArray(s.dayMov) ? s.dayMov.findIndex((x) => x.id === e.mv) : -1;
+  if (iMov >= 0) s.dayMov.splice(iMov, 1);
+  else if (!(s.dayLedger && e.m >= s.dayLedger.from)) hdAnular(s, e, amt, side, cat);
   if (e.hv && side === "ing") ventaEstado(s, e.hv, "Anulada (registro borrado por el Host)", { anulada: true });
   if (s.dayLedger && typeof s.dayLedger.cash0 === "number" && e.m < s.dayLedger.from) s.dayLedger.cash0 = money(s.dayLedger.cash0 - e.amt);
   if (s.lastSummary && typeof s.lastSummary.cash0 === "number" && e.m < s.lastSummary.from) s.lastSummary.cash0 = money(s.lastSummary.cash0 - e.amt);
@@ -3750,6 +3900,7 @@ function snapshotOf(s) {
   const c = JSON.parse(serialize(s));
   c.log = c.log.slice(-120);
   delete c.hvNew;
+  delete c.hdNew;
   return JSON.stringify(c);
 }
 var LocalStore = class {
@@ -3899,6 +4050,14 @@ var cloud = {
   /** Historial de ventas: escucha las últimas `limit` ventas. Devuelve la función para dejar de escuchar. */
   watchVentas(limit, cb, onErr) {
     return onValue(query(r("historialVentas"), orderByKey(), limitToLast(limit)), (snap) => cb(snap.val() || {}), (e) => onErr && onErr(e));
+  },
+  /** Historial diario (v24): índice ligero de días guardados. */
+  watchDias(cb, onErr) {
+    return onValue(r("historialDiarioIndice"), (snap) => cb(snap.val() || {}), (e) => onErr && onErr(e));
+  },
+  /** Historial diario (v24): detalle completo de un día. */
+  watchDia(key, cb, onErr) {
+    return onValue(r("historialDiario/" + key), (snap) => cb(snap.val()), (e) => onErr && onErr(e));
   },
   /** Tacha o destacha una partida (marca visual; no toca caja ni métricas). */
   tachar(key, on) {
@@ -5780,6 +5939,7 @@ async function becomeHost() {
   ensureState(pick2);
   const rec = hvBackfill(pick2);
   if (rec) toast(`Historial de Ventas: se recuperaron ${rec} ventas de la bit\xE1cora`);
+  hdInit(pick2);
   myClaim = Math.max(Date.now(), (rel && rel.claimAt || 0) + 1);
   pub = { nodes: {}, motorAt: 0, logTail: null, at: 0, fx: [], fxSeq: V2.fx && V2.fx.seq || 0 };
   await cloud.hostPresence(myId, myClaim);
@@ -5890,6 +6050,32 @@ function publish(force = false, fullLog = false) {
       else for (const [f, v] of Object.entries(op.set || {})) if (v != null) patch[`historialVentas/${op.key}/${f}`] = v;
     }
   }
+  let hdOps = null;
+  if (S.hdNew && S.hdNew.length) {
+    hdOps = S.hdNew;
+    S.hdNew = [];
+    const full = {};
+    for (const op of hdOps) {
+      const k = op.key;
+      if (!k) continue;
+      if (op.rec) {
+        full[k] = { rec: JSON.parse(JSON.stringify(op.rec)), idx: { ...op.idx } };
+        patch["historialDiario/" + k] = full[k].rec;
+        patch["historialDiarioIndice/" + k] = full[k].idx;
+      } else if (full[k]) {
+        const f = full[k];
+        if (op.anular && f.rec[op.side] && f.rec[op.side][op.anular]) f.rec[op.side][op.anular].anulada = true;
+        Object.assign(f.rec, op.set);
+        Object.assign(f.idx, op.set);
+      } else {
+        if (op.anular) patch[`historialDiario/${k}/${op.side}/${op.anular}/anulada`] = true;
+        for (const [fk, v] of Object.entries(op.set || {})) if (v != null) {
+          patch[`historialDiario/${k}/${fk}`] = v;
+          patch[`historialDiarioIndice/${k}/${fk}`] = v;
+        }
+      }
+    }
+  }
   if (force || now - pub.motorAt > 6e4) {
     pub.motorAt = now;
     const c = JSON.parse(serialize(S));
@@ -5898,6 +6084,7 @@ function publish(force = false, fullLog = false) {
   }
   if (Object.keys(patch).length) cloud.write(patch).catch((e) => {
     if (hvOps && S) S.hvNew = hvOps.concat(S.hvNew || []);
+    if (hdOps && S) S.hdNew = hdOps.concat(S.hdNew || []);
     toast("Firebase rechaz\xF3 la escritura: " + (e && e.code || e));
   });
 }
@@ -6648,6 +6835,132 @@ function renderHV() {
   list2.innerHTML = h;
   list2.scrollTop = st;
 }
+var hdIdxData = {};
+var hdIdxUnsub = null;
+var hdDayUnsub = null;
+var hdSel = "";
+var hdDay = null;
+var hdState = "idle";
+var hdDayState = "idle";
+function openHD() {
+  openModal("#hdModal");
+  hdState = "loading";
+  renderHDSel();
+  renderHDDay();
+  if (hdIdxUnsub) hdIdxUnsub();
+  hdIdxUnsub = cloud.watchDias((d) => {
+    hdIdxData = d;
+    hdState = "ok";
+    const keys = Object.keys(d).sort().reverse();
+    if (!hdSel || !d[hdSel]) hdSelect(keys[0] || "");
+    else renderHDSel();
+  }, (e) => {
+    hdState = "error:" + (e && e.code || e);
+    renderHDSel();
+    renderHDDay();
+  });
+}
+function closeHD() {
+  closeModal("#hdModal");
+  if (hdIdxUnsub) {
+    hdIdxUnsub();
+    hdIdxUnsub = null;
+  }
+  if (hdDayUnsub) {
+    hdDayUnsub();
+    hdDayUnsub = null;
+  }
+}
+function hdSelect(key) {
+  hdSel = key;
+  hdDay = null;
+  renderHDSel();
+  if (hdDayUnsub) {
+    hdDayUnsub();
+    hdDayUnsub = null;
+  }
+  if (!key) {
+    hdDayState = "none";
+    renderHDDay();
+    return;
+  }
+  hdDayState = "loading";
+  renderHDDay();
+  hdDayUnsub = cloud.watchDia(key, (v) => {
+    hdDay = v;
+    hdDayState = "ok";
+    renderHDDay();
+  }, (e) => {
+    hdDayState = "error:" + (e && e.code || e);
+    renderHDDay();
+  });
+  $("#hdVentas").scrollTop = 0;
+  $("#hdGastos").scrollTop = 0;
+}
+var fechaLarga = (k) => {
+  const [y, mo, d] = String(k).split("-").map(Number);
+  if (!y) return k;
+  const dow = new Date(Date.UTC(y, mo - 1, d, 12)).getUTCDay();
+  return `${DOW[dow]} ${d} de ${MES[mo - 1]} de ${y}`;
+};
+function renderHDSel() {
+  if ($("#hdModal").classList.contains("hidden")) return;
+  const sel = $("#hdSel");
+  const keys = Object.keys(hdIdxData).sort().reverse();
+  if (hdState.startsWith("error")) {
+    sel.innerHTML = "<option>Sin conexi\xF3n con Firebase</option>";
+    $("#hdCount").textContent = "No se pudo leer el historial";
+    return;
+  }
+  if (!keys.length) {
+    sel.innerHTML = `<option value="">${hdState === "loading" ? "Cargando d\xEDas\u2026" : "Todav\xEDa no hay d\xEDas guardados"}</option>`;
+    $("#hdCount").textContent = hdState === "loading" ? "Cargando\u2026" : "Se guarda un d\xEDa cada vez que se detona el Resumen del D\xEDa";
+    return;
+  }
+  sel.innerHTML = keys.map((k) => {
+    const x = hdIdxData[k] || {};
+    return `<option value="${esc(k)}" ${k === hdSel ? "selected" : ""}>${esc(fechaLarga(k))} \xB7 neta ${fmtMXN(x.neta || 0)}</option>`;
+  }).join("");
+  $("#hdCount").textContent = `${fmtNum(keys.length)} ${keys.length === 1 ? "d\xEDa guardado" : "d\xEDas guardados"} \xB7 no se borran al limpiar la bit\xE1cora`;
+}
+function hdList(obj, sign2) {
+  const rows = Object.entries(obj || {}).filter(([, x]) => x && typeof x.amt === "number").sort((a, b) => a[1].m - b[1].m || (a[0] < b[0] ? -1 : 1));
+  if (!rows.length) return '<div class="text-slate-500 p-3">Sin movimientos.</div>';
+  return rows.map(([, x]) => {
+    const t = cdmx(x.m * MIN);
+    return `<div class="logrow${x.anulada ? " hd-anul" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(x.txt)}${x.anulada ? ' <i class="hd-tag">anulado por el Host</i>' : ""}</span><span class="a ${sign2 > 0 ? "up" : "dn"}">${sign2 > 0 ? "+" : "\u2212"}${fmtMXN(x.amt)}</span></div>`;
+  }).join("");
+}
+function renderHDDay() {
+  if ($("#hdModal").classList.contains("hidden")) return;
+  const head = $("#hdHead"), v = $("#hdVentas"), g = $("#hdGastos");
+  const msg = (t) => {
+    head.innerHTML = "";
+    v.innerHTML = `<div class="text-slate-400 p-3">${t}</div>`;
+    g.innerHTML = "";
+    $("#hdVN").textContent = "";
+    $("#hdGN").textContent = "";
+  };
+  if (hdState.startsWith("error")) return msg(`No se pudo leer el historial en Firebase (${esc(hdState.slice(6))}).`);
+  if (hdDayState.startsWith("error")) return msg(`No se pudo leer el d\xEDa en Firebase (${esc(hdDayState.slice(6))}).`);
+  if (hdDayState === "none" || !hdSel && hdState === "ok") return msg("Todav\xEDa no hay d\xEDas guardados. El primero se guarda en cuanto se detone el pr\xF3ximo Resumen del D\xEDa (5:00 PM, o al amanecer si hubo velada).");
+  if (!hdDay) return msg(hdDayState === "loading" || hdState === "loading" ? "Cargando el d\xEDa\u2026" : "Ese d\xEDa ya no est\xE1 disponible.");
+  const d = hdDay;
+  const live = (o) => Object.values(o || {}).filter((x) => x && !x.anulada && typeof x.amt === "number");
+  const vl = live(d.ventas), gl = live(d.gastos);
+  const sv = money(vl.reduce((a, x) => a + x.amt, 0)), sg = money(gl.reduce((a, x) => a + x.amt, 0));
+  const ti = typeof d.totalIng === "number" ? d.totalIng : sv, te = typeof d.totalEgr === "number" ? d.totalEgr : sg;
+  const neta = money(ti - te);
+  const dif = Math.abs(ti - sv) > 0.5 || Math.abs(te - sg) > 0.5;
+  const at = typeof d.at === "number" ? cdmx(d.at * MIN) : null;
+  head.innerHTML = `<div class="hv-kpis"><div><span>Ventas cobradas (${fmtNum(vl.length)})</span><b class="g">${fmtMXN(ti)} MXN</b></div><div><span>Gastos (${fmtNum(gl.length)})</span><b class="r">${fmtMXN(te)} MXN</b></div><div><span>Ganancia neta del d\xEDa</span><b class="${neta >= 0 ? "n" : "r"}">${neta >= 0 ? "" : "\u2212"}${fmtMXN(Math.abs(neta))} MXN</b></div><div><span>Caja ${typeof d.cash0 === "number" ? "inicio \u2192 cierre" : "al cierre"}</span><b>${typeof d.cash0 === "number" ? fmtMXN(d.cash0) + " \u2192 " : ""}${fmtMXN(d.cash || 0)}</b></div></div>
+    <div class="hv-note">${esc(fechaLarga(d.fecha || hdSel))}${at ? ` \xB7 cierre ${hhmm(at.mod)}` : ""} \xB7 ${fmtNum(d.clientes || 0)} clientes en mostrador${typeof d.netaReal === "number" ? ` \xB7 Neta Real (descontando material usado): ${d.netaReal < 0 ? "\u2212" : ""}${fmtMXN(Math.abs(d.netaReal))} MXN` : ""}.
+    ${dif ? " Los totales son los oficiales del Resumen del D\xEDa; incluyen ajustes del Host que no aparecen como rengl\xF3n." : ""}${d.parcial ? " D\xEDa recuperado de la bit\xE1cora al estrenar esta funci\xF3n: algunos renglones ya se hab\xEDan limpiado, los totales s\xED son exactos." : ""}</div>`;
+  v.innerHTML = hdList(d.ventas, 1);
+  g.innerHTML = hdList(d.gastos, -1);
+  $("#hdVN").textContent = `${fmtNum(vl.length)} \xB7 ${fmtMXN(sv)} MXN`;
+  $("#hdGN").textContent = `${fmtNum(gl.length)} \xB7 ${fmtMXN(sg)} MXN`;
+}
 function toast(msg) {
   const t = $("#toast");
   t.textContent = msg;
@@ -6802,6 +7115,12 @@ function wireUI() {
   $("#hvBtn").addEventListener("click", openHV);
   $("#hvBtnHud").addEventListener("click", openHV);
   $("#hvBtnFin").addEventListener("click", openHV);
+  $("#hdBtnFin").addEventListener("click", openHD);
+  $("#hdClose").addEventListener("click", closeHD);
+  $("#hdSel").addEventListener("change", (e) => hdSelect(e.target.value));
+  $("#hdModal").addEventListener("click", (e) => {
+    if (e.target.id === "hdModal") closeHD();
+  });
   $("#hvClose").addEventListener("click", closeHV);
   $("#hvModal").addEventListener("click", (e) => {
     if (e.target.id === "hvModal") {
@@ -7008,6 +7327,7 @@ function wireUI() {
       closeModal("#sumModal");
       closeModal("#finModal");
       closeHV();
+      closeHD();
     }
   });
   document.querySelectorAll("[data-cash]").forEach((b) => b.addEventListener("click", () => {
