@@ -75,8 +75,8 @@
   .pill { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; }
   /* Animaciones solo con transform/opacity (GPU): sin reflow, sin tirones en el 3D */
   :root { --ease: cubic-bezier(0.22, 1, 0.36, 1); }
-  #panel, #hud, #camBar, #cleanBtn { transition: transform 280ms var(--ease), opacity 280ms var(--ease), visibility 0s linear 0s; will-change: transform, opacity; transform: translate3d(0,0,0); }
-  .edgetab { animation: tabIn 280ms var(--ease) both; will-change: transform, opacity; }
+  #panel, #hud, #camBar, #cleanBtn { transition: transform 300ms var(--ease), opacity 300ms var(--ease), visibility 0s linear 0s; will-change: transform, opacity; transform: translate3d(0,0,0); }
+  .edgetab { animation: tabIn 300ms var(--ease) both; will-change: transform, opacity; }
   #panelTab { animation-name: fadeIn; } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes tabIn { from { opacity: 0; transform: translate3d(0, 8px, 0) scale(.96); } to { opacity: 1; transform: none; } }
   .mfx { transition: opacity 280ms var(--ease); opacity: 0; will-change: opacity; }
@@ -178,6 +178,15 @@
   .sc-btns { display: flex; flex-direction: column; gap: 8px; flex: none; }
   .sc-b { min-width: 92px; padding: 12px 10px; font-size: 14px; }
   .sc-mini { padding: 8px 0 8px 6px; } .sc-mini .sc-b { min-width: 0; width: 34px; padding: 10px 0; font-size: 12px; }
+
+  /* v28: pestañas de los bordes más grandes (control de TV) y lejos del borde físico derecho */
+  .edgetab { padding: 10px 14px !important; font-size: 14px !important; border-radius: 12px !important; }
+  @media (min-width: 768px) { #panelTab { right: var(--tv-gap) !important; border-radius: 12px !important; } #cleanBtn { right: var(--tv-gap) !important; } }
+  /* Vista 100% limpia: solo queda un botón chico y tenue para volver */
+  body.clean #cleanBtn { opacity: .42; padding: 10px 12px; } body.clean #cleanBtn:hover, body.clean #cleanBtn:focus-visible { opacity: 1; }
+  body.clean #cleanBtn .lbl { display: none; }
+  #toast { z-index: 60; }
+  #hud .foldbtn { width: 38px; height: 38px; font-size: 16px; border-radius: 11px; }
   @media (prefers-reduced-motion: reduce) { #panel, #hud, #camBar, .mfx, .mfx > *, .edgetab, #toast.in, #toast.out { transition: none !important; animation: none !important; } }
   .foldbtn { width: 26px; height: 26px; border-radius: 9px; font-size: 11px; color: #cbd5e1; flex-shrink: 0; }
   .edgetab { display: none; padding: 7px 11px; border-radius: 10px; font: 700 12px/1 Inter, sans-serif; color: #e2e8f0; }
@@ -185,13 +194,13 @@
   body.fold-hud #hudTab { display: block; }
   body.fold-cam #camBar { transform: translate3d(0, calc(100% + 80px), 0); opacity: 0; pointer-events: none; }
   body.fold-cam #camTab { display: block; }
-  body.fold-panel #panel { transform: translate3d(calc(100% + 16px), 0, 0); opacity: 0; pointer-events: none; }
+  body.fold-panel #panel { transform: translate3d(calc(100% + 16px + var(--tv-gap)), 0, 0); opacity: 0; pointer-events: none; }
   body.fold-panel #panelTab { display: block; }
   body.fold-panel #hud { right: 8px !important; }
   body.fold-panel #camBar { max-width: calc(100% - 180px) !important; }
   #cleanBtn { display: block; }
-  body.clean #hud { transform: translate3d(0, -24px, 0); } body.clean #camBar { transform: translate3d(0, 24px, 0); } body.clean #panel { transform: translate3d(24px, 0, 0); }
-  body.clean #hud, body.clean #camBar, body.clean #panel { opacity: 0; pointer-events: none; visibility: hidden; transition: transform 280ms var(--ease), opacity 280ms var(--ease), visibility 0s linear 280ms; }
+  body.clean #hud { transform: translate3d(0, calc(-100% - 16px), 0); } body.clean #camBar { transform: translate3d(0, calc(100% + 80px), 0); } body.clean #panel { transform: translate3d(calc(100% + 16px + var(--tv-gap)), 0, 0); }
+  body.clean #hud, body.clean #camBar, body.clean #panel { opacity: 0; pointer-events: none; visibility: hidden; transition: transform 300ms var(--ease), opacity 300ms var(--ease), visibility 0s linear 300ms; }
   body.clean #hudTab, body.clean #camTab, body.clean #panelTab { display: none !important; }
   body:not(.fold-panel):not(.clean) #cleanBtn { display: none; }
   .pcard { transform: translateY(-6px); min-width: 120px; max-width: 200px; background: rgba(15,23,42,.88); color: #e2e8f0; border-radius: 10px; border: 1px solid rgba(255,255,255,.08); border-left: 4px solid #64748b; padding: 4px 8px 5px; font: 500 11px/1.3 Inter, sans-serif; box-shadow: 0 4px 14px rgba(0,0,0,.35); pointer-events: none; }
@@ -225,127 +234,56 @@
 .fin-card{width:min(1100px,96vw);height:min(88vh,900px);display:flex;flex-direction:column;font-size:15px}.fin-grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:16px;padding:16px}@media (min-width:768px){.fin-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr)}}.fin-col{display:flex;flex-direction:column;min-height:0}.fin-col .fin-scroll{flex:1}
 .fin-scroll{min-height:0;overflow-y:auto;padding:0 8px;scrollbar-width:auto;scrollbar-color:#64748b #1e293b;overscroll-behavior:contain}.fin-scroll::-webkit-scrollbar{width:16px}.fin-scroll::-webkit-scrollbar-thumb{background:#64748b;border-radius:8px;border:3px solid #1e293b}.fin-scroll::-webkit-scrollbar-track{background:#1e293b;border-radius:8px}
 
-/* ===== v25 Dashboard Maestro de Finanzas (pantalla completa) ===== */
-.fd-ov { background: radial-gradient(1200px 700px at 20% 0%, rgba(30,58,138,.28), transparent 60%), radial-gradient(900px 600px at 100% 100%, rgba(190,18,60,.16), transparent 60%), rgba(2,6,23,.72); backdrop-filter: blur(14px) saturate(115%); -webkit-backdrop-filter: blur(14px) saturate(115%); padding: 14px; }
-.fd-ov.flex { display: flex; }
-.fd { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 12px; font-size: 16px; color: #e2e8f0; }
-.fd-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 12px 16px; border-radius: 22px; background: linear-gradient(135deg, rgba(30,41,59,.82), rgba(15,23,42,.78)); border: 1px solid rgba(148,163,184,.2); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-.fd-title { flex: 1 1 260px; min-width: 0; }
-.fd-h1 { font-size: 26px; font-weight: 800; letter-spacing: -.01em; line-height: 1.15; background: linear-gradient(90deg, #f8fafc, #cbd5e1); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.fd-now { font-size: 14px; color: #94a3b8; margin-top: 2px; }
-.fd-now b { color: #e2e8f0; font-weight: 600; }
-.fd-per { display: flex; gap: 8px; align-items: center; }
-.fd-pb { font-size: 16px; padding: 11px 18px; border-radius: 14px; }
-.fd-sel { font-size: 16px; padding: 11px 14px; border-radius: 14px; min-width: 200px; background: #0f172a; }
-.fd-sel.on { border-color: #e11d48; box-shadow: 0 0 0 2px rgba(225,29,72,.35); }
-.fd-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
-.fd-ab { font-size: 15px; padding: 11px 16px; border-radius: 14px; display: inline-flex; align-items: center; gap: 8px; }
-.fd-ab-hd { background: rgba(14,165,233,.18); border-color: rgba(56,189,248,.55); color: #e0f2fe; } .fd-ab-hd:hover { background: rgba(14,165,233,.3); }
-.fd-close { background: #e11d48; border-color: #e11d48; color: #fff; } .fd-close:hover { background: #be123c; }
-/* Fila de indicadores: Bruta y Neta al frente */
-.fd-kpis { display: grid; grid-template-columns: 1.35fr 1.35fr 1fr 1fr 1fr 1fr; gap: 10px; }
-.fd-k { position: relative; overflow: hidden; border-radius: 18px; padding: 12px 16px; background: rgba(15,23,42,.72); border: 1px solid rgba(148,163,184,.18); }
-.fd-k::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--k, #64748b); }
-.fd-k span { display: block; font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fd-k b { display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700; font-size: 24px; line-height: 1.25; color: var(--kv, #f8fafc); white-space: nowrap; }
-.fd-k i { display: block; font-style: normal; font-size: 12.5px; color: #64748b; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fd-k.big b { font-size: 32px; }
-.fd-k.big { background: linear-gradient(135deg, rgba(15,23,42,.85), rgba(15,23,42,.6)); }
-.fd-k.kg { --k: #34d399; --kv: #6ee7b7; background-image: linear-gradient(135deg, rgba(16,185,129,.16), rgba(15,23,42,.6)); }
-.fd-k.kn { --k: #38bdf8; --kv: #7dd3fc; background-image: linear-gradient(135deg, rgba(14,165,233,.16), rgba(15,23,42,.6)); }
-.fd-k.kneg { --k: #fb7185; --kv: #fda4af; background-image: linear-gradient(135deg, rgba(244,63,94,.16), rgba(15,23,42,.6)); }
-.fd-k.kr { --k: #fb7185; --kv: #fda4af; } .fd-k.kc { --k: #e2e8f0; } .fd-k.ka { --k: #fbbf24; --kv: #fde68a; } .fd-k.kf { --k: #a78bfa; --kv: #ddd6fe; }
-/* Cuadrícula de tarjetas */
-.fd-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.fd-card { --c: #64748b; min-width: 0; min-height: 0; display: flex; flex-direction: column; border-radius: 22px; background: rgba(15,23,42,.74); border: 1px solid rgba(148,163,184,.16); box-shadow: 0 8px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04); overflow: hidden; }
-.fd-g { --c: #34d399; } .fd-r { --c: #fb7185; } .fd-n { --c: #38bdf8; } .fd-a { --c: #fbbf24; } .fd-v { --c: #a78bfa; } .fd-s { --c: #94a3b8; }
-.fd-ch { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px 10px 16px; border-bottom: 1px solid rgba(148,163,184,.14); background: linear-gradient(180deg, rgba(30,41,59,.55), rgba(30,41,59,0)); }
-.fd-ct { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; } .fd-ct > div { min-width: 0; }
-.fd-dot { width: 12px; height: 12px; border-radius: 99px; flex: none; background: var(--c); box-shadow: 0 0 12px var(--c); }
-.fd-ch h3 { margin: 0; font-size: 19px; font-weight: 800; color: #f8fafc; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fd-cs { font-size: 13px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fd-cb { display: flex; gap: 6px; flex: none; }
-.fd-b { min-width: 52px; min-height: 46px; padding: 8px 12px; font-size: 17px; border-radius: 12px; }
-.fd-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 8px 14px 12px; font-size: 15px; }
-.fd-foot { flex: none; padding: 10px 16px; border-top: 1px solid rgba(148,163,184,.22); background: rgba(2,6,23,.55); }
-.fd-foot:empty { display: none; }
-.fd-tr { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 14px; color: #cbd5e1; padding: 1px 0; }
-.fd-tr b { font-family: 'JetBrains Mono', ui-monospace, monospace; white-space: nowrap; font-weight: 700; }
-.fd-tr.main { font-size: 18px; font-weight: 800; color: #fff; }
-.fd-tr.main b { font-size: 20px; color: var(--c); }
-.fd-tr .g { color: #6ee7b7; } .fd-tr .r { color: #fda4af; } .fd-tr .n { color: #7dd3fc; } .fd-tr .a { color: #fde68a; }
-/* Renglones de las tarjetas */
-.fd-sec { font-size: 12.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: #94a3b8; margin: 14px 0 6px; }
-.fd-sec:first-child { margin-top: 4px; }
-.fd-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 8px 2px; border-bottom: 1px solid rgba(148,163,184,.1); }
-.fd-row > span { color: #e2e8f0; min-width: 0; } .fd-row > span small { display: block; font-size: 12.5px; color: #64748b; }
-.fd-row > b { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 600; white-space: nowrap; color: #e2e8f0; }
-.fd-row.sub { padding: 4px 2px 4px 16px; font-size: 14px; border-bottom-style: dashed; } .fd-row.sub > span { color: #94a3b8; } .fd-row.sub > b { color: #cbd5e1; font-weight: 500; }
-.fd-row.tot { border-bottom: 0; border-top: 2px solid rgba(148,163,184,.35); margin-top: 2px; padding-top: 9px; font-weight: 800; }
-.fd-row.tot > span { color: #fff; } .fd-row.tot > b { font-weight: 800; color: var(--c); }
-.fd-row .g { color: #6ee7b7; } .fd-row .r { color: #fda4af; } .fd-row .n { color: #7dd3fc; } .fd-row .a { color: #fde68a; }
-.fd-pct { display: block; height: 5px; border-radius: 9px; margin-top: 5px; background: rgba(148,163,184,.14); overflow: hidden; } .fd-pct > i { display: block; height: 100%; border-radius: 9px; background: var(--c); }
-.fd-empty { color: #64748b; padding: 10px 2px; font-size: 14px; }
-.fd-note { font-size: 13px; color: #94a3b8; margin-top: 8px; line-height: 1.45; } .fd-note b { color: #e2e8f0; }
-.fd-tab { width: 100%; border-collapse: collapse; font-size: 14px; }
-.fd-tab th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: #94a3b8; text-align: right; padding: 4px 4px 6px; border-bottom: 1px solid rgba(148,163,184,.3); }
-.fd-tab td { text-align: right; padding: 7px 4px; border-bottom: 1px solid rgba(148,163,184,.1); font-family: 'JetBrains Mono', ui-monospace, monospace; white-space: nowrap; color: #cbd5e1; }
-.fd-tab th:first-child, .fd-tab td:first-child { text-align: left; font-family: Inter, system-ui, sans-serif; white-space: normal; color: #e2e8f0; }
-.fd-tab tr.tot td { border-top: 2px solid rgba(148,163,184,.35); border-bottom: 0; font-weight: 800; color: #fff; }
-.fd-tab .g { color: #6ee7b7; } .fd-tab .r { color: #fda4af; } .fd-tab .n { color: #7dd3fc; }
-.fd-logbar { padding: 0 14px; } .fd-logbar:empty { display: none; } .fd-logbar .cc-tach { margin: 6px 0 2px; font-size: 13px; }
-/* Contenido reutilizado (Proyectos, Bodega, Conciliación) más grande y legible en TV */
-.fd-body .text-xs { font-size: 14px; line-height: 1.45; } .fd-body .text-sm { font-size: 16px; } .fd-body .text-\[11px\], .fd-body .text-\[10px\] { font-size: 13px; }
-.fd-body .proj-card { padding: 12px; border-radius: 16px; margin: 8px 0; } .fd-body .mny { font-size: 14px; } .fd-body .mny i { font-size: 12px; }
-.fd-body .cobrar-box { padding: 12px 14px; border-radius: 16px; } .fd-body .cobrar-lbl { font-size: 12.5px; } .fd-body .cobrar-val { font-size: 24px; } .fd-body .cobrar-sub { font-size: 13px; }
-.fd-body .st-pill { font-size: 12.5px; padding: 3px 10px; } .fd-body .pill { font-size: 12px; }
-.fd-body .daysep { font-size: 12px; padding: 12px 2px 5px; }
-.fd-body .bar { height: 9px; }
-.fd-body .cc-col { font-size: 14px; } .fd-body .cc-h { font-size: 12.5px; } .fd-body .cc-row { padding: 7px 0; } .fd-body .cc-grid { grid-template-columns: 1fr; }
-.fd-body .vq { font-size: 14px; } .fd-body .tch { width: 26px; height: 26px; } .fd-body .cc-tach { font-size: 13px; }
-.fd-body .proj-card .btn { min-height: 34px; }
-#finLog .logrow { font-size: 15px; padding: 8px 4px; } #finLog .logrow .a { font-size: 14px; } #finLog .logrow .tch { width: 24px; height: 24px; }
-#finLog .logrow .rm { font-size: 16px; padding: 6px; }
-/* Una tarjeta ampliada ocupa toda la cuadrícula (lectura cómoda desde el sillón) */
-.fd-grid.has-max { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
-.fd-grid.has-max > .fd-card:not(.is-max) { display: none; }
-.fd-card.is-max .fd-body { font-size: 17px; padding: 10px 22px 16px; }
-.fd-card.is-max .fd-max-b { background: var(--c); border-color: var(--c); color: #0f172a; }
-.fd-card.is-max .cc-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
-/* Animación de entrada escalonada (solo transform/opacity) */
-.mfx .fd > * { transition: transform 320ms var(--ease), opacity 320ms var(--ease); transform: translate3d(0, 16px, 0); opacity: 0; }
-.mfx.show .fd > * { transform: none; opacity: 1; }
-.mfx.show .fd > :nth-child(2) { transition-delay: 40ms; } .mfx.show .fd > :nth-child(3) { transition-delay: 80ms; }
-/* Pantallas de TV de 720 px de alto o menos, o angostas: cada renglón de tarjetas ocupa todo el alto disponible
-   y el tablero se desliza con ▲/▼ Tablero (encaja renglón por renglón). En 1080p caben las 6 tarjetas a la vez. */
-@media (max-height: 899px), (max-width: 1279px) {
-  .fd { gap: 10px; }
-  .fd-head { padding: 10px 14px; gap: 8px 12px; } .fd-h1 { font-size: 22px; } .fd-now { font-size: 13px; }
-  .fd-ab, .fd-pb { font-size: 14px; padding: 10px 13px; } .fd-sel { font-size: 14px; padding: 10px 12px; min-width: 170px; }
-  .fd-k { padding: 9px 12px; } .fd-k b, .fd-k.big b { font-size: clamp(16px, 1.65vw, 26px); } .fd-k span { font-size: 11.5px; } .fd-k i { font-size: 11.5px; }
-  .fd-grid { grid-template-rows: none; grid-auto-rows: max(380px, 100%); overflow-y: auto; scroll-snap-type: y mandatory; padding-right: 4px; }
-  .fd-grid > .fd-card { scroll-snap-align: start; }
-  .fd-grid.has-max { grid-auto-rows: 100%; overflow: hidden; }
-  .fd-b { min-width: 46px; min-height: 44px; padding: 6px 10px; }
-  .fd-ch h3 { font-size: 18px; }
-  .fd-k b small { display: none; }
-  .fd-tab { font-size: 13px; } .fd-tab td { padding: 6px 3px; } .fd-tab th { padding: 4px 3px 6px; font-size: 10.5px; }
-}
-@media (max-width: 1279px) {
-  .fd-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .fd-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
+/* ===== v26 Finanzas limpio: bloques de texto, una sola columna, tipografía grande ===== */
+.fl-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 16px 22px 14px; border-bottom: 1px solid rgba(148,163,184,.18); }
+.fl-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; align-items: center; }
+.fl-btn { font-size: 15px; padding: 10px 16px; border-radius: 12px; display: inline-flex; align-items: center; gap: 7px; }
+.fl-sel { font-size: 15px; padding: 10px 12px; border-radius: 12px; min-width: 180px; }
+.fl-wrap { flex: 1; min-height: 0; display: flex; padding: 16px 16px 16px 16px; }
+#finBody { padding: 0 18px 0 8px; }
+.fl-blk { max-width: 860px; margin: 0 auto 26px; }
+.fl-h { font-size: 20px; font-weight: 800; color: #f8fafc; padding-bottom: 8px; margin-bottom: 4px; border-bottom: 1px solid rgba(148,163,184,.25); }
+.fl-h span { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #94a3b8; margin-right: 10px; }
+.fl-sub { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #94a3b8; margin: 14px 0 2px; }
+.fl-line { display: grid; grid-template-columns: minmax(0,1fr) 190px 190px; gap: 12px; align-items: baseline; padding: 10px 2px; border-bottom: 1px solid rgba(148,163,184,.09); font-size: 17px; }
+.fl-line.fl-g { grid-template-columns: minmax(0,1fr) auto; }
+.fl-c { color: #e2e8f0; min-width: 0; } .fl-c small { display: block; font-size: 13px; color: #94a3b8; margin-top: 2px; line-height: 1.4; }
+.fl-v { color: #94a3b8; font-size: 14px; text-align: right; white-space: nowrap; } .fl-v b { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 17px; font-weight: 600; color: #f1f5f9; }
+.fl-tot2 { border-top: 1px solid rgba(148,163,184,.4); border-bottom: 0; margin-top: 4px; } .fl-tot2 .fl-c { font-weight: 800; color: #fff; } .fl-tot2 .fl-v b { font-weight: 800; color: #fff; }
+.fl-info .fl-c, .fl-info .fl-v b { color: #cbd5e1; font-weight: 500; }
+.fl-big { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin: 12px 0 6px; }
+.fl-big > div { border-radius: 14px; padding: 14px 18px; background: rgba(15,23,42,.55); border: 1px solid rgba(148,163,184,.18); }
+.fl-big span { display: block; font-size: 14px; color: #94a3b8; font-weight: 600; } .fl-big b { display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 28px; font-weight: 700; color: #f8fafc; line-height: 1.3; white-space: nowrap; }
+.fl-big .fl-main { grid-column: 1 / -1; background: rgba(30,41,59,.7); border-color: rgba(148,163,184,.35); } .fl-big .fl-main b { font-size: 38px; }
+.fl-note { font-size: 13.5px; color: #94a3b8; margin-top: 8px; line-height: 1.5; }
+.fl-empty { color: #64748b; padding: 10px 2px; font-size: 15px; }
+#finBody .logrow { font-size: 15px; padding: 7px 4px; grid-template-columns: 84px 1fr auto; } #finBody .logrow.del { grid-template-columns: 84px 1fr auto 34px; } #finBody .logrow .a { font-size: 14px; } #finBody .logrow .rm { font-size: 15px; padding: 5px; }
+#finBody .daysep { font-size: 12px; padding: 12px 2px 4px; }
+#finBody .fl-blk > .daysep:first-of-type { padding-top: 4px; }
+#sumBody .fl-line { font-size: 14px; padding: 7px 2px; grid-template-columns: minmax(0,1fr) auto auto; } #sumBody .fl-line.fl-g { grid-template-columns: minmax(0,1fr) auto; } #sumBody .fl-v b { font-size: 14px; } #sumBody .fl-v { font-size: 12px; }
+#sumBody .fl-h { font-size: 16px; } #sumBody .fl-big b { font-size: 20px; } #sumBody .fl-big .fl-main b { font-size: 26px; } #sumBody .fl-big > div { padding: 10px 12px; } #sumBody .fl-blk { margin-bottom: 18px; }
+/* v27 Código de color: entra dinero = verde, sale dinero = rojo (bitácora, Finanzas, historiales, Resumen) */
+:root { --in: #22c55e; --out: #ef4444; }
+.logrow.mi .x, .logrow.mi .a, .logrow.mi .a.up { color: var(--in) !important; } .logrow.mo .x, .logrow.mo .a, .logrow.mo .a.dn { color: var(--out) !important; }
+.logrow .a.up { color: var(--in); } .logrow .a.dn { color: var(--out); }
+.gi { color: var(--in) !important; } .ge { color: var(--out) !important; }
+.fl-in .fl-v b { color: var(--in); } .fl-out .fl-v b { color: var(--out); } .fl-out .fl-c { color: #fca5a5; }
+.fl-in.fl-tot2 .fl-c, .fl-out.fl-tot2 .fl-c { color: #fff; }
+#hvList .hv-n { color: var(--in); } #hvList .hv-head > span, #hvList .hv-row.anul .hv-n { color: #64748b; }
+#hdModal .hd-t.g { color: var(--in); } #hdModal .hd-t.r { color: var(--out); } #hdModal .hv-kpis b.g { color: var(--in); } #hdModal .hv-kpis b.r { color: var(--out); }
+/* Historial de Ventas: tabla limpia */
+#hvList .hv-row { display: grid; grid-template-columns: 74px minmax(0,1fr) 92px 120px 120px; gap: 10px; align-items: baseline; padding: 9px 4px; font-size: 15px; border-bottom: 1px solid rgba(148,163,184,.09); }
+#hvList .hv-row .t { font-family: 'JetBrains Mono', monospace; color: #94a3b8; font-size: 13px; padding: 0; }
+#hvList .hv-x { color: #e2e8f0; min-width: 0; } #hvList .hv-x small { display: block; font-size: 12.5px; color: #64748b; }
+#hvList .hv-tp { font-size: 13px; color: #94a3b8; } #hvList .hv-n { text-align: right; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+#hvList .hv-head { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid rgba(148,163,184,.35); padding-top: 2px; } #hvList .hv-head > span { color: #94a3b8 !important; font-family: Inter, system-ui, sans-serif !important; font-size: 11.5px; }
+#hvList .hv-row.anul .hv-x, #hvList .hv-row.anul .hv-n { color: #64748b; } #hvList .hv-row.anul .hv-x::after { content: ' (anulada por el Host)'; font-size: 12px; }
+
 @media (max-width: 767px) {
-  .fd-ov { padding: 8px; }
-  .fd-h1 { font-size: 20px; } .fd-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fd-k b, .fd-k.big b { font-size: 18px; }
-  .fd { overflow-y: auto; } .fd-grid { grid-template-columns: 1fr; overflow: visible; flex: none; grid-auto-rows: 70vh; scroll-snap-type: none; }
-  .fd-ab { padding: 9px 12px; font-size: 13px; } .fd-sel { min-width: 0; flex: 1; } .fd-per { flex: 1 1 100%; }
-  .fd-cb .fd-b:not(.fd-max-b) { display: none; }
+  .fl-line { grid-template-columns: 1fr 1fr; } .fl-line > .fl-c { grid-column: 1 / -1; } .fl-line > .fl-v { text-align: left; } .fl-line.fl-g { grid-template-columns: minmax(0,1fr) auto; } .fl-line.fl-g > .fl-c { grid-column: auto; } .fl-line.fl-g > .fl-v { text-align: right; } .fl-big { grid-template-columns: 1fr; } .fl-big b { font-size: 22px; } .fl-big .fl-main b { font-size: 26px; }
+  .fl-acts { justify-content: flex-start; } .fl-btn { font-size: 13px; padding: 8px 12px; }
+  #hvList .hv-row { grid-template-columns: 54px minmax(0,1fr) 96px; } #hvList .hv-tp, #hvList .hv-ne { display: none; }
 }
-.fd-k b small { font-size: .55em; font-weight: 600; color: #94a3b8; margin-left: .3em; }
-.fd-gnav { display: none; gap: 8px; }
-@media (min-width: 768px) and (max-width: 1279px), (min-width: 768px) and (max-height: 899px) { .fd-gnav { display: inline-flex; } }
-@media (prefers-reduced-motion: reduce) { .mfx .fd > * { transition: none !important; } }
 </style>
 </head>
 <body>
@@ -376,6 +314,7 @@
   <button id="finBtnHud" class="foldbtn glass pointer-events-auto" title="Finanzas" aria-label="Finanzas"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></button>
   <button id="hvBtnHud" class="foldbtn glass pointer-events-auto" title="Historial de Ventas" aria-label="Historial de Ventas"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></button>
   <button id="sumBtnHud" class="foldbtn glass pointer-events-auto" title="Último Resumen del Día" aria-label="Último Resumen del Día"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></button>
+  <button id="cleanBtn3" class="foldbtn glass pointer-events-auto" title="Pantalla limpia: ocultar todos los menús" aria-label="Pantalla limpia"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 3 11 11"/><path d="M11 11c-2-1-5 0-6 3l-2 7 7-2c3-1 4-4 3-6z"/><path d="M6 16l2 2"/></svg></button>
   <button class="foldbtn glass pointer-events-auto" data-fold="hud" title="Ocultar encabezado" aria-label="Ocultar encabezado">▴</button>
 </div>
 <button id="hudTab" class="edgetab glass fixed top-2 left-2 z-10" data-unfold="hud" title="Mostrar encabezado"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> ▾</button>
@@ -437,58 +376,21 @@
   </div>
 </div>
 
-<!-- Finanzas v25: Dashboard Maestro a pantalla completa sobre el escenario 3D (desenfocado). Cada área con su tarjeta, sus botones ▲/▼ y su TOTAL. -->
-<div id="finModal" class="fixed inset-0 z-40 hidden fd-ov">
-  <div class="fd">
-    <div class="fd-head">
-      <div class="fd-title"><div class="fd-h1">Panel Maestro de Finanzas</div><div id="fdNow" class="fd-now">—</div></div>
-      <div class="fd-per" role="group" aria-label="Periodo"><button type="button" class="btn fd-pb on" data-fdper="hoy">Hoy</button><select id="fdPerSel" class="fd-sel" aria-label="Mes o histórico"></select></div>
-      <div class="fd-acts">
-        <button type="button" class="btn fd-ab" id="hvBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg> Historial de Ventas</button>
-        <button type="button" class="btn fd-ab fd-ab-hd" id="hdBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h6"/></svg> Historial de Días Anteriores</button>
-        <button type="button" class="btn fd-ab" id="sumBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg> Resumen del Día</button>
-        <span class="fd-gnav"><button type="button" class="btn fd-ab" data-scroll="#fdGrid" data-dir="-1" title="Subir el tablero" aria-label="Subir el tablero">▲ Tablero</button><button type="button" class="btn fd-ab" data-scroll="#fdGrid" data-dir="1" title="Bajar el tablero" aria-label="Bajar el tablero">▼ Tablero</button></span>
-        <button type="button" class="btn fd-ab fd-close" id="finClose" aria-label="Cerrar finanzas"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg> Cerrar</button>
+<!-- Finanzas v26: modal amplio y centrado, en bloques de texto limpios (cómodo para leer y deslizar en Smart TV) -->
+<div id="finModal" class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-3">
+  <div class="glass rounded-2xl fin-card fl-card">
+    <div class="fl-top">
+      <div class="fl-ttl"><div class="text-2xl font-extrabold">Finanzas</div><div id="finSub" class="text-sm text-slate-400 mt-0.5">—</div></div>
+      <div class="fl-acts">
+        <select id="finPerSel" class="fl-sel" aria-label="Periodo"></select>
+        <button type="button" class="btn fl-btn" id="hvBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg> Historial de Ventas</button>
+        <button type="button" class="btn fl-btn" id="hdBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h6"/></svg> Historial de Días Anteriores</button>
+        <button type="button" class="btn fl-btn" id="sumBtnFin"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg> Resumen del Día</button>
+        <button type="button" class="btn fl-btn" id="finClose" aria-label="Cerrar finanzas">Cerrar</button>
       </div>
     </div>
-    <div id="fdKpis" class="fd-kpis"></div>
-    <div id="fdGrid" class="fd-grid lscroll">
-      <section class="fd-card fd-g" data-card="ing">
-        <header class="fd-ch"><div class="fd-ct"><span class="fd-dot"></span><div><h3>Ingresos</h3><div class="fd-cs" id="fdIngSub">Ventas cobradas por rubro</div></div></div>
-          <div class="fd-cb"><button type="button" class="btn fd-b" data-scroll="#fdIng" data-dir="-1" title="Subir" aria-label="Subir">▲</button><button type="button" class="btn fd-b" data-scroll="#fdIng" data-dir="1" title="Bajar" aria-label="Bajar">▼</button><button type="button" class="btn fd-b fd-max-b" data-fdmax="ing" title="Ampliar esta sección a toda la pantalla" aria-label="Ampliar">⤢</button></div></header>
-        <div id="fdIng" class="fd-body lscroll"></div>
-        <footer id="fdIngTot" class="fd-foot"></footer>
-      </section>
-      <section class="fd-card fd-r" data-card="egr">
-        <header class="fd-ch"><div class="fd-ct"><span class="fd-dot"></span><div><h3>Gastos</h3><div class="fd-cs" id="fdEgrSub">Pagos del periodo por categoría</div></div></div>
-          <div class="fd-cb"><button type="button" class="btn fd-b" data-scroll="#fdEgr" data-dir="-1" title="Subir" aria-label="Subir">▲</button><button type="button" class="btn fd-b" data-scroll="#fdEgr" data-dir="1" title="Bajar" aria-label="Bajar">▼</button><button type="button" class="btn fd-b fd-max-b" data-fdmax="egr" title="Ampliar esta sección a toda la pantalla" aria-label="Ampliar">⤢</button></div></header>
-        <div id="fdEgr" class="fd-body lscroll"></div>
-        <footer id="fdEgrTot" class="fd-foot"></footer>
-      </section>
-      <section class="fd-card fd-n" data-card="con">
-        <header class="fd-ch"><div class="fd-ct"><span class="fd-dot"></span><div><h3>Conciliación y Caja</h3><div class="fd-cs" id="fdConSub">Entradas vs. gastos y verificación</div></div></div>
-          <div class="fd-cb"><button type="button" class="btn fd-b" data-scroll="#fdCon" data-dir="-1" title="Subir" aria-label="Subir">▲</button><button type="button" class="btn fd-b" data-scroll="#fdCon" data-dir="1" title="Bajar" aria-label="Bajar">▼</button><button type="button" class="btn fd-b fd-max-b" data-fdmax="con" title="Ampliar esta sección a toda la pantalla" aria-label="Ampliar">⤢</button></div></header>
-        <div id="fdCon" class="fd-body lscroll"></div>
-        <footer id="fdConTot" class="fd-foot"></footer>
-      </section>
-      <section class="fd-card fd-a" data-card="proj">
-        <header class="fd-ch"><div class="fd-ct"><span class="fd-dot"></span><div><h3>Proyectos Activos</h3><div class="fd-cs" id="fdProjSub">Anticipo 50% · liquidación 50%</div></div></div>
-          <div class="fd-cb"><button type="button" class="btn fd-b" data-scroll="#fdProj" data-dir="-1" title="Subir" aria-label="Subir">▲</button><button type="button" class="btn fd-b" data-scroll="#fdProj" data-dir="1" title="Bajar" aria-label="Bajar">▼</button><button type="button" class="btn fd-b fd-max-b" data-fdmax="proj" title="Ampliar esta sección a toda la pantalla" aria-label="Ampliar">⤢</button></div></header>
-        <div id="fdProj" class="fd-body lscroll"></div>
-        <footer id="fdProjTot" class="fd-foot"></footer>
-      </section>
-      <section class="fd-card fd-v" data-card="inv">
-        <header class="fd-ch"><div class="fd-ct"><span class="fd-dot"></span><div><h3>Inventario · Bodega</h3><div class="fd-cs" id="fdInvSub">Existencias y resurtidos</div></div></div>
-          <div class="fd-cb"><button type="button" class="btn fd-b" data-scroll="#fdInv" data-dir="-1" title="Subir" aria-label="Subir">▲</button><button type="button" class="btn fd-b" data-scroll="#fdInv" data-dir="1" title="Bajar" aria-label="Bajar">▼</button><button type="button" class="btn fd-b fd-max-b" data-fdmax="inv" title="Ampliar esta sección a toda la pantalla" aria-label="Ampliar">⤢</button></div></header>
-        <div id="fdInv" class="fd-body lscroll"></div>
-        <footer id="fdInvTot" class="fd-foot"></footer>
-      </section>
-      <section class="fd-card fd-s" data-card="log">
-        <header class="fd-ch"><div class="fd-ct"><span class="fd-dot"></span><div><h3>Bitácora Financiera</h3><div class="fd-cs" id="finLogSub">Movimientos de dinero</div></div></div>
-          <div class="fd-cb"><button type="button" class="btn fd-b" data-scroll="#finLog" data-dir="-1" title="Subir" aria-label="Subir">▲</button><button type="button" class="btn fd-b" data-scroll="#finLog" data-dir="1" title="Bajar" aria-label="Bajar">▼</button><button type="button" class="btn fd-b fd-max-b" data-fdmax="log" title="Ampliar esta sección a toda la pantalla" aria-label="Ampliar">⤢</button></div></header>
-        <div id="finLogBar" class="fd-logbar"></div><div id="finLog" class="fd-body lscroll"></div>
-        <footer id="finLogTot" class="fd-foot"></footer>
-      </section>
+    <div class="fl-wrap">
+      <div class="sc-wrap"><div class="sc-btns"><button type="button" class="btn sc-b" data-scroll="#finBody" data-dir="-1">▲ Subir</button><button type="button" class="btn sc-b" data-scroll="#finBody" data-dir="1">▼ Bajar</button></div><div id="finBody" class="fin-scroll lscroll"></div></div>
     </div>
   </div>
 </div>
@@ -1069,7 +971,6 @@ var BUSINESSES = [
   "Muebler\xEDa Roma Vintage",
   "Cl\xEDnica est\xE9tica Polanco"
 ];
-var ING_CATS = { mostrador: "Mostrador y papeler\xEDa", comercial: "Impresi\xF3n comercial y promocionales", bandas: "Merch de Bandas", periodico: "Peri\xF3dico Estudiantil", snacks: "Refrescos y Snacks", admin: "Ingresos manuales del Host", ajuste: "Ajuste del total del d\xEDa" };
 var EGR_CATS = {
   nomina: "N\xF3mina",
   extras: "Horas extra y primas",
@@ -2569,7 +2470,9 @@ function createOrder(s, rng, kind, opts = {}) {
   if (kind === "banda") s.counters.pedidosBanda++;
   else s.counters.pedidosComerciales++;
   const via = kind === "banda" ? "" : rng.pick([" (por WhatsApp)", " (en mostrador)", " (por correo)", " (cliente recomendado por Sara)"]);
-  const cobrado = income(s, cat, anticipo, `Anticipo 50% - ${client}${opts.masivo ? " (pedido masivo)" : ""}`, kind === "banda" ? "band" : "in");
+  const quien = `${kind === "banda" ? "Pedido de" : "Pedido corporativo de"} ${client}${opts.masivo ? " (pedido masivo)" : ""}`;
+  const qtxt = `Anticipo 50% \xB7 ${quien}: ${desc}`.slice(0, 150);
+  const cobrado = income(s, cat, anticipo, qtxt, kind === "banda" ? "band" : "in");
   tagLog(s, oid);
   let est = 0;
   for (const l of lines) for (const st of l.steps) for (const [id, q] of Object.entries(st.need || {})) if (INV[id]) est += q * INV[id].unitCost;
@@ -2578,7 +2481,7 @@ function createOrder(s, rng, kind, opts = {}) {
   o.matUsed = 0;
   o.matRec = r3(est / 2);
   recCogs(s, ordRubro(o), o.matRec);
-  o.hvA = venta(s, cat, `Anticipo 50% - ${client}${opts.masivo ? " (pedido masivo)" : ""}: ${o.desc}`, cobrado, o.matRec, "Anticipo 50% \xB7 en producci\xF3n", { o: oid, total });
+  o.hvA = venta(s, cat, qtxt, cobrado, o.matRec, "Anticipo 50% \xB7 en producci\xF3n", { o: oid, total });
   return o;
 }
 function createPeriodico(s, t) {
@@ -2683,10 +2586,10 @@ function deliverOrder(s, o, rng) {
   if (rest > 0) {
     const half = money(o.total / 2) === rest;
     const cat = o.kind === "banda" ? "bandas" : "comercial";
-    const txt = `${half ? "Liquidaci\xF3n 50% (Entrega)" : "Liquidaci\xF3n del saldo (Entrega)"} - ${o.client}`;
+    const txt = `${half ? "Liquidaci\xF3n 50% (Entrega)" : "Liquidaci\xF3n del saldo (Entrega)"} \xB7 ${o.kind === "banda" ? "Pedido de" : "Pedido corporativo de"} ${o.client}${o.desc ? ": " + o.desc : ""}`.slice(0, 150);
     const cobrado = income(s, cat, rest, txt, o.kind === "banda" ? "band" : "in");
     tagLog(s, o.id);
-    venta(s, cat, `${txt}: ${o.desc || ""}`, cobrado, adj, "Liquidado \xB7 entregado", { o: o.id, total: o.total });
+    venta(s, cat, txt, cobrado, adj, "Liquidado \xB7 entregado", { o: o.id, total: o.total });
   } else log(s, `Pedido entregado (ya estaba liquidado) - ${o.client}`, null, "info");
   o.paid = money(o.paid + rest);
   o.liq = rest;
@@ -3558,8 +3461,9 @@ function customers(s, t, rng, lunch, fx2) {
     return;
   }
   s.day.ventas = money(s.day.ventas + total);
-  const cobrado = income(s, "mostrador", total, "Venta en mostrador", "in");
-  venta(s, "mostrador", `Venta en mostrador - ${who}: ${items.filter((x) => x[0] !== "(").join(", ") || "varios"}`, cobrado, cogsOf(s, "mostrador") - cog0, "Pagada");
+  const vtxt = `Venta de mostrador: ${items.filter((x) => x[0] !== "(").join(", ") || "varios"}`.slice(0, 150);
+  const cobrado = income(s, "mostrador", total, vtxt, "in");
+  venta(s, "mostrador", vtxt, cobrado, cogsOf(s, "mostrador") - cog0, "Pagada");
   if (ricoh) s.machines.m3.busyUntil = Math.max(s.machines.m3.busyUntil, s.minute + Math.ceil(ricoh / 50));
   const cid = cajera(s) || "natasha";
   const n = s.emps[cid];
@@ -3576,8 +3480,8 @@ function buySnack(s, rng, who) {
   const cog0 = cogsOf(s, "snacks");
   withRubro("snacks", () => take(s, id, 1, rng));
   const sk = SNACKS[id];
-  const cobrado = income(s, "snacks", rng.money(sk.min, sk.max), "Compra en estante", "snack");
-  venta(s, "snacks", `Compra en estante - ${who || "cliente"}: ${sk.name}`, cobrado, cogsOf(s, "snacks") - cog0, "Pagada");
+  const cobrado = income(s, "snacks", rng.money(sk.min, sk.max), `Venta de snacks: ${sk.name}`, "snack");
+  venta(s, "snacks", `Venta de snacks: ${sk.name}`, cobrado, cogsOf(s, "snacks") - cog0, "Pagada");
   return id;
 }
 function inflow(s, t, rng) {
@@ -3849,8 +3753,8 @@ function adminCash(s, mode, amount) {
   log(s, "Ajuste de capital del Host", delta, "admin", s.minute, "admin");
 }
 var CAT_TXT = [
-  [/^Venta en mostrador/, "mostrador"],
-  [/^Compra en estante/, "snacks"],
+  [/^Venta (en|de) mostrador/, "mostrador"],
+  [/^(Compra en estante|Venta de snacks)/, "snacks"],
   [/Periódico/, "periodico"],
   [/^(Nuevo pedido|Pedido masivo|Pedido entregado)/, null],
   [/^Compra de material/, "insumos"],
@@ -5891,6 +5795,8 @@ function installTvFallback(root = document.body) {
 // src/main.js
 var $ = (s) => document.querySelector(s);
 var esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+var txtPub = (t) => String(t || "").replace(/^Venta en mostrador - [^:]*: /, "Venta de mostrador: ").replace(/^Venta en mostrador$/, "Venta de mostrador").replace(/^Compra en estante - [^:]*: /, "Venta de snacks: ").replace(/^Compra en estante$/, "Venta de snacks").replace(/^(Anticipo 50%|Liquidación 50% \(Entrega\)|Liquidación del saldo \(Entrega\)) - /, "$1 \xB7 Pedido de ");
+var mcls = (amt) => typeof amt === "number" && amt ? amt > 0 ? " mi" : " mo" : "";
 var store = new LocalStore();
 var S = null;
 var role = "spectator";
@@ -6309,7 +6215,7 @@ var lastRender = 0;
 function frame(ts) {
   const now = Date.now();
   hostStep(now);
-  const draw = ts - lastRender >= (finOpen() ? 250 : 32);
+  const draw = ts - lastRender >= 32;
   const dt = Math.min(0.1, (ts - lastFrame) / 1e3);
   if (draw) {
     lastFrame = ts;
@@ -6490,7 +6396,7 @@ function renderPanel(force = false) {
       }
       const amt = typeof l.amt === "number" && l.amt !== 0 ? `<span class="a ${l.amt > 0 ? "up" : "dn"}">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>` : '<span class="a"></span>';
       const rm = canDel ? `<button class="rm" data-del="${i}" data-m="${l.m}" title="Borrar este registro" aria-label="Borrar registro">${ICON.trash}</button>` : "";
-      html += `<div class="logrow k-${l.k}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(l.txt)}</span>${amt}${rm}</div>`;
+      html += `<div class="logrow k-${l.k}${mcls(l.amt)}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(txtPub(l.txt))}</span>${amt}${rm}</div>`;
     }
     body.innerHTML = html;
     return;
@@ -6639,112 +6545,25 @@ function invHTML() {
   return h;
 }
 var acctSel = null;
-function kpi2(bruta, neta, big = false) {
-  const sz = big ? "text-lg" : "text-base";
-  return `<div class="grid grid-cols-2 gap-2 text-center kpi2">
-    <div class="rounded-xl bg-emerald-500/10 p-3"><div class="text-[11px] text-slate-400 uppercase tracking-wide">Ganancia Bruta (Venta Total)</div><div class="font-mono font-bold text-emerald-300 ${sz}">${fmtMXN(bruta)} MXN</div></div>
-    <div class="rounded-xl ${neta >= 0 ? "bg-sky-500/10" : "bg-rose-500/10"} p-3"><div class="text-[11px] text-slate-400 uppercase tracking-wide">Ganancia Neta (Ganancia Real)</div><div class="font-mono font-bold ${neta >= 0 ? "text-sky-300" : "text-rose-300"} ${sz}">${fmtMXN(neta)} MXN</div></div></div>`;
-}
-var EGR_GRUPOS = [
-  ["N\xF3mina Quincenal", ["nomina"]],
-  ["Comida semanal de Julia (viernes)", ["comida"]],
-  ["Servicios e Impuestos", ["luz", "internet", "licencias", "marketing", "envios", "servicios", "gasolina", "sat", "cofepris"]],
-  ["Horas Extras y Cenas de Velada", ["extras", "cenas"]],
-  ["Gastos Hormiga", ["hormiga"]],
-  ["Compras por Reabastecimiento de Bodega (al 20% \u2192 100%)", ["insumos"]],
-  ["Otros (mantenimiento, cocina, bonos y ajustes del Host)", ["mantto", "cocina", "bonos", "admin", "ajuste"]]
-];
-function breakHTML(p, { mat: mat2 = null, matTitle = "Materiales e Insumos Usados Hoy" } = {}) {
-  const f = finBreak(p);
-  const egr = p.egr || {};
-  const m = (v) => `${fmtMXN(v)}`;
-  let h = `<div class="mb-2">${kpi2(f.bruta, f.neta, true)}</div>`;
-  h += `<div class="fb-title">Ingresos y Utilidad por Rubro</div><table class="fb-tab"><thead><tr><th>Rubro</th><th>Bruta</th><th>Material</th><th>Neta</th></tr></thead><tbody>`;
-  const neg2 = (v) => v > 0 ? "\u2212" + m(v) : m(0);
-  for (const r2 of f.rub) h += `<tr><td>${r2.name}</td><td class="g">${m(r2.bruta)}</td><td class="r">${f.baseCaja ? "\u2014" : neg2(r2.mat)}</td><td class="n">${f.baseCaja ? "\u2014" : m(r2.neta)}</td></tr>`;
-  if (f.otros) h += `<tr><td>Otros ingresos (Host / ajustes)</td><td class="g">${m(f.otros)}</td><td class="r">\u2014</td><td class="n">${m(f.otros)}</td></tr>`;
-  if (!f.baseCaja && f.matGen) h += `<tr><td>Insumos generales (empaque, limpieza, cocina)</td><td class="g">\u2014</td><td class="r">${neg2(f.matGen)}</td><td class="n">${neg2(f.matGen)}</td></tr>`;
-  h += `</tbody></table>`;
-  h += `<div class="fb-total"><div><span>Ganancia Bruta Total</span><b class="g">${m(f.bruta)} MXN</b></div>
-    <div><span>\u2212 Costo de materiales e insumos usados${f.baseCaja ? " (base caja: compras del periodo)" : p.insumosPre ? " (incluye compras previas a esta versi\xF3n)" : ""}</span><b class="r">${neg2(f.costoMat)} MXN</b></div>
-    <div><span>\u2212 Gastos operativos del negocio</span><b class="r">${neg2(f.opex)} MXN</b></div>
-    <div class="fin"><span>Ganancia Neta Real Total</span><b class="${f.neta >= 0 ? "n" : "r"}">${m(f.neta)} MXN</b></div></div>`;
-  h += `<div class="fb-title">Gastos por Categor\xEDa</div>`;
-  for (const [name, cats] of EGR_GRUPOS) {
-    const tot = cats.reduce((x, c) => x + (egr[c] || 0), 0);
-    h += `<div class="fb-grp"><div class="fb-gh"><span>${name}</span><b>${m(tot)}</b></div>`;
-    if (cats.length > 1) {
-      for (const c of cats) if (egr[c]) h += `<div class="fb-gi"><span>${esc(EGR_CATS[c] || c)}</span><b>${m(egr[c])}</b></div>`;
-    }
-    h += `</div>`;
-  }
-  h += `<div class="fb-note">Total pagado: <b>${m(f.egrTot)} MXN</b> \xB7 Flujo de caja (ingresos \u2212 todos los pagos): <b>${m(f.bruta - f.egrTot)} MXN</b>. Lo comprado para bodega se invierte en inventario: en la Ganancia Neta cuenta el material que realmente se us\xF3, para no restarlo dos veces.</div>`;
-  if (mat2) {
-    const items = Object.entries(mat2).filter(([id, q]) => INV[id] && q > 0).map(([id, q]) => ({ it: INV[id], q, c: q * INV[id].unitCost })).sort((a, b) => b.c - a.c);
-    const tot = items.reduce((x, i) => x + i.c, 0);
-    h += `<div class="fb-title">${matTitle} <span class="fb-sub">(descontado de Bodega en tiempo real)</span></div>`;
-    if (!items.length) h += '<div class="text-xs text-slate-500">Todav\xEDa no se ha usado material en esta jornada.</div>';
-    else {
-      h += `<table class="fb-tab"><thead><tr><th>Material</th><th>Usado</th><th>% lote</th><th>Costo</th></tr></thead><tbody>`;
-      for (const i of items) {
-        const qtxt = i.it.unit === "%" ? `${i.q.toFixed(2)}%` : `${fmtNum(Math.round(i.q * 100) / 100)} ${i.it.unit}`;
-        h += `<tr><td>${esc(i.it.name)}</td><td>${qtxt}</td><td>${(i.q / i.it.lot * 100).toFixed(1)}%</td><td class="r">${m(money(i.c))}</td></tr>`;
-      }
-      h += `</tbody></table><div class="fb-note">Costo total de material usado: <b>${m(money(tot))} MXN</b></div>`;
-    }
-  }
-  return h;
-}
 var todayP = () => {
   const L = S.dayLedger || {};
   return { ing: L.ing || {}, egr: L.egr || {}, cogs: L.cogs || (L.ing ? {} : null), insumosPre: L.insumosPre || 0 };
 };
 function acctHTML() {
-  const months = Object.keys(S.acct).sort().reverse();
-  if (!acctSel || acctSel !== "total" && !S.acct[acctSel]) acctSel = months[0] || "total";
-  const a = acctSel === "total" ? { ing: S.totals.ing, egr: S.totals.egr, merma: S.totals.merma, cogs: S.totals.cogs || null, insumosPre: S.totals.insumosPre || 0 } : S.acct[acctSel];
-  const row = (k, v, c) => `<div class="flex text-xs py-1 border-b border-slate-700/30"><span class="flex-1 text-slate-300">${k}</span><span class="font-mono ${c}">${fmtMXN(v)}</span></div>`;
-  let h = `<div class="text-[11px] text-slate-400 uppercase mb-1">Hoy (desde el \xFAltimo Resumen del D\xEDa)</div>`;
-  h += `<div class="cobrar-box mb-2"><div class="cobrar-lbl">Total por Cobrar (Saldos 50% Pendientes)</div><div class="cobrar-val">${fmtMXN(porCobrar(S))} MXN</div></div><div class="text-[11px] text-slate-500 mb-2">Caja actual ${fmtMXN(S.cash)} MXN</div>`;
-  const tp = todayP();
-  h += concilHTML(tp, "hoy" + (S.dayLedger && S.dayLedger.from || 0), "Conciliaci\xF3n de hoy: Entradas vs. Gastos");
-  h += verifHTML(tp, todayCash0(), S.cash);
-  h += breakHTML(tp, { mat: S.dayLedger && S.dayLedger.mat || {} });
-  h += `<div class="fb-sep"></div><div class="flex gap-2 items-center mb-3"><select id="acctSel" class="flex-1">${months.map((m) => `<option value="${m}" ${m === acctSel ? "selected" : ""}>${MES[+m.slice(5) - 1]} ${m.slice(0, 4)}</option>`).join("")}<option value="total" ${acctSel === "total" ? "selected" : ""}>Hist\xF3rico total</option></select></div>`;
-  h += concilHTML(a, acctSel === "total" ? "total" : "m" + acctSel, `Conciliaci\xF3n de ${acctSel === "total" ? "toda la partida" : MES[+acctSel.slice(5) - 1] + " " + acctSel.slice(0, 4)}: Entradas vs. Gastos`);
-  if (acctSel === "total") h += verifHTML(a, CAPITAL_INICIAL, S.cash, { ini: "Capital inicial de la partida" });
-  h += breakHTML(a);
-  h += row("Mermas (valor de insumo destruido, ya incluido en el material usado)", a.merma || 0, "text-rose-300/70 italic");
-  if (acctSel !== "total") {
-    h += `<div class="font-bold text-sm mt-3 mb-1">Fiscal del mes</div>${row("IVA cobrado", a.ivaC, "text-slate-200")}${row("IVA acreditable", a.ivaA, "text-slate-200")}${row("Base gravable estimada (ISR)", Math.max(0, a.ingNeto - a.deducible), "text-slate-200")}`;
-  }
-  const staff = EMPLOYEES.filter((e) => e.payroll);
-  const C = S.cfg || CFG_DEFAULT;
-  const ot = staff.reduce((x, e) => x + S.emps[e.id].otQ, 0);
-  const t = cdmx(S.minute * MIN);
-  const nextPay = t.day < 15 || t.day === 15 && t.mod < 18 * 60 ? `15/${t.mo}` : `${t.lastDay}/${t.mo}`;
-  h += `<div class="font-bold text-sm mt-3 mb-1">Pr\xF3ximos compromisos</div>
-    ${row(`N\xF3mina ${nextPay} (base + extras acumuladas)`, staff.length * C.sueldo + ot, "text-amber-300")}
-    <div class="text-[11px] text-slate-500 mt-1">SAT e IMSS: d\xEDa 17 \xB7 CFE ${fmtMXN(C.cfeMin)}\u2013${fmtMXN(C.cfeMax)}: d\xEDa 5 \xB7 Internet ${fmtMXN(C.internet)} y agua: d\xEDa 8 \xB7 Licencias ${fmtMXN(C.licencias)}: d\xEDa 1 \xB7 Comida de Julia ${fmtMXN(C.julia)}: viernes \xB7 Anuncios ${fmtMXN(C.adsMin)}\u2013${fmtMXN(C.adsMax)}: martes \xB7 Peri\xF3dico Estudiantil (+$50,000): d\xEDa 10.</div>
-    <div class="text-[11px] text-slate-500 mt-2">Capital inicial ${fmtMXN(CAPITAL_INICIAL)} \xB7 Caja hoy ${fmtMXN(S.cash)} \xB7 Variaci\xF3n ${fmtMXN(S.cash - CAPITAL_INICIAL)}</div>`;
-  return h;
+  return finContentHTML();
 }
 var finKey = "";
-var finOpsKey = "";
-var finOpsAt = 0;
 var finPer = "hoy";
-var finMax = "";
 var finOpen = () => {
   const m = $("#finModal");
   return !!m && !m.classList.contains("hidden");
 };
 function finLogHTML() {
   const canDel = role === "host";
-  const T = TACH();
   let h = "";
   let n = 0;
   let lastDay = "";
-  let tach = 0, tot = 0, inn = 0, out = 0;
+  let inn = 0, out = 0;
   for (let i = S.log.length - 1; i >= 0 && n < 200; i--) {
     const l = S.log[i];
     if (!logCat(l) || !l.amt) continue;
@@ -6755,210 +6574,105 @@ function finLogHTML() {
       h += `<div class="daysep">${DOW[t.dow]} ${t.day} de ${MES[t.mo - 1]}</div>`;
     }
     const rm = canDel ? `<button class="rm" data-del="${i}" data-m="${l.m}" title="Borrar y revertir en caja" aria-label="Borrar y revertir">${ICON.trash}</button>` : "";
-    const tk = logTachKey(l);
-    const on = !!T[tk];
-    const v = Math.abs(l.amt);
-    tot += v;
-    if (on) tach += v;
-    if (l.amt > 0) inn += v;
-    else out += v;
-    h += `<div class="logrow tk k-${l.k}${canDel ? " del" : ""}${on ? " tachado" : ""}">${tchBtn(tk, on)}<span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(l.txt)}</span><span class="a ${l.amt > 0 ? "up" : "dn"}">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>${rm}</div>`;
+    if (l.amt > 0) inn += l.amt;
+    else out -= l.amt;
+    h += `<div class="logrow${mcls(l.amt)}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(txtPub(l.txt))}</span><span class="a">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>${rm}</div>`;
   }
-  finLogHTML.bar = n ? tachBar(money(tach), money(tot), `${n} movimientos \xB7 `) : "";
-  finLogHTML.n = n;
-  finLogHTML.inn = money(inn);
-  finLogHTML.out = money(out);
-  return h || '<div class="text-slate-500 p-3">Sin movimientos de dinero en la bit\xE1cora.</div>';
+  if (!n) return '<div class="fl-empty">Sin movimientos de dinero en la bit\xE1cora.</div>';
+  return h + `<div class="fl-line fl-tot2"><span class="fl-c">Total de los ${n} movimientos mostrados</span><span class="fl-v">Entradas: <b class="gi">+${fmtMXN(money(inn))}</b></span><span class="fl-v">Salidas: <b class="ge">\u2212${fmtMXN(money(out))}</b></span></div>`;
 }
 function finPeriod() {
   const months = Object.keys(S.acct || {}).sort().reverse();
   if (finPer !== "hoy" && finPer !== "total" && !S.acct[finPer]) finPer = "hoy";
-  if (finPer === "hoy") return { id: "hoy", months, p: todayP(), pid: "hoy" + (S.dayLedger && S.dayLedger.from || 0), label: "Hoy", mat: S.dayLedger && S.dayLedger.mat || {}, merma: 0 };
-  if (finPer === "total") return { id: "total", months, p: { ing: S.totals.ing, egr: S.totals.egr, merma: S.totals.merma, cogs: S.totals.cogs || null, insumosPre: S.totals.insumosPre || 0 }, pid: "total", label: "Hist\xF3rico total", mat: null, merma: S.totals.merma || 0 };
+  if (finPer === "hoy") return { id: "hoy", months, p: todayP(), label: "Hoy", mat: S.dayLedger && S.dayLedger.mat || {}, merma: 0 };
+  if (finPer === "total") return { id: "total", months, p: { ing: S.totals.ing, egr: S.totals.egr, merma: S.totals.merma, cogs: S.totals.cogs || null, insumosPre: S.totals.insumosPre || 0 }, label: "Hist\xF3rico total", mat: null, merma: S.totals.merma || 0 };
   const a = S.acct[finPer];
-  return { id: finPer, months, p: a, pid: "m" + finPer, label: `${MES[+finPer.slice(5) - 1]} ${finPer.slice(0, 4)}`, mat: null, merma: a.merma || 0, mes: a };
+  return { id: finPer, months, p: a, label: `${MES[+finPer.slice(5) - 1]} ${finPer.slice(0, 4)}`, mat: null, merma: a.merma || 0, mes: a };
 }
-var fdRow = (k, v, cls = "", sub = "") => `<div class="fd-row"><span>${k}${sub ? `<small>${sub}</small>` : ""}</span><b class="${cls}">${v}</b></div>`;
-var fdSubRow = (k, v) => `<div class="fd-row sub"><span>${k}</span><b>${v}</b></div>`;
-var fdTot = (k, v, cls = "") => `<div class="fd-row tot"><span>${k}</span><b class="${cls}">${v}</b></div>`;
-var fdTr = (k, v, cls = "", main = false) => `<div class="fd-tr${main ? " main" : ""}"><span>${k}</span><b class="${cls}">${v}</b></div>`;
-var mx = (v) => `${fmtMXN(money(v))} MXN`;
-var neg = (v) => v > 0 ? "\u2212" + fmtMXN(v) : fmtMXN(0);
-function projTotals() {
-  const os = Object.values(S.orders || {});
-  let total = 0, paid = 0, pend = 0, bandas = 0, prod = 0, listo = 0;
-  for (const o of os) {
-    const t = o.total || 0;
-    const pg = Math.min(t, o.paid || 0);
-    total += t;
-    paid += pg;
-    pend += Math.max(0, t - pg);
-    if (o.kind === "banda") bandas++;
-    if (o.st === "listo") listo++;
-    else prod++;
-  }
-  return { n: os.length, total: money(total), paid: money(paid), pend: money(pend), bandas, prod, listo };
-}
-function fdKpisHTML(per, f) {
-  const pt = projTotals();
-  const flujo = money(f.bruta - f.egrTot);
-  const k = (cls, l, v, sub, big = false) => `<div class="fd-k ${cls}${big ? " big" : ""}" title="${esc(sub)}"><span>${l}</span><b>${String(v).replace(/ MXN$/, "<small>MXN</small>")}</b><i>${sub}</i></div>`;
-  return k("kg", "Ganancia Bruta", mx(f.bruta), `${per.label} \xB7 venta total cobrada`, true) + k(f.neta >= 0 ? "kn" : "kneg", "Ganancia Neta", `${f.neta < 0 ? "\u2212" : ""}${mx(Math.abs(f.neta))}`, `${per.label} \xB7 ${f.baseCaja ? "bruta \u2212 compras \u2212 gastos (base caja)" : "bruta \u2212 material usado \u2212 gastos"}`, true) + k("kr", "Gastos totales", mx(f.egrTot), `Operativos ${fmtMXN(f.opex)} \xB7 bodega ${fmtMXN(f.compras)}`) + k(flujo >= 0 ? "kf" : "kneg", "Flujo de caja", `${flujo < 0 ? "\u2212" : ""}${mx(Math.abs(flujo))}`, "Entradas \u2212 todos los pagos") + k("kc", "Caja actual", mx(S.cash), `Capital inicial ${fmtMXN(CAPITAL_INICIAL)}`) + k("ka", "Por cobrar (50%)", mx(pt.pend), `${pt.n} proyectos \xB7 ${pt.listo} listos`);
-}
-function fdIngHTML(per, f) {
-  const ing = per.p.ing || {};
-  let h = `<div class="fd-sec">Utilidad por rubro</div><table class="fd-tab"><thead><tr><th>Rubro</th><th>Bruta</th><th>Material</th><th>Neta</th></tr></thead><tbody>`;
-  for (const r2 of f.rub) h += `<tr><td>${r2.name}</td><td class="g">${fmtMXN(r2.bruta)}</td><td class="r">${f.baseCaja ? "\u2014" : neg(r2.mat)}</td><td class="n">${f.baseCaja ? "\u2014" : fmtMXN(r2.neta)}</td></tr>`;
-  if (f.otros) h += `<tr><td>Otros (Host / ajustes)</td><td class="g">${fmtMXN(f.otros)}</td><td class="r">\u2014</td><td class="n">${fmtMXN(f.otros)}</td></tr>`;
-  if (!f.baseCaja && f.matGen) h += `<tr><td>Insumos generales</td><td class="g">\u2014</td><td class="r">${neg(f.matGen)}</td><td class="n">${neg(f.matGen)}</td></tr>`;
-  const rubNeta = money(f.rub.reduce((x, r2) => x + r2.neta, 0) + f.otros - (f.baseCaja ? 0 : f.matGen));
-  h += `<tr class="tot"><td>TOTAL</td><td class="g">${fmtMXN(f.bruta)}</td><td class="r">${f.baseCaja ? "\u2014" : neg(money(f.matTot))}</td><td class="n">${f.baseCaja ? "\u2014" : fmtMXN(rubNeta)}</td></tr></tbody></table>`;
-  const rows = ordered(ing, ING_ORDEN, ING_CATS);
-  h += `<div class="fd-sec">Entradas por concepto</div>`;
-  if (!rows.length) h += '<div class="fd-empty">Sin entradas en este periodo.</div>';
-  const named = { mostrador: "Total de ventas de mostrador", comercial: "Total cobrado en proyectos (anticipos + liquidaciones)", bandas: "Total cobrado por bandas", periodico: "Total Peri\xF3dico Estudiantil", snacks: "Total de snacks y refrescos" };
-  for (const [c, name, v] of rows) h += fdRow(esc(named[c] || name), fmtMXN(v), "g", named[c] ? esc(name) : "");
-  if (rows.length) h += fdTot("TOTAL DE INGRESOS", mx(sumRows(rows)), "g");
-  if (f.baseCaja) h += '<div class="fd-note">Periodo anterior al registro de material por rubro: la neta se calcula en base caja (todas las compras cuentan como costo).</div>';
-  return h;
-}
-function fdEgrHTML(per, f) {
-  const egr = per.p.egr || {};
-  let h = "";
-  const grpName = { nomina: "Total de gastos de n\xF3mina", insumos: "Total de gastos de bodega (resurtido)", hormiga: "Total de gastos hormiga", comida: "Total comida semanal de Julia (viernes)" };
-  let any = false;
-  for (const [name, cats] of EGR_GRUPOS) {
+var ING_LBL = { mostrador: "Ventas de Mostrador", bandas: "Pedidos de Bandas (incl. Eli Noise)", proyectos: "Proyectos 50/50 y Peri\xF3dico Estudiantil", snacks: "Venta de Snacks y Refrescos" };
+var GASTO_BLOQ = [
+  ["N\xF3mina quincenal", ["nomina"]],
+  ["Horas extra y cenas de velada", ["extras", "cenas"]],
+  ["Comida de Julia (viernes)", ["comida"]],
+  ["Servicios y Ads", ["luz", "internet", "licencias", "marketing", "envios", "servicios", "gasolina"]],
+  ["Impuestos y tr\xE1mites (SAT, IMSS, COFEPRIS)", ["sat", "cofepris"]],
+  ["Resurtido de bodega al 20% (compras de insumos)", ["insumos"]],
+  ["Gastos hormiga", ["hormiga"]],
+  ["Mantenimiento, cocina, bonos y ajustes del Host", ["mantto", "cocina", "bonos", "admin", "ajuste"]]
+];
+var sgn = (v) => `${v < 0 ? "\u2212" : ""}${fmtMXN(Math.abs(v))}`;
+function finBlocksHTML(p, { extra = "" } = {}) {
+  const f = finBreak(p);
+  const egr = p.egr || {};
+  let h = '<div class="fl-blk"><div class="fl-h"><span>Bloque 1</span>Ingresos (Bruto vs. Neto)</div>';
+  for (const r2 of f.rub) h += `<div class="fl-line fl-in"><span class="fl-c">${ING_LBL[r2.k] || esc(r2.name)}</span><span class="fl-v">Bruto: <b>${fmtMXN(r2.bruta)}</b></span><span class="fl-v">Neto: <b class="${r2.neta < 0 ? "ge" : ""}">${f.baseCaja ? "\u2014" : fmtMXN(r2.neta)}</b></span></div>`;
+  if (f.otros) h += `<div class="fl-line fl-in"><span class="fl-c">Otros ingresos (Host / ajustes)</span><span class="fl-v">Bruto: <b>${fmtMXN(f.otros)}</b></span><span class="fl-v">Neto: <b>${fmtMXN(f.otros)}</b></span></div>`;
+  if (!f.baseCaja && f.matGen) h += `<div class="fl-line fl-out"><span class="fl-c">Insumos generales (empaque, limpieza, cocina)</span><span class="fl-v">Bruto: <b>\u2014</b></span><span class="fl-v">Neto: <b>${sgn(-f.matGen)}</b></span></div>`;
+  h += `<div class="fl-line fl-in fl-tot2"><span class="fl-c">Total de ingresos</span><span class="fl-v">Bruto: <b>${fmtMXN(f.bruta)}</b></span><span class="fl-v">Neto: <b>${f.baseCaja ? "\u2014" : sgn(money(f.bruta - f.costoMat))}</b></span></div>`;
+  h += `<div class="fl-note">Neto = bruto menos el material de bodega que se us\xF3 para producir esas ventas.${f.baseCaja ? " En este periodo no hay registro de material por rubro (versi\xF3n anterior)." : ""}</div></div>`;
+  h += '<div class="fl-blk"><div class="fl-h"><span>Bloque 2</span>Gastos detallados</div>';
+  const known = /* @__PURE__ */ new Set();
+  for (const [name, cats] of GASTO_BLOQ) {
+    cats.forEach((c) => known.add(c));
     const tot = money(cats.reduce((x, c) => x + (egr[c] || 0), 0));
-    const label = cats.length === 1 && grpName[cats[0]] ? grpName[cats[0]] : `Total ${name.charAt(0).toLowerCase()}${name.slice(1)}`;
-    h += `<div class="fd-sec">${esc(name)}</div>`;
-    if (cats.length > 1) {
-      for (const c of cats) if (egr[c]) {
-        h += fdSubRow(esc(EGR_CATS[c] || c), fmtMXN(egr[c]));
-        any = true;
-      }
-    }
-    if (tot) any = true;
-    h += fdRow(`<b>${esc(label)}</b>`, fmtMXN(tot), tot ? "r" : "");
+    const det = cats.length > 1 ? cats.filter((c) => egr[c]).map((c) => `${esc(EGR_CATS[c] || c)} ${fmtMXN(egr[c])}`).join(" \xB7 ") : "";
+    h += `<div class="fl-line fl-g${tot ? " fl-out" : ""}"><span class="fl-c">${name}${det ? `<small>${det}</small>` : ""}</span><span class="fl-v"><b>${tot ? "\u2212" : ""}${fmtMXN(tot)}</b></span></div>`;
   }
-  const known = new Set(EGR_GRUPOS.flatMap(([, c]) => c));
-  const extra = Object.entries(egr).filter(([c, v]) => !known.has(c) && v);
-  if (extra.length) {
-    h += '<div class="fd-sec">Otros conceptos</div>';
-    for (const [c, v] of extra) h += fdRow(esc(EGR_CATS[c] || c), fmtMXN(v), "r");
-  }
-  h += fdTot("TOTAL DE GASTOS", mx(f.egrTot), "r");
-  if (!any) h = '<div class="fd-empty">Sin gastos en este periodo.</div>' + h;
-  h += `<div class="fd-note">Operativos <b>${mx(f.opex)}</b> + compras de bodega <b>${mx(f.compras)}</b>. Lo comprado para bodega se invierte en inventario: en la Ganancia Neta cuenta el material que realmente se us\xF3 (<b>${mx(f.costoMat)}</b>), para no restarlo dos veces.</div>`;
+  for (const [c, v] of Object.entries(egr)) if (!known.has(c) && v) h += `<div class="fl-line fl-g fl-out"><span class="fl-c">${esc(EGR_CATS[c] || c)}</span><span class="fl-v"><b>\u2212${fmtMXN(v)}</b></span></div>`;
+  h += `<div class="fl-line fl-g fl-out fl-tot2"><span class="fl-c">Total de gastos pagados</span><span class="fl-v"><b>\u2212${fmtMXN(f.egrTot)}</b></span></div>`;
+  h += `<div class="fl-line fl-g fl-info"><span class="fl-c">Costo de insumos de bodega usados en producci\xF3n${f.baseCaja ? " (base caja: compras del periodo)" : p.insumosPre ? " (incluye compras previas)" : ""}<small>Informativo: es el material que sali\xF3 de Bodega; se resta en el Neto, no es un pago extra.</small></span><span class="fl-v"><b>${fmtMXN(f.costoMat)}</b></span></div></div>`;
+  const saldo = money(f.bruta - f.egrTot);
+  h += `<div class="fl-blk"><div class="fl-h"><span>Bloque 3</span>Totales: el balance final</div><div class="fl-big">
+    <div><span>Total de Ingresos</span><b class="gi">${fmtMXN(f.bruta)} MXN</b></div>
+    <div><span>Total de Gastos</span><b class="ge">\u2212${fmtMXN(f.egrTot)} MXN</b></div>
+    <div><span>Saldo (Ingresos \u2212 Gastos)</span><b class="${saldo < 0 ? "ge" : "gi"}">${sgn(saldo)} MXN</b></div>
+    <div class="fl-main"><span>Ganancia Neta Total</span><b class="${f.neta < 0 ? "ge" : "gi"}">${sgn(f.neta)} MXN</b></div></div>
+    <div class="fl-note">Ganancia Neta Total = Ingresos \u2212 material usado (${fmtMXN(f.costoMat)}) \u2212 gastos operativos (${fmtMXN(f.opex)}). Las compras de bodega se invierten en inventario y cuentan cuando el material se usa, por eso el Saldo y la Ganancia Neta pueden ser distintos.</div>${extra}</div>`;
   return h;
 }
-function fdConHTML(per, f) {
-  let h = concilHTML(per.p, per.pid, `Entradas vs. Gastos \xB7 ${per.label}`);
-  if (per.id === "hoy") h += verifHTML(per.p, todayCash0(), S.cash);
-  else if (per.id === "total") h += verifHTML(per.p, CAPITAL_INICIAL, S.cash, { ini: "Capital inicial de la partida" });
-  h += `<div class="fd-sec">Ganancia Neta Real</div>${fdRow("Ganancia Bruta Total", fmtMXN(f.bruta), "g")}${fdRow(`\u2212 Material e insumos usados${f.baseCaja ? " (base caja)" : per.p.insumosPre ? " (incluye compras previas)" : ""}`, neg(f.costoMat), "r")}${fdRow("\u2212 Gastos operativos", neg(f.opex), "r")}${fdTot("GANANCIA NETA REAL", `${f.neta < 0 ? "\u2212" : ""}${mx(Math.abs(f.neta))}`, f.neta >= 0 ? "n" : "r")}`;
+function finContentHTML() {
+  const per = finPeriod();
+  const p = per.p;
+  let extra = `<div class="fl-line fl-g"><span class="fl-c">Dinero en caja ahora</span><span class="fl-v"><b>${fmtMXN(S.cash)} MXN</b></span></div>
+    <div class="fl-line fl-g fl-in"><span class="fl-c">Por cobrar (saldos 50% de proyectos)</span><span class="fl-v"><b>${fmtMXN(porCobrar(S))} MXN</b></span></div>`;
+  let h = finBlocksHTML(p, { extra });
+  h += '<div class="fl-blk"><div class="fl-h"><span>Bloque 4</span>Informaci\xF3n adicional</div>';
   if (per.mat) {
-    const items = Object.entries(per.mat).filter(([id, q]) => INV[id] && q > 0).map(([id, q]) => ({ it: INV[id], q, c: q * INV[id].unitCost })).sort((a, b) => b.c - a.c);
-    h += `<div class="fd-sec">Materiales usados hoy</div>`;
-    if (!items.length) h += '<div class="fd-empty">Todav\xEDa no se ha usado material en esta jornada.</div>';
-    for (const i of items) h += fdRow(esc(i.it.name), fmtMXN(money(i.c)), "r", i.it.unit === "%" ? `${i.q.toFixed(2)}%` : `${fmtNum(Math.round(i.q * 100) / 100)} ${i.it.unit} \xB7 ${(i.q / i.it.lot * 100).toFixed(1)}% del lote`);
-    if (items.length) h += fdTot("TOTAL DE MATERIAL USADO", mx(items.reduce((x, i) => x + i.c, 0)), "r");
+    const items = Object.entries(per.mat).filter(([id, q]) => INV[id] && q > 0).map(([id, q]) => ({ it: INV[id], q, c: q * INV[id].unitCost })).sort((x, y) => y.c - x.c);
+    h += '<div class="fl-sub">Materiales usados hoy</div>';
+    if (!items.length) h += '<div class="fl-empty">Todav\xEDa no se ha usado material en esta jornada.</div>';
+    for (const i of items) h += `<div class="fl-line fl-g"><span class="fl-c">${esc(i.it.name)}<small>${i.it.unit === "%" ? i.q.toFixed(2) + "%" : fmtNum(Math.round(i.q * 100) / 100) + " " + i.it.unit} \xB7 ${(i.q / i.it.lot * 100).toFixed(1)}% del lote</small></span><span class="fl-v"><b>${fmtMXN(money(i.c))}</b></span></div>`;
   }
-  if (per.merma) h += fdRow("Mermas (insumo destruido, ya incluido en el material usado)", fmtMXN(per.merma), "r");
-  if (per.mes) h += `<div class="fd-sec">Fiscal del mes</div>${fdRow("IVA cobrado", fmtMXN(per.mes.ivaC))}${fdRow("IVA acreditable", fmtMXN(per.mes.ivaA))}${fdRow("Base gravable estimada (ISR)", fmtMXN(Math.max(0, per.mes.ingNeto - per.mes.deducible)))}`;
+  if (per.merma) h += `<div class="fl-line fl-g"><span class="fl-c">Mermas<small>Valor del insumo destruido, ya incluido en el material usado.</small></span><span class="fl-v"><b>${fmtMXN(per.merma)}</b></span></div>`;
+  if (per.mes) h += `<div class="fl-sub">Fiscal del mes</div><div class="fl-line fl-g"><span class="fl-c">IVA cobrado</span><span class="fl-v"><b>${fmtMXN(per.mes.ivaC)}</b></span></div><div class="fl-line fl-g"><span class="fl-c">IVA acreditable</span><span class="fl-v"><b>${fmtMXN(per.mes.ivaA)}</b></span></div><div class="fl-line fl-g"><span class="fl-c">Base gravable estimada (ISR)</span><span class="fl-v"><b>${fmtMXN(Math.max(0, per.mes.ingNeto - per.mes.deducible))}</b></span></div>`;
   const staff = EMPLOYEES.filter((e) => e.payroll);
   const C = S.cfg || CFG_DEFAULT;
   const ot = staff.reduce((x, e) => x + S.emps[e.id].otQ, 0);
   const t = cdmx(S.minute * MIN);
   const nextPay = t.day < 15 || t.day === 15 && t.mod < 18 * 60 ? `15/${t.mo}` : `${t.lastDay}/${t.mo}`;
-  h += `<div class="fd-sec">Pr\xF3ximos compromisos</div>${fdRow(`N\xF3mina ${nextPay}`, fmtMXN(staff.length * C.sueldo + ot), "a", `${staff.length} en n\xF3mina \xD7 ${fmtMXN(C.sueldo)} + extras acumuladas ${fmtMXN(ot)}`)}
-    <div class="fd-note">SAT e IMSS: d\xEDa 17 \xB7 CFE ${fmtMXN(C.cfeMin)}\u2013${fmtMXN(C.cfeMax)}: d\xEDa 5 \xB7 Internet ${fmtMXN(C.internet)} y agua: d\xEDa 8 \xB7 Licencias ${fmtMXN(C.licencias)}: d\xEDa 1 \xB7 Comida de Julia ${fmtMXN(C.julia)}: viernes \xB7 Anuncios ${fmtMXN(C.adsMin)}\u2013${fmtMXN(C.adsMax)}: martes \xB7 Peri\xF3dico Estudiantil (+$50,000): d\xEDa 10.</div>`;
+  h += `<div class="fl-sub">Pr\xF3ximos compromisos</div><div class="fl-line fl-g"><span class="fl-c">N\xF3mina ${nextPay}<small>${staff.length} personas \xD7 ${fmtMXN(C.sueldo)} + horas extra acumuladas ${fmtMXN(ot)}</small></span><span class="fl-v"><b>${fmtMXN(staff.length * C.sueldo + ot)}</b></span></div>
+    <div class="fl-note">SAT e IMSS: d\xEDa 17 \xB7 CFE ${fmtMXN(C.cfeMin)}\u2013${fmtMXN(C.cfeMax)}: d\xEDa 5 \xB7 Internet ${fmtMXN(C.internet)} y agua: d\xEDa 8 \xB7 Licencias ${fmtMXN(C.licencias)}: d\xEDa 1 \xB7 Comida de Julia ${fmtMXN(C.julia)}: viernes \xB7 Anuncios ${fmtMXN(C.adsMin)}\u2013${fmtMXN(C.adsMax)}: martes \xB7 Peri\xF3dico Estudiantil (+$50,000): d\xEDa 10. Capital inicial ${fmtMXN(CAPITAL_INICIAL)}.</div></div>`;
+  h += `<div class="fl-blk"><div class="fl-h"><span>Bloque 5</span>Movimientos de dinero (bit\xE1cora)</div>${finLogHTML()}</div>`;
   return h;
-}
-function fdInvTotals() {
-  let val = 0, lotes = 0, bajos = 0;
-  for (const i of INVENTORY) {
-    const q = S.inv[i.id] || 0;
-    val += Math.max(0, q) * i.unitCost;
-    lotes += i.lot * i.unitCost;
-    if (q <= i.min) bajos++;
-  }
-  let camino = 0;
-  for (const id of Object.keys(S.restock || {})) if (INV[id]) camino += INV[id].lot * INV[id].unitCost;
-  return { val: money(val), lotes: money(lotes), bajos, camino: money(camino), nCamino: Object.keys(S.restock || {}).length };
 }
 function renderFin(force = false) {
   if (!S || !finOpen()) return;
   const per = finPeriod();
   const last = S.log[S.log.length - 1];
-  const key = role + per.id + S.cash + ":" + S.log.length + ":" + (last && last.m) + ":" + (S.rev || 0) + ":" + JSON.stringify(dayTotals(S)) + ":" + tachVer + ":" + per.months.length;
-  const now = Date.now();
-  const opsKey = role + ":" + S.minute + ":" + Object.keys(S.orders || {}).length + ":" + S.jobs.length;
-  const opsDue = force || opsKey !== finOpsKey && now - finOpsAt > 3e3;
-  const t = cdmx(S.minute * MIN);
-  $("#fdNow").innerHTML = `<b>${DOW[t.dow]} ${t.day} de ${MES[t.mo - 1]} de ${t.y} \xB7 ${hhmm(t.mod)}</b> \xB7 ${esc($("#roleBadge").textContent || "")}`;
-  if (opsDue) {
-    finOpsKey = opsKey;
-    finOpsAt = now;
-    const keep2 = (sel2, html) => {
-      const el = $(sel2);
-      const st = el.scrollTop;
-      el.innerHTML = html;
-      el.scrollTop = st;
-    };
-    keep2("#fdProj", projHTML());
-    const pt = projTotals();
-    $("#fdProjSub").textContent = `${pt.n} con anticipo \xB7 ${pt.prod} en producci\xF3n \xB7 ${pt.listo} listos`;
-    $("#fdProjTot").innerHTML = fdTr("Valor total de proyectos activos", mx(pt.total)) + fdTr("Total cobrado en anticipos (50%)", mx(pt.paid), "g") + fdTr("TOTAL PENDIENTE POR COBRAR", mx(pt.pend), "a", true);
-    keep2("#fdInv", invHTML());
-    const it = fdInvTotals();
-    $("#fdInvSub").textContent = `${it.bajos} bajo el m\xEDnimo \xB7 ${it.nCamino} resurtido(s) en camino`;
-    $("#fdInvTot").innerHTML = fdTr("Resurtidos en camino (valor de lote)", mx(it.camino), "a") + fdTr("Compras de bodega del periodo", mx(money((per.p.egr || {}).insumos || 0)), "r") + fdTr("TOTAL INVENTARIO A COSTO", mx(it.val), "", true);
-  }
+  const key = role + per.id + S.cash + ":" + S.log.length + ":" + (last && last.m) + ":" + (S.rev || 0) + ":" + JSON.stringify(dayTotals(S)) + ":" + per.months.length;
   if (!force && key === finKey) return;
   finKey = key;
-  const f = finBreak(per.p);
-  const sel = $("#fdPerSel");
-  const opts = per.months.map((m) => `<option value="${m}" ${m === finPer ? "selected" : ""}>${MES[+m.slice(5) - 1]} ${m.slice(0, 4)}</option>`).join("") + `<option value="total" ${finPer === "total" ? "selected" : ""}>Hist\xF3rico total</option>`;
-  const optsH = `<option value="" ${finPer === "hoy" ? "selected" : ""}>Mes o hist\xF3rico\u2026</option>` + opts;
-  if (sel.dataset.h !== optsH) {
-    sel.innerHTML = optsH;
-    sel.dataset.h = optsH;
+  const sel = $("#finPerSel");
+  const opts = `<option value="hoy" ${finPer === "hoy" ? "selected" : ""}>Hoy</option>` + per.months.map((m) => `<option value="${m}" ${m === finPer ? "selected" : ""}>${MES[+m.slice(5) - 1]} ${m.slice(0, 4)}</option>`).join("") + `<option value="total" ${finPer === "total" ? "selected" : ""}>Hist\xF3rico total</option>`;
+  if (sel.dataset.h !== opts) {
+    sel.innerHTML = opts;
+    sel.dataset.h = opts;
   }
-  sel.classList.toggle("on", finPer !== "hoy");
-  document.querySelectorAll("[data-fdper]").forEach((b) => b.classList.toggle("on", finPer === "hoy"));
-  $("#fdKpis").innerHTML = fdKpisHTML(per, f);
-  const keep = (sel2, html) => {
-    const el = $(sel2);
-    const st = el.scrollTop;
-    el.innerHTML = html;
-    el.scrollTop = st;
-  };
-  keep("#fdIng", fdIngHTML(per, f));
-  $("#fdIngSub").textContent = `${per.label} \xB7 ${f.rub.filter((r2) => r2.bruta).length} rubros con venta`;
-  $("#fdIngTot").innerHTML = fdTr("Ganancia Neta de los rubros", f.baseCaja ? "\u2014" : mx(money(f.bruta - f.costoMat)), "n") + fdTr("TOTAL INGRESOS (BRUTA)", mx(f.bruta), "g", true);
-  keep("#fdEgr", fdEgrHTML(per, f));
-  $("#fdEgrSub").textContent = `${per.label} \xB7 n\xF3mina, servicios, bodega y m\xE1s`;
-  $("#fdEgrTot").innerHTML = fdTr("N\xF3mina", mx((per.p.egr || {}).nomina || 0), "r") + fdTr("Bodega", mx(f.compras), "r") + fdTr("TOTAL GASTOS", mx(f.egrTot), "r", true);
-  keep("#fdCon", fdConHTML(per, f));
-  $("#fdConSub").textContent = `${per.label} \xB7 tachado visual compartido`;
-  $("#fdConTot").innerHTML = fdTr("Ganancia Neta Real", `${f.neta < 0 ? "\u2212" : ""}${mx(Math.abs(f.neta))}`, f.neta >= 0 ? "n" : "r") + fdTr("Variaci\xF3n vs. capital inicial", `${S.cash - CAPITAL_INICIAL < 0 ? "\u2212" : ""}${mx(Math.abs(S.cash - CAPITAL_INICIAL))}`) + fdTr("CAJA ACTUAL", mx(S.cash), "", true);
-  keep("#finLog", finLogHTML());
-  $("#finLogBar").innerHTML = finLogHTML.bar || "";
-  $("#finLogSub").textContent = `\xDAltimos ${finLogHTML.n || 0} movimientos de dinero${role === "host" ? " \xB7 \u{1F5D1} borra y revierte en caja" : ""}`;
-  $("#finLogTot").innerHTML = finLogHTML.n ? fdTr("Total entradas", "+" + mx(finLogHTML.inn), "g") + fdTr("Total salidas", "\u2212" + mx(finLogHTML.out), "r") + fdTr("TOTAL NETO MOSTRADO", `${finLogHTML.inn - finLogHTML.out < 0 ? "\u2212" : "+"}${mx(Math.abs(finLogHTML.inn - finLogHTML.out))}`, finLogHTML.inn >= finLogHTML.out ? "n" : "r", true) : "";
-}
-function setFinMax(id) {
-  finMax = finMax === id ? "" : id;
-  $("#fdGrid").classList.toggle("has-max", !!finMax);
-  document.querySelectorAll("#fdGrid .fd-card").forEach((c) => {
-    const on = c.dataset.card === finMax;
-    c.classList.toggle("is-max", on);
-    const b = c.querySelector("[data-fdmax]");
-    if (b) {
-      b.textContent = on ? "\u2921" : "\u2922";
-      b.title = on ? "Volver al tablero" : "Ampliar esta secci\xF3n a toda la pantalla";
-    }
-  });
+  $("#finSub").textContent = `Periodo: ${per.label} \xB7 todas las cantidades en MXN`;
+  const b = $("#finBody");
+  const st = b.scrollTop;
+  b.innerHTML = finContentHTML();
+  b.scrollTop = st;
 }
 function openFin() {
   if (!S) return;
@@ -6971,109 +6685,6 @@ function closeFin() {
 }
 var tachVer = 0;
 var TACH = () => V2.tachados || {};
-var fbKey = (t) => String(t).replace(/[.#$[\]/\s]/g, "_");
-var cents = (v) => Math.round(Math.abs(v || 0) * 100);
-var hstr = (t) => {
-  let h = 0;
-  t = String(t || "");
-  for (let i = 0; i < t.length; i++) h = Math.imul(h, 31) + t.charCodeAt(i) | 0;
-  return (h >>> 0).toString(36);
-};
-var logTachKey = (l) => fbKey(`l_${l.m}_${cents(l.amt)}_${hstr(l.txt)}`);
-var CHK = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
-var tchBtn = (key, on) => `<button type="button" class="tch${on ? " on" : ""}" data-tch="${esc(key)}" title="${on ? "Quitar tachado" : "Tachar: ya lo revis\xE9"}" aria-label="${on ? "Quitar tachado" : "Tachar"}" aria-pressed="${on}">${on ? CHK : ""}</button>`;
-var ING_ORDEN = [
-  ["mostrador", "Ventas de mostrador"],
-  ["comercial", "Proyectos (anticipos y liquidaciones)"],
-  ["bandas", "Merch de bandas (incl. Eli Noise)"],
-  ["periodico", "Peri\xF3dico Estudiantil"],
-  ["snacks", "Snacks, dulces y refrescos"],
-  ["admin", "Ingresos manuales / ajustes de capital del Host"],
-  ["ajuste", "Ajuste del total del d\xEDa (no mueve caja)"]
-];
-var EGR_ORDEN = [
-  ["nomina", "N\xF3mina quincenal"],
-  ["extras", "Horas extra y primas"],
-  ["comida", "Comida semanal de Julia (viernes)"],
-  ["luz", "Luz CFE"],
-  ["internet", "Internet y telefon\xEDa"],
-  ["licencias", "Licencias y membres\xEDas"],
-  ["marketing", "Anuncios en redes (Ads)"],
-  ["envios", "Env\xEDos y paqueter\xEDa"],
-  ["servicios", "Agua y otros servicios"],
-  ["gasolina", "Gasolina y camioneta"],
-  ["sat", "SAT e IMSS"],
-  ["cofepris", "COFEPRIS / Municipio"],
-  ["insumos", "Resurtido de bodega (al 20% \u2192 100%)"],
-  ["cenas", "Cenas de velada"],
-  ["hormiga", "Gastos hormiga"],
-  ["mantto", "Mantenimiento de m\xE1quinas"],
-  ["cocina", "Cocina y cafetera"],
-  ["bonos", "Bonos"],
-  ["admin", "Gastos manuales / ajustes de capital del Host"],
-  ["ajuste", "Ajuste del total del d\xEDa (no mueve caja)"]
-];
-function ordered(obj, orden, names) {
-  const out = [];
-  const seen = /* @__PURE__ */ new Set();
-  for (const [c, n] of orden) {
-    seen.add(c);
-    if (obj[c]) out.push([c, n, money(obj[c])]);
-  }
-  for (const [c, v] of Object.entries(obj)) if (!seen.has(c) && v) out.push([c, names[c] || c, money(v)]);
-  return out;
-}
-var sumRows = (rows) => money(rows.reduce((x, r2) => x + r2[2], 0));
-var sumNoAdj = (o) => money(Object.entries(o || {}).reduce((x, [k, v]) => k === "ajuste" ? x : x + (v || 0), 0));
-var signed = (v) => `${v < 0 ? "\u2212" : ""}${fmtMXN(Math.abs(v))}`;
-function tachBar(tach, tot, label = "") {
-  return `<div class="cc-tach"><span>${label}Tachado: <b class="ok">${fmtMXN(tach)} MXN</b></span><span>Pendiente por revisar: <b class="due">${fmtMXN(money(tot - tach))} MXN</b></span><button type="button" class="btn cc-clr" data-tchclear title="Quita todas las marcas de revisi\xF3n (no cambia la caja)">Limpiar tachados</button></div>`;
-}
-function concilHTML(p, pid, title = "") {
-  const T = TACH();
-  const ing = ordered(p.ing || {}, ING_ORDEN, ING_CATS), egr = ordered(p.egr || {}, EGR_ORDEN, EGR_CATS);
-  let tach = 0;
-  const col = (rows, side) => rows.map(([c, name, v]) => {
-    const key = fbKey(`c_${pid}_${side}_${c}_${cents(v)}`);
-    const on = !!T[key];
-    if (on) tach += v;
-    return `<div class="cc-row${on ? " tachado" : ""}">${tchBtn(key, on)}<span class="cc-n">${esc(name)}</span><b>${fmtMXN(v)}</b></div>`;
-  }).join("") || '<div class="cc-empty">Sin movimientos</div>';
-  const ci = col(ing, "ing"), ce = col(egr, "egr");
-  const si = sumRows(ing), se = sumRows(egr), neto = money(si - se);
-  return `<div class="cc">${title ? `<div class="fb-title">${title}</div>` : ""}<div class="cc-grid">
-    <div class="cc-col cc-in"><div class="cc-h">Ganancias / Entradas</div>${ci}<div class="cc-sub"><span>Subtotal entradas</span><b>${fmtMXN(si)} MXN</b></div></div>
-    <div class="cc-col cc-out"><div class="cc-h">P\xE9rdidas / Gastos</div>${ce}<div class="cc-sub"><span>Subtotal gastos</span><b>${fmtMXN(se)} MXN</b></div></div></div>
-    <div class="cc-net ${neto >= 0 ? "pos" : "neg"}"><span>Diferencia neta (Entradas \u2212 Gastos)</span><b>${signed(neto)} MXN</b></div>
-    ${tachBar(money(tach), money(si + se))}</div>`;
-}
-function verifHTML(p, cash0, cashEnd, { ini = "Caja al cierre anterior", fin = "Caja actual", deducida = false } = {}) {
-  const si = sumNoAdj(p.ing), se = sumNoAdj(p.egr);
-  if (typeof cash0 !== "number") {
-    cash0 = money(cashEnd - si + se);
-    deducida = true;
-  }
-  const calc = money(cash0 + si - se);
-  const diff = money(cashEnd - calc);
-  const ok = Math.abs(diff) < 0.01;
-  const adj = p.ing && p.ing.ajuste || p.egr && p.egr.ajuste;
-  return `<div class="vq ${ok ? "ok" : "bad"}"><div class="vq-h">Verificaci\xF3n R\xE1pida de Caja</div>
-    <div class="vq-r"><span>${ini}${deducida ? " <i>(deducida)</i>" : ""}</span><b>${fmtMXN(cash0)}</b></div>
-    <div class="vq-r g"><span>+ Entradas registradas</span><b>${fmtMXN(si)}</b></div>
-    <div class="vq-r r"><span>\u2212 Gastos registrados</span><b>${fmtMXN(se)}</b></div>
-    <div class="vq-r eq"><span>= Caja calculada</span><b>${fmtMXN(calc)}</b></div>
-    <div class="vq-r"><span>${fin}</span><b>${fmtMXN(cashEnd)} MXN</b></div>
-    <div class="vq-st">${ok ? "\u2714 Cuadra al centavo" : `\u26A0 Diferencia de ${signed(diff)} MXN (movimientos o ajustes de periodos anteriores)`}</div>
-    ${adj ? '<div class="vq-n">Los "Ajustes del total del d\xEDa" del Host no mueven la caja, por eso no entran en esta suma.</div>' : ""}</div>`;
-}
-function todayCash0() {
-  const L = S.dayLedger;
-  if (L && typeof L.cash0 === "number") return L.cash0;
-  const Ls = S.lastSummary;
-  if (L && Ls && Ls.at === L.from && typeof Ls.cash === "number") return Ls.cash;
-  if (!L && Ls && typeof Ls.cash === "number") return Ls.cash;
-  return null;
-}
 function rerenderTach() {
   tachVer++;
   finKey = "";
@@ -7141,9 +6752,8 @@ function renderHV() {
   }
   const q = norm(hvQuery.trim());
   const f = HV_F[hvFilter] || HV_F.all;
-  const T = TACH();
-  const rows = Object.entries(hvData).filter(([, e]) => e && typeof e.bruto === "number" && f(e) && (!q || norm(e.concepto + " " + e.estado + " " + (HV_TIPOS[e.tipo] || "")).includes(q))).sort((a, b) => a[0] < b[0] ? 1 : -1);
-  let n = 0, bruto = 0, costo = 0, neta = 0, sinCosto = 0, anul = 0, tach = 0, tot = 0;
+  const rows = Object.entries(hvData).filter(([, e]) => e && typeof e.bruto === "number" && f(e) && (!q || norm(txtPub(e.concepto) + " " + e.estado + " " + (HV_TIPOS[e.tipo] || "")).includes(q))).sort((a, b) => a[0] < b[0] ? 1 : -1);
+  let n = 0, bruto = 0, costo = 0, neta = 0, sinCosto = 0, anul = 0;
   for (const [k, e] of rows) {
     if (e.anulada) {
       anul++;
@@ -7151,8 +6761,6 @@ function renderHV() {
     }
     n++;
     bruto += e.bruto;
-    tot += e.bruto;
-    if (T[fbKey("h_" + k)]) tach += e.bruto;
     if (typeof e.costo === "number") {
       costo += e.costo;
       neta += e.neta ?? e.bruto - e.costo;
@@ -7162,14 +6770,15 @@ function renderHV() {
     }
   }
   $("#hvCount").textContent = `${fmtNum(Object.keys(hvData).length)} ventas guardadas${Object.keys(hvData).length >= hvLimit ? ` (mostrando las ${fmtNum(hvLimit)} m\xE1s recientes)` : ""}`;
-  $("#hvTot").innerHTML = `<div class="hv-kpis"><div><span>Ventas</span><b>${fmtNum(n)}</b></div><div><span>Venta bruta</span><b class="g">${fmtMXN(money(bruto))} MXN</b></div><div><span>Costo de material</span><b class="r">${fmtMXN(money(costo))} MXN</b></div><div><span>Ganancia neta</span><b class="n">${fmtMXN(money(neta))} MXN</b></div></div>
+  $("#hvTot").innerHTML = `<div class="hv-kpis"><div><span>Ventas</span><b>${fmtNum(n)}</b></div><div><span>Venta bruta</span><b class="gi">${fmtMXN(money(bruto))} MXN</b></div><div><span>Costo de material</span><b class="ge">${fmtMXN(money(costo))} MXN</b></div><div><span>Ganancia neta</span><b class="gi">${fmtMXN(money(neta))} MXN</b></div></div>
     ${sinCosto || anul ? `<div class="hv-note">${sinCosto ? `${fmtNum(sinCosto)} ventas recuperadas de la bit\xE1cora no tienen costo registrado (su neta = bruto). ` : ""}${anul ? `${fmtNum(anul)} anuladas por el Host no suman.` : ""}</div>` : ""}
-    ${tachBar(money(tach), money(tot))}`;
+`;
   const MAXR = 700;
   let h = "";
   let lastDay = "";
   let shown = 0;
   for (const [k, e] of rows) {
+    if (shown === 0) h += '<div class="hv-row hv-head"><span class="t">Hora</span><span class="hv-x">Concepto</span><span class="hv-tp">Tipo</span><span class="hv-n">Bruto</span><span class="hv-n hv-ne">Neto</span></div>';
     if (shown++ >= MAXR) {
       h += `<div class="hv-note p-3">Se muestran las ${MAXR} m\xE1s recientes de este filtro. Usa la b\xFAsqueda para encontrar una venta espec\xEDfica.</div>`;
       break;
@@ -7179,12 +6788,8 @@ function renderHV() {
       lastDay = t.dayKey;
       h += `<div class="daysep">${DOW[t.dow]} ${t.day} de ${MES[t.mo - 1]} de ${t.y}</div>`;
     }
-    const key = fbKey("h_" + k);
-    const on = !!T[key];
-    const cost = typeof e.costo === "number" ? `Costo ${fmtMXN(e.costo)} \xB7 Neta ${fmtMXN(e.neta ?? money(e.bruto - e.costo))}` : "Costo sin registrar";
-    h += `<div class="hv-row${on ? " tachado" : ""}${e.anulada ? " anul" : ""}">${tchBtn(key, on)}<span class="t">[${hhmm(t.mod)}]</span>
-      <div class="hv-c"><div class="hv-x">${esc(e.concepto)}</div><div class="hv-s"><span class="hv-p hv-${esc(e.tipo)}">${HV_TIPOS[e.tipo] || "Otro"}</span>${esc(e.estado || "")}</div></div>
-      <div class="hv-m"><b>+${fmtMXN(e.bruto)}</b><span>${cost}</span></div></div>`;
+    const net = typeof e.costo === "number" ? fmtMXN(e.neta ?? money(e.bruto - e.costo)) : "\u2014";
+    h += `<div class="hv-row${e.anulada ? " anul" : ""}"><span class="t">${hhmm(t.mod)}</span><span class="hv-x">${esc(txtPub(e.concepto))}${e.estado ? `<small>${esc(e.estado)}</small>` : ""}</span><span class="hv-tp">${HV_TIPOS[e.tipo] || "Otro"}</span><span class="hv-n">${fmtMXN(e.bruto)}</span><span class="hv-n hv-ne">${net}</span></div>`;
   }
   if (!rows.length) h = `<div class="text-slate-400 p-3">${Object.keys(hvData).length ? "Ninguna venta coincide con el filtro o la b\xFAsqueda." : "Todav\xEDa no hay ventas guardadas. Se registran en cuanto el Host transmite con esta versi\xF3n."}</div>`;
   if (Object.keys(hvData).length >= hvLimit) h += `<div class="p-3 text-center"><button type="button" class="btn" id="hvMore">Cargar ventas m\xE1s antiguas</button></div>`;
@@ -7284,7 +6889,7 @@ function hdList(obj, sign2) {
   if (!rows.length) return '<div class="text-slate-500 p-3">Sin movimientos.</div>';
   return rows.map(([, x]) => {
     const t = cdmx(x.m * MIN);
-    return `<div class="logrow${x.anulada ? " hd-anul" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(x.txt)}${x.anulada ? ' <i class="hd-tag">anulado por el Host</i>' : ""}</span><span class="a ${sign2 > 0 ? "up" : "dn"}">${sign2 > 0 ? "+" : "\u2212"}${fmtMXN(x.amt)}</span></div>`;
+    return `<div class="logrow${sign2 > 0 ? " mi" : " mo"}${x.anulada ? " hd-anul" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(txtPub(x.txt))}${x.anulada ? ' <i class="hd-tag">anulado por el Host</i>' : ""}</span><span class="a ${sign2 > 0 ? "up" : "dn"}">${sign2 > 0 ? "+" : "\u2212"}${fmtMXN(x.amt)}</span></div>`;
   }).join("");
 }
 function renderHDDay() {
@@ -7384,11 +6989,7 @@ function openSummary(refresh = false) {
   $("#sumDate").textContent = `${DOW[t.dow]} ${t.day} de ${MES[t.mo - 1]} de ${t.y} \xB7 cierre ${hhmm(c.mod)}`;
   const rows = (obj, names, cls) => Object.entries(obj || {}).filter(([, v]) => v).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="flex justify-between gap-3 py-0.5"><span class="text-slate-300">${esc(names[k] || (k === "admin" ? "Ajustes del Host" : k))}</span><span class="font-mono ${cls}">${fmtMXN(v)}</span></div>`).join("") || '<div class="text-slate-500 text-xs py-0.5">Sin movimientos</div>';
   const pos = L.balance >= 0;
-  body.innerHTML = `
-    ${concilHTML({ ing: L.ing, egr: L.egr }, "s" + L.seq + "_" + L.day, "Entradas vs. Gastos de la jornada")}
-    ${verifHTML({ ing: L.ing, egr: L.egr }, L.cash0, L.cash, { ini: "Caja al inicio de la jornada", fin: "Caja al cierre" })}
-    ${breakHTML({ ing: L.ing, egr: L.egr, cogs: L.cogs || null, insumosPre: L.insumosPre || 0 }, { mat: L.cogs ? L.mat || {} : null, matTitle: "Materiales e Insumos Usados en la Jornada" })}
-    <div class="mt-3 text-xs text-slate-400">Caja al cierre: <b class="text-slate-200">${fmtMXN(L.cash)} MXN</b> \xB7 ${L.clientes} clientes en mostrador. Incluye todo lo que entr\xF3 y sali\xF3 desde el resumen anterior.</div>`;
+  body.innerHTML = finBlocksHTML({ ing: L.ing, egr: L.egr, cogs: L.cogs || null, insumosPre: L.insumosPre || 0 }, { extra: `<div class="fl-line fl-g"><span class="fl-c">Caja al inicio de la jornada</span><span class="fl-v"><b>${typeof L.cash0 === "number" ? fmtMXN(L.cash0) + " MXN" : "\u2014"}</b></span></div><div class="fl-line fl-g"><span class="fl-c">Caja al cierre</span><span class="fl-v"><b>${fmtMXN(L.cash)} MXN</b></span></div><div class="fl-line fl-g"><span class="fl-c">Clientes atendidos en mostrador</span><span class="fl-v"><b>${fmtNum(L.clientes || 0)}</b></span></div>` }) + '<div class="fl-note">Incluye todo lo que entr\xF3 y sali\xF3 desde el resumen anterior.</div>';
   if (refresh) body.scrollTop = st;
   else openModal("#sumModal");
 }
@@ -7431,23 +7032,11 @@ function wireUI() {
       renderPanel(true);
     }
   });
-  $("#fdPerSel").addEventListener("change", (e) => {
+  $("#finPerSel").addEventListener("change", (e) => {
     finPer = e.target.value || "hoy";
     finKey = "";
     renderFin(true);
-  });
-  $("#finModal").addEventListener("click", (e) => {
-    const p = e.target.closest("[data-fdper]");
-    if (p) {
-      finPer = p.dataset.fdper;
-      finKey = "";
-      renderFin(true);
-      return;
-    }
-    const mxb = e.target.closest("[data-fdmax]");
-    if (mxb) {
-      setFinMax(mxb.dataset.fdmax);
-    }
+    $("#finBody").scrollTop = 0;
   });
   $("#sumBtnFin").addEventListener("click", openSummary);
   $("#finClose").addEventListener("click", closeFin);
@@ -7529,7 +7118,8 @@ function wireUI() {
     const b = document.body;
     for (const k of ["hud", "cam", "panel"]) b.classList.toggle("fold-" + k, !!fold[k]);
     b.classList.toggle("clean", !!fold.clean);
-    $("#cleanBtn").innerHTML = fold.clean ? `${ICON.menu} Mostrar men\xFAs` : `${ICON.broom} Pantalla limpia`;
+    $("#cleanBtn").innerHTML = fold.clean ? `${ICON.menu}<span class="lbl"> Mostrar men\xFAs</span>` : `${ICON.broom}<span class="lbl"> Pantalla limpia</span>`;
+    $("#cleanBtn").title = fold.clean ? "Mostrar los men\xFAs (tecla H)" : "Ocultar todos los men\xFAs (tecla H)";
     scene.setPanel(!fold.clean && !fold.panel);
     try {
       localStorage.setItem(FOLD_KEY, JSON.stringify(fold));
@@ -7554,6 +7144,16 @@ function wireUI() {
   $("#cleanBtn2").addEventListener("click", () => {
     fold.clean = true;
     applyFold();
+  });
+  $("#cleanBtn3").addEventListener("click", () => {
+    fold.clean = true;
+    applyFold();
+  });
+  addEventListener("keydown", (e) => {
+    if ((e.key === "h" || e.key === "H") && !e.ctrlKey && !e.metaKey && !e.altKey && !/^(INPUT|SELECT|TEXTAREA)$/.test(e.target && e.target.tagName || "")) {
+      fold.clean = !fold.clean;
+      applyFold();
+    }
   });
   $("#sumBtn").addEventListener("click", openSummary);
   $("#sumBtnHud").addEventListener("click", openSummary);
@@ -7752,10 +7352,6 @@ function wireUI() {
   });
   const onProjClick = (fn) => {
     $("#panelBody").addEventListener("click", fn);
-    $("#fdProj").addEventListener("click", (e) => {
-      fn(e);
-      if (e.target.closest("[data-delorder],[data-deliv],[data-edord]")) renderFin(true);
-    });
   };
   const delLog = (e) => {
     const b = e.target.closest("[data-del]");
@@ -7773,7 +7369,7 @@ function wireUI() {
     toast(r2 && r2.reverted ? `Registro borrado \xB7 ${r2.reverted < 0 ? "regresaron" : "salieron"} ${fmtMXN(Math.abs(r2.reverted))} ${r2.reverted < 0 ? "a" : "de"} la caja` : "Registro borrado para todos");
   };
   $("#panelBody").addEventListener("click", delLog);
-  $("#finLog").addEventListener("click", delLog);
+  $("#finBody").addEventListener("click", delLog);
   onProjClick((e) => {
     const b = e.target.closest("[data-delorder]");
     if (!b || role !== "host" || !S) return;
