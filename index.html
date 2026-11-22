@@ -75,8 +75,8 @@
   .pill { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; }
   /* Animaciones solo con transform/opacity (GPU): sin reflow, sin tirones en el 3D */
   :root { --ease: cubic-bezier(0.22, 1, 0.36, 1); }
-  #panel, #hud, #camBar, #cleanBtn { transition: transform 280ms var(--ease), opacity 280ms var(--ease), visibility 0s linear 0s; will-change: transform, opacity; transform: translate3d(0,0,0); }
-  .edgetab { animation: tabIn 280ms var(--ease) both; will-change: transform, opacity; }
+  #panel, #hud, #camBar, #cleanBtn { transition: transform 300ms var(--ease), opacity 300ms var(--ease), visibility 0s linear 0s; will-change: transform, opacity; transform: translate3d(0,0,0); }
+  .edgetab { animation: tabIn 300ms var(--ease) both; will-change: transform, opacity; }
   #panelTab { animation-name: fadeIn; } @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes tabIn { from { opacity: 0; transform: translate3d(0, 8px, 0) scale(.96); } to { opacity: 1; transform: none; } }
   .mfx { transition: opacity 280ms var(--ease); opacity: 0; will-change: opacity; }
@@ -178,6 +178,15 @@
   .sc-btns { display: flex; flex-direction: column; gap: 8px; flex: none; }
   .sc-b { min-width: 92px; padding: 12px 10px; font-size: 14px; }
   .sc-mini { padding: 8px 0 8px 6px; } .sc-mini .sc-b { min-width: 0; width: 34px; padding: 10px 0; font-size: 12px; }
+
+  /* v28: pestañas de los bordes más grandes (control de TV) y lejos del borde físico derecho */
+  .edgetab { padding: 10px 14px !important; font-size: 14px !important; border-radius: 12px !important; }
+  @media (min-width: 768px) { #panelTab { right: var(--tv-gap) !important; border-radius: 12px !important; } #cleanBtn { right: var(--tv-gap) !important; } }
+  /* Vista 100% limpia: solo queda un botón chico y tenue para volver */
+  body.clean #cleanBtn { opacity: .42; padding: 10px 12px; } body.clean #cleanBtn:hover, body.clean #cleanBtn:focus-visible { opacity: 1; }
+  body.clean #cleanBtn .lbl { display: none; }
+  #toast { z-index: 60; }
+  #hud .foldbtn { width: 38px; height: 38px; font-size: 16px; border-radius: 11px; }
   @media (prefers-reduced-motion: reduce) { #panel, #hud, #camBar, .mfx, .mfx > *, .edgetab, #toast.in, #toast.out { transition: none !important; animation: none !important; } }
   .foldbtn { width: 26px; height: 26px; border-radius: 9px; font-size: 11px; color: #cbd5e1; flex-shrink: 0; }
   .edgetab { display: none; padding: 7px 11px; border-radius: 10px; font: 700 12px/1 Inter, sans-serif; color: #e2e8f0; }
@@ -185,13 +194,13 @@
   body.fold-hud #hudTab { display: block; }
   body.fold-cam #camBar { transform: translate3d(0, calc(100% + 80px), 0); opacity: 0; pointer-events: none; }
   body.fold-cam #camTab { display: block; }
-  body.fold-panel #panel { transform: translate3d(calc(100% + 16px), 0, 0); opacity: 0; pointer-events: none; }
+  body.fold-panel #panel { transform: translate3d(calc(100% + 16px + var(--tv-gap)), 0, 0); opacity: 0; pointer-events: none; }
   body.fold-panel #panelTab { display: block; }
   body.fold-panel #hud { right: 8px !important; }
   body.fold-panel #camBar { max-width: calc(100% - 180px) !important; }
   #cleanBtn { display: block; }
-  body.clean #hud { transform: translate3d(0, -24px, 0); } body.clean #camBar { transform: translate3d(0, 24px, 0); } body.clean #panel { transform: translate3d(24px, 0, 0); }
-  body.clean #hud, body.clean #camBar, body.clean #panel { opacity: 0; pointer-events: none; visibility: hidden; transition: transform 280ms var(--ease), opacity 280ms var(--ease), visibility 0s linear 280ms; }
+  body.clean #hud { transform: translate3d(0, calc(-100% - 16px), 0); } body.clean #camBar { transform: translate3d(0, calc(100% + 80px), 0); } body.clean #panel { transform: translate3d(calc(100% + 16px + var(--tv-gap)), 0, 0); }
+  body.clean #hud, body.clean #camBar, body.clean #panel { opacity: 0; pointer-events: none; visibility: hidden; transition: transform 300ms var(--ease), opacity 300ms var(--ease), visibility 0s linear 300ms; }
   body.clean #hudTab, body.clean #camTab, body.clean #panelTab { display: none !important; }
   body:not(.fold-panel):not(.clean) #cleanBtn { display: none; }
   .pcard { transform: translateY(-6px); min-width: 120px; max-width: 200px; background: rgba(15,23,42,.88); color: #e2e8f0; border-radius: 10px; border: 1px solid rgba(255,255,255,.08); border-left: 4px solid #64748b; padding: 4px 8px 5px; font: 500 11px/1.3 Inter, sans-serif; box-shadow: 0 4px 14px rgba(0,0,0,.35); pointer-events: none; }
@@ -305,6 +314,7 @@
   <button id="finBtnHud" class="foldbtn glass pointer-events-auto" title="Finanzas" aria-label="Finanzas"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></button>
   <button id="hvBtnHud" class="foldbtn glass pointer-events-auto" title="Historial de Ventas" aria-label="Historial de Ventas"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></button>
   <button id="sumBtnHud" class="foldbtn glass pointer-events-auto" title="Último Resumen del Día" aria-label="Último Resumen del Día"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></button>
+  <button id="cleanBtn3" class="foldbtn glass pointer-events-auto" title="Pantalla limpia: ocultar todos los menús" aria-label="Pantalla limpia"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 3 11 11"/><path d="M11 11c-2-1-5 0-6 3l-2 7 7-2c3-1 4-4 3-6z"/><path d="M6 16l2 2"/></svg></button>
   <button class="foldbtn glass pointer-events-auto" data-fold="hud" title="Ocultar encabezado" aria-label="Ocultar encabezado">▴</button>
 </div>
 <button id="hudTab" class="edgetab glass fixed top-2 left-2 z-10" data-unfold="hud" title="Mostrar encabezado"><svg class="ico" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> ▾</button>
@@ -7108,7 +7118,8 @@ function wireUI() {
     const b = document.body;
     for (const k of ["hud", "cam", "panel"]) b.classList.toggle("fold-" + k, !!fold[k]);
     b.classList.toggle("clean", !!fold.clean);
-    $("#cleanBtn").innerHTML = fold.clean ? `${ICON.menu} Mostrar men\xFAs` : `${ICON.broom} Pantalla limpia`;
+    $("#cleanBtn").innerHTML = fold.clean ? `${ICON.menu}<span class="lbl"> Mostrar men\xFAs</span>` : `${ICON.broom}<span class="lbl"> Pantalla limpia</span>`;
+    $("#cleanBtn").title = fold.clean ? "Mostrar los men\xFAs (tecla H)" : "Ocultar todos los men\xFAs (tecla H)";
     scene.setPanel(!fold.clean && !fold.panel);
     try {
       localStorage.setItem(FOLD_KEY, JSON.stringify(fold));
@@ -7133,6 +7144,16 @@ function wireUI() {
   $("#cleanBtn2").addEventListener("click", () => {
     fold.clean = true;
     applyFold();
+  });
+  $("#cleanBtn3").addEventListener("click", () => {
+    fold.clean = true;
+    applyFold();
+  });
+  addEventListener("keydown", (e) => {
+    if ((e.key === "h" || e.key === "H") && !e.ctrlKey && !e.metaKey && !e.altKey && !/^(INPUT|SELECT|TEXTAREA)$/.test(e.target && e.target.tagName || "")) {
+      fold.clean = !fold.clean;
+      applyFold();
+    }
   });
   $("#sumBtn").addEventListener("click", openSummary);
   $("#sumBtnHud").addEventListener("click", openSummary);
