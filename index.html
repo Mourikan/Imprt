@@ -267,6 +267,13 @@
 .logrow.mi .x, .logrow.mi .a, .logrow.mi .a.up { color: var(--in) !important; } .logrow.mo .x, .logrow.mo .a, .logrow.mo .a.dn { color: var(--out) !important; }
 .logrow .a.up { color: var(--in); } .logrow .a.dn { color: var(--out); }
 .gi { color: var(--in) !important; } .ge { color: var(--out) !important; }
+/* v28 Bitácora por categoría: cada tipo de ingreso con su color; gastos en rojo; sucesos sin monto en gris claro */
+:root { --c-mos: #38bdf8; --c-snk: #fb923c; --c-prj: #c084fc; --c-out: #f87171; --c-neu: #e2e8f0; }
+#panelBody .logrow.c-mos .x, #panelBody .logrow.c-mos .a { color: var(--c-mos) !important; }
+#panelBody .logrow.c-snk .x, #panelBody .logrow.c-snk .a { color: var(--c-snk) !important; }
+#panelBody .logrow.c-prj .x, #panelBody .logrow.c-prj .a { color: var(--c-prj) !important; }
+#panelBody .logrow.c-out .x, #panelBody .logrow.c-out .a { color: var(--c-out) !important; }
+#panelBody .logrow.c-neu .x { color: var(--c-neu) !important; font-style: normal; }
 .fl-in .fl-v b { color: var(--in); } .fl-out .fl-v b { color: var(--out); } .fl-out .fl-c { color: #fca5a5; }
 .fl-in.fl-tot2 .fl-c, .fl-out.fl-tot2 .fl-c { color: #fff; }
 #hvList .hv-n { color: var(--in); } #hvList .hv-head > span, #hvList .hv-row.anul .hv-n { color: #64748b; }
@@ -1767,6 +1774,7 @@ var LOG_MAX = 900;
 var HORMIGA_PROB = 0.05;
 var TIME_SCALE = 1.45;
 var COTS = 3;
+var nAct = (s, act) => Object.values(s.emps).reduce((n, e) => n + (e.present && e.act === act ? 1 : 0), 0);
 var PERSONAL = /* @__PURE__ */ new Set(["bano", "banoWait", "desayuno", "xbox", "platica", "cel", "calle", "siesta", "snack", "afuera"]);
 var LLAVES = ["natasha", "cono", "marino", "buster", "wachavato"];
 var SALIDA_TARDE = ["cono", "timo", "gael", "hector", "natasha"];
@@ -2178,17 +2186,59 @@ function processRestock(s) {
   }
 }
 var MICON = { m1: "\u{1F5A8}\uFE0F", m2: "\u{1F5A8}\uFE0F", m3: "\u{1F4C4}", m4: "\u{1FAA7}", m5: "\u{1F4F1}", m6: "\u{1F455}", m7: "\u2702\uFE0F", m8: "\u{1F528}", m9: "\u{1F4DA}", m10: "\u{1F525}", m11: "\u{1F4D5}", dz: "\u{1F5A5}\uFE0F" };
-var MERMA_TXT = {
-  m1: (q, u) => `prueba de color fallida en la Offset, se perdieron ${q} ${u}`,
-  m2: (q, u) => `atasco de papel en la Digital, se tiraron ${q} ${u}`,
-  m3: (q, u) => `atasco en la l\xE1ser, ${q} ${u} a la basura`,
-  m4: (q, u) => `el plotter bande\xF3 la impresi\xF3n, se perdieron ${q} ${u}`,
-  m5: (q, u) => `impresi\xF3n UV corrida, se perdieron ${q} ${u}`,
-  m6: (q, u) => `se quemaron ${q} ${u} en el horno de curado`,
-  m7: (q, u) => `corte chueco en la guillotina, se perdieron ${q} ${u}`,
-  m8: (q, u) => `suaje desalineado, se perdieron ${q} ${u}`,
-  m9: (q, u) => `burbujas en el laminado, se perdieron ${q} ${u}`
+var MAT_TXT = {
+  bond: ["hoja de papel bond", "hojas de papel bond"],
+  couche: ["pliego de papel couch\xE9", "pliegos de papel couch\xE9"],
+  opalina: ["pliego de opalina", "pliegos de opalina"],
+  cartulina: ["pliego de cartulina sulfatada", "pliegos de cartulina sulfatada"],
+  adhesivo: ["planilla de papel adhesivo", "planillas de papel adhesivo"],
+  lona: ["m\xB2 de lona frontlight", "m\xB2 de lona frontlight"],
+  vinil: ["m\xB2 de vinil adhesivo", "m\xB2 de vinil adhesivo"],
+  rigidos: ["hoja de estireno/coroplast", "hojas de estireno/coroplast"],
+  estructuras: ["estructura Roll-Up", "estructuras Roll-Up"],
+  playeras: ["playera", "playeras"],
+  sudaderas: ["hoodie", "hoodies"],
+  totes: ["tote bag", "tote bags"],
+  fundas: ["funda de celular", "fundas de celular"],
+  tazas: ["taza para sublimar", "tazas para sublimar"],
+  acrilico: ["pieza de acr\xEDlico/MDF", "piezas de acr\xEDlico/MDF"],
+  kraft: ["bolsa kraft", "bolsas kraft"],
+  sobres: ["sobre", "sobres"],
+  engargolado: ["kit de espiral y pastas", "kits de espiral y pastas"],
+  micas: ["mica para enmicar", "micas para enmicar"],
+  aros: ["aro met\xE1lico de engargolado", "aros met\xE1licos de engargolado"],
+  micas_term: ["mica t\xE9rmica", "micas t\xE9rmicas"],
+  plumas: ["pluma", "plumas"],
+  folders: ["folder", "folders"],
+  tinta_offset: "tinta Offset CMYK",
+  toner_color: "t\xF3ner digital color",
+  toner_bn: "t\xF3ner l\xE1ser B/N",
+  eco: "tinta ecosolvente",
+  uv: "tinta UV / papel de sublimaci\xF3n",
+  plastisol: "tinta plastisol"
 };
+function matTxt(id, q) {
+  const t = MAT_TXT[id];
+  const it = INV[id];
+  if (it && it.unit === "%") return `${fmtNum(q, q < 10 ? 1 : 0)}% de ${typeof t === "string" ? t : it.name.toLowerCase()}`;
+  if (Array.isArray(t)) return `${fmtNum(q)} ${q === 1 ? t[0] : t[1]}`;
+  return `${fmtNum(q)} ${it ? it.unit + " de " + it.name.toLowerCase() : "piezas"}`;
+}
+var pl = (q, a, b) => q === 1 ? a : b;
+var MERMA_TXT = {
+  m1: (x, q) => `${pl(q, "se atasc\xF3", "se atascaron")} ${x} en la Prensa Offset`,
+  m2: (x, q) => `atasco en la Prensa Digital: ${pl(q, "se tir\xF3", "se tiraron")} ${x}`,
+  m3: (x, q) => `${pl(q, "sali\xF3 manchada", "salieron manchadas")} ${x} en la Copiadora L\xE1ser B/N`,
+  m4: (x) => `fallo de corte en ${x} usando el Plotter`,
+  m5: (x) => `impresi\xF3n corrida en la Cama Plana UV: ${x} a la basura`,
+  m6: (x, q) => `${x} ${pl(q, "mal estampada", "mal estampadas")} en el Pulpo de Serigraf\xEDa`,
+  m7: (x) => `corte chueco en la Guillotina: ${x} a la basura`,
+  m8: (x) => `suaje desalineado en la Suajadora: ${x} a la basura`,
+  m9: (x, q, id) => /^(engargolado|aros)$/.test(id) ? `engargolado chueco en el Centro de Acabados: ${x} a la basura` : id === "grapas" ? `grapado trabado en el Centro de Acabados: ${x} a la basura` : `burbujas en el laminado del Centro de Acabados: ${x} a la basura`,
+  m10: (x, q) => `${x} ${pl(q, "mal curada", "mal curadas")} en la C\xE1mara de Secado`,
+  m11: (x) => `lomo despegado en el Hot-Melt: ${x} a la basura`
+};
+var mermaTxt = (mid, x, q, id) => MERMA_TXT[mid] ? MERMA_TXT[mid](x, q, id) : `se echaron a perder ${x} en ${MACH[mid] && MACH[mid].name || "el taller"}`;
 function nextBizStart(minute) {
   const t = cdmx(minute * MIN);
   for (let k = 1; k <= 3; k++) {
@@ -2217,8 +2267,8 @@ function evalCarga(s) {
   const seen = /* @__PURE__ */ new Set();
   for (const j of s.jobs) {
     const left = j.steps.slice(j.si).reduce((a, st) => a + Math.max(0, st.min - st.done), 0);
-    const cap = bizMinutesBetween(Math.max(now, j.start || now), j.due);
-    if (left > cap * 0.85 && !seen.has(j.order || j.client)) {
+    const cap2 = bizMinutesBetween(Math.max(now, j.start || now), j.due);
+    if (left > cap2 * 0.85 && !seen.has(j.order || j.client)) {
       seen.add(j.order || j.client);
       risk.push(j.client);
     }
@@ -2265,6 +2315,7 @@ function ensureState(s) {
     s.flags.v24hormiga = s.minute;
     if (s.day && Array.isArray(s.day.hormiga)) s.day.hormiga = [];
   }
+  for (const o of Object.values(s.orders)) if (o && (o.free || !(o.total > 0))) cobrarPedidoSinPrecio(s, o);
   for (const o of Object.values(s.orders)) {
     if (o.st !== "prod" && o.st !== "listo") o.st = (o.left || 0) <= 0 ? "listo" : "prod";
     if (typeof o.paid !== "number") o.paid = 0;
@@ -2280,6 +2331,39 @@ function ensureState(s) {
     s.pickups = [];
   }
   return s;
+}
+var cap = (t) => String(t || "").replace(/^(un|una|el|la) /, "").replace(/^./, (c) => c.toUpperCase());
+function cobrarPedidoSinPrecio(s, o) {
+  const r2 = makeRng(hash32((s.seed ^ 789360) >>> 0, hash32(String(o.id).length, parseInt(String(o.id).replace(/\D/g, ""), 10) || 0)));
+  const lab = o.tipo === "lab" || !!o.lab;
+  let client = o.client;
+  if (lab || o.tipo === "cortesia") client = cap(o.para) || r2.pick(BUSINESSES);
+  else if (o.free || /^Imprenta/.test(client || "")) client = r2.pick(BUSINESSES);
+  const est = o.matEst || 0;
+  let total = lab ? r2.int(1800, 4800) : clamp(est * r2.range(2.8, 3.6) + r2.int(250, 600), 450, 6e3);
+  total = Math.max(2, Math.round(total));
+  const anticipo = total / 2;
+  for (const j of s.jobs) if (j.order === o.id) j.client = client;
+  o.client = client;
+  o.kind = "comercial";
+  o.total = total;
+  o.paid = 0;
+  delete o.free;
+  delete o.tipo;
+  delete o.para;
+  const limpio = (t) => String(t || "").replace(/ de cortesía/g, "").replace(/ para la imprenta| de la imprenta/g, "");
+  for (const j of s.jobs) if (j.order === o.id) j.product = limpio(j.product);
+  if (o.desc) o.desc = limpio(o.desc);
+  if (o.items) o.items = limpio(o.items);
+  const desc = o.desc || o.items || "trabajo";
+  const qtxt = `Anticipo 50% - Pedido corporativo de ${client} (${String(desc).slice(0, 110)}): ${fmtMXN(anticipo)} MXN`;
+  const cobrado = income(s, "comercial", anticipo, qtxt, "in");
+  tagLog(s, o.id);
+  o.paid = cobrado;
+  o.matRec = r3(est / 2);
+  o.matUsed = o.matUsed || 0;
+  recCogs(s, "proyectos", o.matRec);
+  o.hvA = venta(s, "comercial", qtxt, cobrado, o.matRec, "Anticipo 50% \xB7 en producci\xF3n", { o: o.id, total });
 }
 function adminEditOrder(s, ref2, { dueDelta = 0, factor = 1 } = {}) {
   ensureState(s);
@@ -2460,9 +2544,12 @@ function createOrder(s, rng, kind, opts = {}) {
   const due = pactarEntrega(s.minute, s.minute + Math.round(days * 1440), rng);
   const oid = "P" + s.nextId++;
   total = Math.max(2, Math.round(total));
+  const rEnv = makeRng(hash32((s.seed ^ 6180112) >>> 0, s.minute * 13 + s.nextId >>> 0));
+  const envio = rEnv.chance(opts.masivo ? 0.2 : kind === "banda" ? 0.1 : 0.07) ? rEnv.int(30, 90) : 0;
+  total += envio;
   const anticipo = total / 2;
   const start = urgent || days < 3 ? s.minute : nextBizStart(s.minute);
-  s.orders[oid] = { id: oid, kind, client, total, paid: anticipo, lines: lines.length, left: lines.length, due, urgent, start, created: s.minute, st: "prod", desc: list(lines.map((l) => shortProd(l.prod))).slice(0, 120) };
+  s.orders[oid] = { id: oid, kind, client, total, paid: anticipo, lines: lines.length, left: lines.length, due, urgent, start, created: s.minute, st: "prod", desc: list(lines.map((l) => shortProd(l.prod))).slice(0, 120), items: list(lines.map((l) => l.label)).slice(0, 110), envio };
   for (const l of lines) newJob(s, { order: oid, client, product: shortProd(l.prod), qty: l.q, due, steps: l.steps, start });
   const desc = list(lines.map((l) => l.label));
   const d = cdmx(due * MIN);
@@ -2471,7 +2558,7 @@ function createOrder(s, rng, kind, opts = {}) {
   else s.counters.pedidosComerciales++;
   const via = kind === "banda" ? "" : rng.pick([" (por WhatsApp)", " (en mostrador)", " (por correo)", " (cliente recomendado por Sara)"]);
   const quien = `${kind === "banda" ? "Pedido de" : "Pedido corporativo de"} ${client}${opts.masivo ? " (pedido masivo)" : ""}`;
-  const qtxt = `Anticipo 50% \xB7 ${quien}: ${desc}`.slice(0, 150);
+  const qtxt = `Anticipo 50% - ${quien} (${desc.slice(0, 110)}${envio ? " + Costo de Env\xEDo " + fmtMXN(envio) : ""}): ${fmtMXN(anticipo)} MXN`;
   const cobrado = income(s, cat, anticipo, qtxt, kind === "banda" ? "band" : "in");
   tagLog(s, oid);
   let est = 0;
@@ -2481,7 +2568,7 @@ function createOrder(s, rng, kind, opts = {}) {
   o.matUsed = 0;
   o.matRec = r3(est / 2);
   recCogs(s, ordRubro(o), o.matRec);
-  o.hvA = venta(s, cat, qtxt, cobrado, o.matRec, "Anticipo 50% \xB7 en producci\xF3n", { o: oid, total });
+  o.hvA = venta(s, cat, qtxt, cobrado, o.matRec, "Anticipo 50% \xB7 en producci\xF3n", { o: oid, total, envio: envio || null });
   return o;
 }
 function createPeriodico(s, t) {
@@ -2531,9 +2618,12 @@ function completeStep(s, job, rng) {
       const a = acctOf(s, curMonth(s));
       a.merma = money(a.merma + cost);
       s.totals.merma = money(s.totals.merma + cost);
-      const m = main || { id: matIds[0], q: 0 };
-      const f = MERMA_TXT[st.m] || MERMA_TXT.m2;
-      log(s, "Merma de material", null, "merma");
+      const m = main || { id: matIds[0], q: r3(st.mat[matIds[0]] * frac) };
+      const x = matTxt(m.id, m.q);
+      const txt = mermaTxt(st.m, x, m.q, m.id);
+      const ord = job.order && s.orders[job.order];
+      const quien = ord ? ` \xB7 pedido de ${job.client}` : job.kind === "periodico" ? " \xB7 Peri\xF3dico Estudiantil" : job.client ? ` \xB7 encargo de ${job.client}` : "";
+      log(s, `Merma: ${txt.charAt(0).toUpperCase() + txt.slice(1)}${quien} \xB7 ${fmtMXN(cost)} de material`.slice(0, 170), null, "merma");
     }
   }
   RUBRO = prevR;
@@ -2586,7 +2676,7 @@ function deliverOrder(s, o, rng) {
   if (rest > 0) {
     const half = money(o.total / 2) === rest;
     const cat = o.kind === "banda" ? "bandas" : "comercial";
-    const txt = `${half ? "Liquidaci\xF3n 50% (Entrega)" : "Liquidaci\xF3n del saldo (Entrega)"} \xB7 ${o.kind === "banda" ? "Pedido de" : "Pedido corporativo de"} ${o.client}${o.desc ? ": " + o.desc : ""}`.slice(0, 150);
+    const txt = `${half ? "Liquidaci\xF3n 50%" : "Liquidaci\xF3n del saldo"} - ${o.kind === "banda" ? "Pedido de" : "Pedido corporativo de"} ${o.client}${o.desc ? " (" + o.desc.slice(0, 110) + (o.envio ? " + Costo de Env\xEDo" : "") + ")" : ""}: ${fmtMXN(rest)} MXN`;
     const cobrado = income(s, cat, rest, txt, o.kind === "banda" ? "band" : "in");
     tagLog(s, o.id);
     venta(s, cat, txt, cobrado, adj, "Liquidado \xB7 entregado", { o: o.id, total: o.total });
@@ -2594,12 +2684,18 @@ function deliverOrder(s, o, rng) {
   o.paid = money(o.paid + rest);
   o.liq = rest;
   delete s.orders[o.id];
-  s.entregados.unshift({ id: o.id, kind: o.kind, client: o.client, desc: o.desc || "", total: o.total, paid: o.paid, liq: rest, start: o.start, due: o.due, readyAt: o.readyAt ?? null, at: s.minute });
+  s.entregados.unshift({ id: o.id, kind: o.kind, client: o.client, desc: o.desc || "", total: o.total, paid: o.paid, liq: rest, start: o.start, due: o.due, readyAt: o.readyAt ?? null, at: s.minute, envio: o.envio || null });
   if (s.entregados.length > 20) s.entregados.length = 20;
   const t = cdmx(s.minute * MIN);
   const timo = s.emps.timo;
+  if (o.envio > 0) {
+    const r2 = makeRng(hash32((s.seed ^ 6180113) >>> 0, s.minute));
+    const gasto = money(Math.max(20, o.envio * r2.range(0.6, 0.95)));
+    expense(s, "envios", gasto, `${envioTxt(s, o)} \xB7 env\xEDo cobrado al cliente: ${fmtMXN(o.envio)}`.slice(0, 200), { iva: true, ded: true, kind: "truck" });
+    return;
+  }
   const byTimo = timo.present && timo.tripUntil <= s.minute && t.mod < CIERRA - 60 && t.mod + 110 <= timoSale(s) && rng.chance(o.kind === "banda" ? 0.6 : 0.3);
-  if (!byTimo && (o.kind === "banda" || o.urgent)) expense(s, "envios", rng.money(80, 350), "Env\xEDo por paqueter\xEDa", { iva: true, ded: true, kind: "truck" });
+  if (!byTimo && o.envio == null && (o.kind === "banda" || o.urgent)) expense(s, "envios", rng.money(80, 350), envioTxt(s, o), { iva: true, ded: true, kind: "truck" });
   if (byTimo) {
     const dur = rng.int(40, 110);
     endAct(s, "timo");
@@ -2607,6 +2703,16 @@ function deliverOrder(s, o, rng) {
     timo.tripWhy = `Entregando pedido de ${o.client}`;
     log(s, "Timo - Entregando pedido", null, "truck");
   }
+}
+function envioTxt(s, o) {
+  const what = o.items || o.desc || "pedido";
+  if (o.kind === "banda") return `Pago de paqueter\xEDa: Merchandise oficial de ${o.client} (${what})`.slice(0, 160);
+  const r2 = makeRng(hash32((s.seed ^ 947984) >>> 0, s.minute));
+  const via = r2.weighted([["uber", 45], ["msj", 35], ["paq", 20]]);
+  const para = o.para || o.client;
+  if (via === "uber") return `Env\xEDo por Uber: Entregando ${what} a ${para}`.slice(0, 160);
+  if (via === "msj") return `Env\xEDo de mensajer\xEDa: ${what} para ${para}`.slice(0, 160);
+  return `Pago de paqueter\xEDa: ${what} para ${para}`.slice(0, 160);
 }
 function backlogWithin(s, hours, filter = () => true) {
   const lim = s.minute + hours * 60;
@@ -2865,6 +2971,10 @@ function personalLife(s, t, rng, lunch) {
     if (!e.present || e.tripUntil > s.minute || isPersonal(e)) continue;
     const working = e.working;
     if (d.breakfast[id] === mod) {
+      if (nAct(s, "desayuno") >= 3) {
+        d.breakfast[id] = mod + rng.int(8, 20);
+        continue;
+      }
       const dur = rng.int(15, 25);
       const what = rng.pick(DESAYUNOS);
       setAct(s, id, "desayuno", dur, "Desayunando", "\u2615", "kitchen");
@@ -2885,13 +2995,13 @@ function personalLife(s, t, rng, lunch) {
     }
     const horas = e.arrivedAt != null ? (mod - e.arrivedAt + 1440) % 1440 / 60 : 0;
     const desgaste = 1 + 0.12 * Math.min(horas, 14);
-    if (rng.chance((working ? 3e-3 : 7e-3) * desgaste)) {
+    if (rng.chance((working ? 3e-3 : 7e-3) * desgaste) && nAct(s, "cel") < 3) {
       const app2 = rng.pick(PHONE);
       setAct(s, id, "cel", rng.int(2, 7), "Revisando celular", "\u{1F4F1}", null);
       continue;
     }
     const deDia = !vel && mod >= 9 * 60 && mod < CIERRA;
-    if (deDia && rng.chance(8e-4 * desgaste) && id !== "natasha") {
+    if (deDia && rng.chance(8e-4 * desgaste) && id !== "natasha" && nAct(s, "calle") < 2) {
       const why = rng.pick(STREET);
       const dur = rng.int(8, 20);
       setAct(s, id, "calle", dur, "Afuera del local", "\u{1F6B6}", "street");
@@ -2917,7 +3027,7 @@ function personalLife(s, t, rng, lunch) {
     }
   }
   const idle = EMPLOYEES.map((e) => e.id).filter((id) => avail(s, id) && !s.emps[id].working);
-  if (idle.length >= 2 && rng.chance(0.03)) {
+  if (idle.length >= 2 && rng.chance(0.03) && nAct(s, "platica") <= 1) {
     const a = rng.pick(idle);
     const others = idle.filter((x) => x !== a);
     const grp = [a, rng.pick(others)];
@@ -2931,7 +3041,7 @@ function personalLife(s, t, rng, lunch) {
     grp.forEach((id, i) => setAct(s, id, "platica", dur, "Platicando", "\u{1F4AC}", spot + ":" + i));
     log(s, `${list(grp.map((x) => EMP[x].name))} - Platicando`, null, "social");
   }
-  if (avail(s, "buster") && !machinesWaiting && rng.chance(0.012)) {
+  if (avail(s, "buster") && !machinesWaiting && rng.chance(0.012) && nAct(s, "platica") <= 1) {
     const mates = EMPLOYEES.map((e) => e.id).filter((id) => id !== "buster" && avail(s, id) && !s.emps[id].working);
     if (mates.length) {
       const grp = ["buster", rng.pick(mates)];
@@ -2994,8 +3104,9 @@ function lunchLife(s, t, rng) {
     if (d.lunchEat[id] == null) d.lunchEat[id] = Object.keys(d.lunchEat).length ? s.minute + rng.int(20, 30) : start + 20 + EMPLOYEES.indexOf(e0) * 7 % 11;
     if (s.minute < d.lunchEat[id] || isPersonal(e) || d.lunchFree[id]) continue;
     const left2 = end - s.minute;
-    const opts = [["sobremesa", 40], ["bano", 10], ["cel", 20]];
-    if (id !== "natasha") opts.push(["calle", 20]);
+    const opts = [["sobremesa", 40], ["bano", 10]];
+    if (nAct(s, "cel") < 3) opts.push(["cel", 20]);
+    if (id !== "natasha" && nAct(s, "calle") < 3) opts.push(["calle", 20]);
     if (e0.xbox) opts.push(["xbox", 10]);
     const pick2 = rng.weighted(opts);
     d.lunchFree[id] = pick2;
@@ -3609,6 +3720,13 @@ function labWork(s, t, rng, lunch) {
     if (w.done >= w.total) {
       s.counters.protesis++;
       log(s, `${EMP[id].name} - Termin\xF3 pieza 3D`, null, "lab");
+      const o = w.oid && s.orders[w.oid];
+      if (o && o.st === "prod") {
+        o.left = 0;
+        o.st = "listo";
+        o.readyAt = s.minute;
+        log(s, `Pedido terminado - Listo, pendiente de entrega - ${o.client}`, null, "lab");
+      }
       L.printers[w.printer] = null;
       L[id] = null;
     }
@@ -3760,7 +3878,7 @@ var CAT_TXT = [
   [/^Compra de material/, "insumos"],
   [/^Mantenimiento de máquina/, "mantto"],
   [/^Gasto hormiga/, "hormiga"],
-  [/^Envío por paquetería/, "envios"],
+  [/^(Envío por paquetería|Envío por Uber|Envío de mensajería|Pago de paquetería)/, "envios"],
   [/^Gasolina/, "gasolina"],
   [/^Luz CFE/, "luz"],
   [/^Internet/, "internet"],
@@ -4542,10 +4660,10 @@ function buildMachine(id) {
         arm.position.set(Math.cos(a) * 0.6, 0, Math.sin(a) * 0.6);
         arm.rotation.y = -a;
         car.add(arm);
-        const pl = box(0.42, 0.04, 0.5, 1120295);
-        pl.position.set(Math.cos(a) * 1.2, 0.05, Math.sin(a) * 1.2);
-        pl.rotation.y = -a;
-        car.add(pl);
+        const pl2 = box(0.42, 0.04, 0.5, 1120295);
+        pl2.position.set(Math.cos(a) * 1.2, 0.05, Math.sin(a) * 1.2);
+        pl2.rotation.y = -a;
+        car.add(pl2);
         const sh = box(0.38, 0.02, 0.44, [16777215, 1118481, 16777215, 13751771, 16777215, 1118481][i]);
         sh.position.set(Math.cos(a) * 1.2, 0.08, Math.sin(a) * 1.2);
         sh.rotation.y = -a;
@@ -4921,11 +5039,11 @@ function createScene(container) {
     pg.add(head);
     const part3 = box(0.3, 0.01, 0.3, 16119284, 0, 0.16, 0);
     pg.add(part3);
-    const pl = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshStandardMaterial({ color: 3355443 }));
-    pl.position.set(0.4, 1.1, 0.4);
-    pg.add(pl);
+    const pl2 = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshStandardMaterial({ color: 3355443 }));
+    pl2.position.set(0.4, 1.1, 0.4);
+    pg.add(pl2);
     scene2.add(pg);
-    printers.push({ head, part: part3, pl });
+    printers.push({ head, part: part3, pl: pl2 });
   }
   scene2.add(rbox(1.8, 0.9, 0.9, 14870768, 20.5, 0, -6));
   scene2.add(rbox(0.5, 0.35, 0.4, 988970, 20.5, 0.9, -6));
@@ -5795,8 +5913,14 @@ function installTvFallback(root = document.body) {
 // src/main.js
 var $ = (s) => document.querySelector(s);
 var esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-var txtPub = (t) => String(t || "").replace(/^Venta en mostrador - [^:]*: /, "Venta de mostrador: ").replace(/^Venta en mostrador$/, "Venta de mostrador").replace(/^Compra en estante - [^:]*: /, "Venta de snacks: ").replace(/^Compra en estante$/, "Venta de snacks").replace(/^(Anticipo 50%|Liquidación 50% \(Entrega\)|Liquidación del saldo \(Entrega\)) - /, "$1 \xB7 Pedido de ");
+var txtPub = (t) => String(t || "").replace(/^Venta en mostrador - [^:]*: /, "Venta de mostrador: ").replace(/^Venta en mostrador$/, "Venta de mostrador").replace(/^Compra en estante - [^:]*: /, "Venta de snacks: ").replace(/^Compra en estante$/, "Venta de snacks").replace(/^(Anticipo 50%|Liquidación 50% \(Entrega\)|Liquidación del saldo \(Entrega\)) - (?!Pedido)/, "$1 \xB7 Pedido de ");
 var mcls = (amt) => typeof amt === "number" && amt ? amt > 0 ? " mi" : " mo" : "";
+var LOG_CC = { mostrador: " c-mos", snacks: " c-snk", bandas: " c-prj", comercial: " c-prj", periodico: " c-prj" };
+var ccls = (l) => {
+  if (typeof l.amt !== "number" || !l.amt) return " c-neu";
+  if (l.amt < 0) return " c-out";
+  return LOG_CC[logCat(l)] || "";
+};
 var store = new LocalStore();
 var S = null;
 var role = "spectator";
@@ -6386,7 +6510,7 @@ function renderPanel(force = false) {
     let lastDay = "";
     const canDel = role === "host";
     const rows = [];
-    for (let i = S.log.length - 1; i >= 0 && rows.length < 250; i--) if (logPass(S.log[i].k)) rows.push([S.log[i], i]);
+    for (let i = S.log.length - 1; i >= 0 && rows.length < 250; i--) if (logPass(S.log[i].k) && !/^Proyecto sin costo/.test(S.log[i].txt || "")) rows.push([S.log[i], i]);
     if (!rows.length) html = '<div class="text-xs text-slate-500 p-3">Sin movimientos con este filtro todav\xEDa.</div>';
     for (const [l, i] of rows) {
       const t = cdmx(l.m * MIN);
@@ -6396,7 +6520,7 @@ function renderPanel(force = false) {
       }
       const amt = typeof l.amt === "number" && l.amt !== 0 ? `<span class="a ${l.amt > 0 ? "up" : "dn"}">${l.amt > 0 ? "+" : "\u2212"}${fmtMXN(Math.abs(l.amt))}</span>` : '<span class="a"></span>';
       const rm = canDel ? `<button class="rm" data-del="${i}" data-m="${l.m}" title="Borrar este registro" aria-label="Borrar registro">${ICON.trash}</button>` : "";
-      html += `<div class="logrow k-${l.k}${mcls(l.amt)}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(txtPub(l.txt))}</span>${amt}${rm}</div>`;
+      html += `<div class="logrow k-${l.k}${mcls(l.amt)}${ccls(l)}${canDel ? " del" : ""}"><span class="t">[${hhmm(t.mod)}]</span><span class="x">${esc(txtPub(l.txt))}</span>${amt}${rm}</div>`;
     }
     body.innerHTML = html;
     return;
@@ -6496,26 +6620,30 @@ function projHTML() {
     const b = (attr, l) => `<button class="btn !py-0.5 !px-2 !text-[11px]" ${attr}>${l}</button>`;
     const edit = host ? `<div class="flex flex-wrap gap-1 mt-1">${[["-1440", "\u22121 d\xEDa"], ["-120", "\u22122 h"], ["120", "+2 h"], ["1440", "+1 d\xEDa"]].map(([d, l]) => b(`data-edord="${esc(String(g.ref))}" data-due="${d}"`, `Entrega ${l}`)).join("")}${g.jobs.length ? b(`data-edord="${esc(String(g.ref))}" data-f="0.75"`, "Menos trabajo") + b(`data-edord="${esc(String(g.ref))}" data-f="1.25"`, "M\xE1s trabajo") : ""}${g.o ? b(`data-deliv="${esc(g.ref)}"`, "\u2714 Entregar ahora") : ""}</div>` : "";
     let mny = "";
-    if (g.o) {
+    if (!g.o) {
+      mny = g.kind === "periodico" ? `<div class="mny"><span>Valor Total</span><b>${fmtMXN(5e4)} MXN</b><span>Cobro</span><b class="ok">Contrato mensual <i>Se cobra el d\xEDa 10</i></b></div>` : `<div class="mny"><span>Cobro</span><b class="ok">Pagado en mostrador <i>Cobrado completo al pedirlo</i></b></div>`;
+    } else {
       const tot = g.o.total || 0;
       const paid = Math.min(tot, g.o.paid || 0);
       const pend = Math.max(0, money(tot - paid));
-      mny = `<div class="mny"><span>Valor Total</span><b>${fmtMXN(tot)} MXN</b>
+      const env = g.o.envio > 0 ? `<span>\u{1F69A} Env\xEDo a domicilio incluido</span><b>${fmtMXN(g.o.envio)} MXN <i>Ya sumado al Valor Total</i></b>` : "";
+      mny = `<div class="mny"><span>Valor Total${g.o.envio > 0 ? " (+ Costo de Env\xEDo)" : ""}</span><b>${fmtMXN(tot)} MXN</b>${env}
         <span>Anticipo Pagado (50%)</span><b class="ok">${fmtMXN(paid)} MXN <i>Pagado</i></b>
         <span>Pago Pendiente (50%)</span><b class="${pend > 0 ? "due" : "ok"}">${fmtMXN(pend)} MXN <i>${pend > 0 ? "Por cobrar en la entrega" : "Liquidado"}</i></b></div>`;
     }
-    const what = g.jobs.length ? `${g.jobs.map((j) => esc(j.product)).join(", ")} \xB7 \u2248 ${Math.max(0, Math.round(left / 60 * 2) / 2)} h de m\xE1quina` : `${esc(g.o && g.o.desc || "Trabajo")} \xB7 terminado ${g.o && g.o.readyAt ? fecha(g.o.readyAt) : ""}`;
-    h += `<div class="proj-card ${listo ? "is-listo" : ""}"><div class="flex items-center gap-2"><span>${icon}</span><b class="text-sm flex-1">${esc(g.client)}</b>${del}</div>
+    const lab = g.o && g.o.lab && !listo ? (S.lab && S.lab.printers || []).find((p) => p && p.by === g.o.lab) : null;
+    const what = lab ? `${esc(g.o.desc || "Pieza 3D")} \xB7 imprimiendo en el Taller 3D (${lab.pct}%)` : g.o && g.o.lab && !listo ? `${esc(g.o.desc || "Pieza 3D")} \xB7 en el Taller 3D` : g.jobs.length ? `${g.jobs.map((j) => esc(j.product)).join(", ")} \xB7 \u2248 ${Math.max(0, Math.round(left / 60 * 2) / 2)} h de m\xE1quina` : `${esc(g.o && g.o.desc || "Trabajo")} \xB7 terminado ${g.o && g.o.readyAt ? fecha(g.o.readyAt) : ""}`;
+    h += `<div class="proj-card ${listo ? "is-listo" : ""}"><div class="flex items-center gap-2"><span>${icon}</span><b class="text-sm flex-1">${esc(g.client)}${g.o && g.o.envio > 0 ? ' <span class="text-[11px] text-sky-300 font-semibold">(+ Costo de Env\xEDo)</span>' : ""}</b>${del}</div>
       <div class="mt-1 flex flex-wrap gap-1 items-center"><span class="st-pill ${st[1]}">${st[0]}</span>${extra}</div>
       <div class="text-xs text-slate-300 mt-1">Inicio: <b>${g.start ? fecha(g.start) : "\u2014"}</b><br>Entrega pactada: <b>${fecha(g.due)}</b></div>
       <div class="text-[11px] text-slate-500 mt-0.5">${what}</div>${mny}${edit}</div>`;
   }
-  const hist = (S.entregados || []).slice(0, 10);
+  const hist = (S.entregados || []).filter((e) => !e.free).slice(0, 10);
   h += `<div class="font-bold text-sm mt-3 mb-1">Entregados y Liquidados (recientes)</div>`;
   if (!hist.length) h += '<div class="text-xs text-slate-500">Todav\xEDa no hay entregas registradas.</div>';
   for (const e of hist) {
     h += `<div class="proj-done"><div class="flex items-center gap-2"><span>${e.kind === "banda" ? "\u{1F3B8}" : "\u{1F4E6}"}</span><b class="text-xs flex-1">${esc(e.client)}</b><span class="st-pill ${e.anulado ? "st-anul" : "st-ent"}">${e.anulado ? "Entregado \xB7 cobro anulado" : "Entregado y Liquidado"}</span></div>
-      <div class="text-[11px] text-slate-400 mt-0.5">Entregado ${fecha(e.at)} \xB7 Valor ${fmtMXN(e.total)} MXN \xB7 Cobro final ${fmtMXN(e.liq || 0)} MXN</div></div>`;
+      <div class="text-[11px] text-slate-400 mt-0.5">Entregado ${fecha(e.at)} \xB7 Valor ${fmtMXN(e.total)} MXN${e.envio > 0 ? ` (incluye env\xEDo ${fmtMXN(e.envio)})` : ""} \xB7 Cobro final ${fmtMXN(e.liq || 0)} MXN</div></div>`;
   }
   return h;
 }
